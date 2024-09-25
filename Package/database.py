@@ -51,9 +51,9 @@ import genlib
 
 #-------------------------------------------------------------------------------
 
-class FormDownloadGymnoTOADatabase(QWidget):
+class FormDownloadGymnoTOAdb(QWidget):
     '''
-    Class used to download the gymnoTOA database.
+    Class used to download gymnoTOA-db.
     '''
 
     #---------------
@@ -74,7 +74,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
         self.window_width = self.parent.WINDOW_WIDTH - 50
 
         # set the head and title
-        self.head = f'Download the {genlib.get_app_short_name()} database'
+        self.head = f'Download {genlib.get_db_name()}'
         self.title = f'{genlib.get_app_short_name()} - {self.head}'
 
         # get the dictionary of application configuration
@@ -114,13 +114,13 @@ class FormDownloadGymnoTOADatabase(QWidget):
 
         # create and configure "pushbutton_execute"
         self.pushbutton_execute = QPushButton('Execute')
-        self.pushbutton_execute.setToolTip(f'Download the {genlib.get_app_short_name()} database.')
+        self.pushbutton_execute.setToolTip(f'Download {genlib.get_db_name()}.')
         self.pushbutton_execute.setCursor(QCursor(Qt.PointingHandCursor))
         self.pushbutton_execute.clicked.connect(self.pushbutton_execute_clicked)
 
         # create and configure "pushbutton_close"
         pushbutton_close = QPushButton('Close')
-        pushbutton_close.setToolTip('Cancel the database download and close the window.')
+        pushbutton_close.setToolTip(f'Cancel the {genlib.get_db_name()} and close the window.')
         pushbutton_close.setCursor(QCursor(Qt.PointingHandCursor))
         pushbutton_close.clicked.connect(self.pushbutton_close_clicked)
 
@@ -182,7 +182,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
 
         # confirm the process is executed
         if OK:
-            text = f'The {genlib.get_app_short_name()} database is going to be download.\n\nAre you sure to continue?'
+            text = f'{genlib.get_db_name()} is going to be download.\n\nAre you sure to continue?'
             botton = QMessageBox.question(self, self.title, text, buttons=QMessageBox.Yes|QMessageBox.No, defaultButton=QMessageBox.No)
             if botton == QMessageBox.No:
                 OK = False
@@ -191,7 +191,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
         if OK:
 
             # create and execute "DialogProcess"
-            process = dialogs.DialogProcess(self, self.head, self.download_gymnotoa_database)
+            process = dialogs.DialogProcess(self, self.head, self.download_gymnotoa_db)
             process.exec()
 
         # close the windows
@@ -211,9 +211,9 @@ class FormDownloadGymnoTOADatabase(QWidget):
 
    #---------------
 
-    def download_gymnotoa_database(self, process):
+    def download_gymnotoa_db(self, process):
         '''
-        Download the gymnoTOA database.
+        Download gymnoTOA-db.
         '''
 
         # initialize the control variable
@@ -252,7 +252,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
             process.write(f'{genlib.get_separator()}\n')
             process.write('Determining the run directory ...\n')
             result_dir = self.app_config_dict['Environment parameters']['result_dir']
-            current_run_dir = genlib.get_current_run_dir(result_dir, genlib.get_result_database_subdir(), genlib.get_process_download_gymnotoa_database_code())
+            current_run_dir = genlib.get_current_run_dir(result_dir, genlib.get_result_database_subdir(), genlib.get_process_download_gymnotoa_db_code())
             command = f'mkdir -p {current_run_dir}'
             rc = genlib.run_command(command, process, is_script=False)
             if rc == 0:
@@ -264,9 +264,9 @@ class FormDownloadGymnoTOADatabase(QWidget):
         # build the script
         if OK:
             process.write(f'{genlib.get_separator()}\n')
-            script_name = f'{genlib.get_process_download_gymnotoa_database_code()}-process.sh'
+            script_name = f'{genlib.get_process_download_gymnotoa_db_code()}-process.sh'
             process.write(f'Building the process script {script_name} ...\n')
-            (OK, _) = self.build_download_gymnotoa_database_script(temp_dir, script_name, current_run_dir)
+            (OK, _) = self.build_download_gymnotoa_db_script(temp_dir, script_name, current_run_dir)
             if OK:
                 process.write('The file is built.\n')
             else:
@@ -298,7 +298,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
         # build the starter script in the temporal directory
         if OK:
             process.write(f'{genlib.get_separator()}\n')
-            starter_name = f'{genlib.get_process_download_gymnotoa_database_code()}-process-starter.sh'
+            starter_name = f'{genlib.get_process_download_gymnotoa_db_code()}-process-starter.sh'
             process.write(f'Building the starter script {starter_name} ...\n')
             (OK, _) = genlib.build_starter(temp_dir, starter_name, script_name, current_run_dir)
             if OK:
@@ -350,9 +350,9 @@ class FormDownloadGymnoTOADatabase(QWidget):
 
     #---------------
 
-    def build_download_gymnotoa_database_script(self, directory, script_name, current_run_dir):
+    def build_download_gymnotoa_db_script(self, directory, script_name, current_run_dir):
         '''
-        Build the script to recrate the gymnoTOA database.
+        Build the script to recrate gymnoTOA-db.
         '''
 
         # initialize the control variable and error list
@@ -411,7 +411,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
                 file_id.write( 'function create_gymnotoa_db_dir\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Creating the {genlib.get_app_short_name()} database directory ..."\n')
+                file_id.write(f'    echo "Creating the {genlib.get_db_name()} directory ..."\n')
                 file_id.write( '    /usr/bin/time \\\n')
                 file_id.write(f'        rm -rf {os.path.dirname(app_db_path)}\n')
                 file_id.write( '    RC=$?\n')
@@ -427,7 +427,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
                 file_id.write( '{\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Downloading the compressed {genlib.get_app_short_name()} database ..."\n')
+                file_id.write(f'    echo "Downloading the compressed {genlib.get_db_name()} ..."\n')
                 file_id.write( '    /usr/bin/time \\\n')
                 file_id.write( '        wget \\\n')
                 file_id.write( '            --quiet \\\n')
@@ -443,7 +443,7 @@ class FormDownloadGymnoTOADatabase(QWidget):
                 file_id.write( '{\n')
                 file_id.write(f'    cd {temp_dir}\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Downloading the compressed {genlib.get_app_short_name()} database ..."\n')
+                file_id.write(f'    echo "Decompressing {genlib.get_db_name()} ..."\n')
                 file_id.write(f'    cd {temp_dir}\n')
                 file_id.write( '    /usr/bin/time \\\n')
                 file_id.write( '        unzip \\\n')
@@ -527,9 +527,9 @@ class FormDownloadGymnoTOADatabase(QWidget):
 
 #-------------------------------------------------------------------------------
 
-class FormViewGymnoTOADatabaseStats(QWidget):
+class FormViewGymnoTOAdbStats(QWidget):
     '''
-    Class used to view gymnoTOA database statistics.
+    Class used to view the gymnoTOA-db statistics.
     '''
 
     #---------------
@@ -550,7 +550,7 @@ class FormViewGymnoTOADatabaseStats(QWidget):
         self.window_width = self.parent.WINDOW_WIDTH - 50
 
         # set the head and title
-        self.head = f'View {genlib.get_app_short_name()} database statistics'
+        self.head = f'View {genlib.get_db_name()} statistics'
         self.title = f'{genlib.get_app_short_name()} - {self.head}'
 
         # get the dictionary of application configuration

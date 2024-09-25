@@ -143,15 +143,15 @@ class MainWindow(QMainWindow):
         action_install_codan.setStatusTip(f'Install {genlib.get_codan_name()} software.')
         action_install_codan.triggered.connect(self.action_install_codan_clicked)
 
-        # create and configure "action_download_gymno_database"
-        action_download_gymno_database = QAction(f'Download {genlib.get_app_short_name()} database', self)
-        action_download_gymno_database.setStatusTip(f'Download the {genlib.get_app_short_name()} database from the X server.')
-        action_download_gymno_database.triggered.connect(self.action_download_gymno_database_clicked)
+        # create and configure "action_download_gymno_db"
+        action_download_gymno_db = QAction(f'Download {genlib.get_db_name()}', self)
+        action_download_gymno_db.setStatusTip(f'Download the {genlib.get_db_name()} from the UPM server.')
+        action_download_gymno_db.triggered.connect(self.action_download_gymno_db_clicked)
 
-        # create and configure "action_view_gymno_database_stats"
-        action_view_gymno_database_stats = QAction('Statistics', self)
-        action_view_gymno_database_stats.setStatusTip('View gymnoTOA database statistics.')
-        action_view_gymno_database_stats.triggered.connect(self.action_view_gymno_database_stats_clicked)
+        # create and configure "action_view_gymno_db_stats"
+        action_view_gymno_db_stats = QAction('Statistics', self)
+        action_view_gymno_db_stats.setStatusTip(f'View {genlib.get_db_name()} statistics.')
+        action_view_gymno_db_stats.triggered.connect(self.action_view_gymno_db_stats_clicked)
 
         # create and configure "action_run_annotation_pipeline"
         action_run_annotation_pipeline = QAction('Run pipeline', self)
@@ -288,9 +288,9 @@ class MainWindow(QMainWindow):
         # create and configure "menu_database" and its submenus
         menu_database = menubar.addMenu('&Database')
         menu_database.setCursor(QCursor(Qt.PointingHandCursor))
-        menu_database.addAction(action_download_gymno_database)
+        menu_database.addAction(action_download_gymno_db)
         menu_database.addSeparator()
-        menu_database.addAction(action_view_gymno_database_stats)
+        menu_database.addAction(action_view_gymno_db_stats)
 
         # create and configure "menu_functional_annotation" and its submenus
         menu_functional_annotation = menubar.addMenu('&Functional annotation')
@@ -441,7 +441,7 @@ class MainWindow(QMainWindow):
 
     #---------------
 
-    def action_download_gymno_database_clicked(self):
+    def action_download_gymno_db_clicked(self):
         '''
         Rebuild the database of gymnoTOA from the UPMdrive.
         '''
@@ -451,7 +451,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # create a new subwindow to perform the action
-        subwindow = database.FormDownloadGymnoTOADatabase(self)
+        subwindow = database.FormDownloadGymnoTOAdb(self)
 
         # create "widget_central"
         widget_central = QWidget(self)
@@ -468,7 +468,7 @@ class MainWindow(QMainWindow):
 
     #---------------
 
-    def action_view_gymno_database_stats_clicked(self):
+    def action_view_gymno_db_stats_clicked(self):
         '''
         View gymnoTOA database statistics.
         '''
@@ -478,7 +478,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # create a new subwindow to perform the action
-        subwindow = database.FormViewGymnoTOADatabaseStats(self)
+        subwindow = database.FormViewGymnoTOAdbStats(self)
 
         # create "widget_central"
         widget_central = QWidget(self)

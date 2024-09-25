@@ -169,8 +169,6 @@ if [ "$ENVIRONMENT" = "$ENV_AWS" ]; then
 
     FASTA_FILE=$CLADE-protein-sequences.fasta
 
-    TAIR10_PEP_PATH=/ngscloud2/gymnotoa/TAIR10/TAIR10_pep_20101214
-
     THREADS=16
 
 elif [ "$ENVIRONMENT" = "$ENV_LOCAL" ]; then
@@ -184,22 +182,19 @@ elif [ "$ENVIRONMENT" = "$ENV_LOCAL" ]; then
 
     FASTA_FILE=$CLADE-protein-sequences-seq1000.fasta
 
-    TAIR10_PEP_PATH=$GYMNOTOA/TAIR10/TAIR10_pep_20101214
-
     THREADS=4
 
 else
     echo 'Environment error'; exit 3
 fi
 
-DB_PREFIX=gymnoTOA
-DB_NAME=$DB_PREFIX-DB
+DB_NAME=gymnoTOA-db
 DB_DIR=$OUTPUT_DIR/$DB_NAME
 TEMP_DIR=$OUTPUT_DIR/$DB_NAME/temp
 GYMNOTOA_DB_ZIP=$DB_NAME.zip
 OUTPUT_PREFIX=$TEMP_DIR/$CLADE-mmseqs2
 CLUSTER_DIR=$TEMP_DIR/clusters
-DB_FILE=$DB_PREFIX.db
+DB_FILE=$DB_NAME.db
 DB_PATH=$DB_DIR/$DB_FILE
 FASTA_PATH=$TEMP_DIR/$FASTA_FILE
 ALLSEQS_FILE=$CLADE-mmseqs2_all_seqs.fasta
@@ -219,7 +214,7 @@ INTERPRO_ANNOTATIONS_PATH=$TEMP_DIR/$CONSEQS_PREFIX-annotations-interpro.tsv
 EMAPPER_OUPUT=$TEMP_DIR/$CONSEQS_PREFIX.emapper.annotations
 EMAPPER_ANNOTATIONS_PATH=$TEMP_DIR/$CONSEQS_PREFIX-annotations-emapper.tsv
 ANNOTATIONS_FILE=$CONSEQS_PREFIX-seqs-annotations.csv
-STATS_FILE=$DB_PREFIX-stats.ini
+STATS_FILE=$DB_NAME-stats.ini
 STATS_PATH=$DB_DIR/$STATS_FILE
 
 # NCBI Taxonomy
@@ -239,9 +234,10 @@ BUSCO_ASSESSMENT_DATA_PATH=$DB_DIR/$BUSCO_ASSESSMENT_PATTERN.txt
 
 # TAIR10
 TAIR10_PREFIX=TAIR10
-TAIR10_PEP_URL=https://www.arabidopsis.org/download_files/Proteins/TAIR10_protein_lists/TAIR10_pep_20101214
+# -- TAIR10_PEP_URL=https://www.arabidopsis.org/download_files/Proteins/TAIR10_protein_lists/TAIR10_pep_20101214
+TAIR10_PEP_URL=https://www.arabidopsis.org/api/download-files/download?filePath=Proteins/TAIR10_protein_lists/TAIR10_pep_20101214
 TAIR10_PEP_FILE=$TAIR10_PREFIX-protein-sequences.fasta
-# -- TAIR10_PEP_PATH=$TEMP_DIR/$TAIR10_PEP_FILE
+TAIR10_PEP_PATH=$TEMP_DIR/$TAIR10_PEP_FILE
 TAIR10_BLAST_DB_NAME=$TAIR10_PREFIX-blastplus-db
 TAIR10_BLAST_DB_DIR=$TEMP_DIR/$TAIR10_PREFIX-blastplus-db
 TAIR10_BLAST_DB_PATH=$TAIR10_BLAST_DB_DIR/$TAIR10_BLAST_DB_NAME
@@ -1073,7 +1069,7 @@ function compress_gymnotoa_db
     echo "$SEP"
     echo 'Compressing gymnoTOA database ...'
     cd $OUTPUT_DIR
-    # zip -r gymnoTOA-DB.zip gymnoTOA-DB -x "gymnoTOA-DB/temp/*"
+    # zip -r gymnoTOA-db.zip gymnoTOA-db -x "gymnoTOA-db/temp/*"
     /usr/bin/time \
         zip \
             -r \
@@ -1151,7 +1147,7 @@ run_interscanpro_analysis
 load_interproscan_annotations
 run_eggnog_mapper_analysis
 load_emapper_annotations
-# -- download_tair10_sequences
+download_tair10_sequences
 build_tair10_blast_db
 align_consensus_seqs_2_tair10_blast_db
 load_tair10_orthologs

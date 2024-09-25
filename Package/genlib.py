@@ -40,7 +40,7 @@ def get_app_code():
     Get the application code.
     '''
 
-    return 'gymnotoa'
+    return 'gymnotoa-app'
 
 #-------------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ def get_app_long_name():
     Get the application long name.
     '''
 
-    return 'gymnoTOA (Gymnosperms Taxonomy-oriented Annotation)'
+    return 'gymnoTOA-app (Gymnosperms Taxonomy-oriented Annotation application)'
 
 #-------------------------------------------------------------------------------
 
@@ -58,7 +58,7 @@ def get_app_short_name():
     Get the application short name.
     '''
 
-    return 'gymnoTOA'
+    return 'gymnoTOA-app'
 
 #-------------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ def get_app_version():
     Get the application version.
     '''
 
-    return '0.17'
+    return '0.18'
 
 #-------------------------------------------------------------------------------
 
@@ -145,12 +145,21 @@ def get_default_font_size():
 
 #-------------------------------------------------------------------------------
 
+def get_db_name():
+    '''
+    Get the name of the compressed gymnoTOA database.
+    '''
+
+    return 'gymnoTOA-db'
+
+#-------------------------------------------------------------------------------
+
 def get_compressed_db_name():
     '''
     Get the name of the compressed gymnoTOA database.
     '''
 
-    return f'{get_app_short_name()}-DB.zip'
+    return f'{get_db_name()}.zip'
 
 #-------------------------------------------------------------------------------
 
@@ -159,7 +168,8 @@ def get_compressed_db_url():
     Get the URL where the compressed gymnoTOA database is available to download.
     '''
 
-    return f'https://drive.upm.es/s/LTssGhCHe1Wh9Os/download?path=%%2F&files={get_compressed_db_name()}'
+    # -- return f'https://drive.upm.es/s/LTssGhCHe1Wh9Os/download?path=%%2F&files={get_compressed_db_name()}'
+    return f'https://drive.upm.es/s/3ktu4uxWM6M4Puz/download'
 
 #-------------------------------------------------------------------------------
 
@@ -235,7 +245,7 @@ def get_temp_dir():
 
 #-------------------------------------------------------------------------------
 
-def get_process_download_gymnotoa_database_code():
+def get_process_download_gymnotoa_db_code():
     '''
     Get the code used to identify processes to download the gymnoTOA database
     from the server X.
@@ -1022,7 +1032,7 @@ def get_process_dict():
 
     # build the process dictionary
     process_dict = {}
-    process_dict[get_process_download_gymnotoa_database_code()]= {'name': get_process_download_gymnotoa_database_name(), 'process_type': get_result_database_subdir()}
+    process_dict[get_process_download_gymnotoa_db_code()]= {'name': get_process_download_gymnotoa_database_name(), 'process_type': get_result_database_subdir()}
     process_dict[get_miniconda3_code()]= {'name': get_miniconda3_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_blastplus_code()]= {'name': get_blastplus_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_codan_code()]= {'name': get_codan_name(), 'process_type': get_result_installation_subdir()}

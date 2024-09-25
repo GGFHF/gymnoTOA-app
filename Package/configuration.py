@@ -519,8 +519,8 @@ class FormRecreateConfigFile(QWidget):
         # get the application config file path
         app_config_file = genlib.get_app_config_file()
 
-        # set the gymnoTOA-DB directory
-        gymnotoa_db_dir = f'{database_dir}/{genlib.get_app_short_name()}-DB'
+        # set the gymnoTOA-db directory
+        gymnotoa_db_dir = f'{database_dir}/{genlib.get_db_name()}'
 
         # write the application config file path
         try:
@@ -538,7 +538,7 @@ class FormRecreateConfigFile(QWidget):
                 file_id.write( '\n')
                 file_id.write(f'[{genlib.get_app_short_name()} database]\n')
                 file_id.write(f'compressed_db_url={genlib.get_compressed_db_url()}\n')
-                file_id.write(f'app_db_path={gymnotoa_db_dir}/{genlib.get_app_short_name()}.db\n')
+                file_id.write(f'app_db_path={gymnotoa_db_dir}/{genlib.get_db_name()}.db\n')
                 file_id.write(f'acrogymnospermae_sequence_file={gymnotoa_db_dir}/Acrogymnospermae-consensus-seqs.fasta\n')
                 file_id.write( 'acrogymnospermae_blastplus_db_name=Acrogymnospermae-consensus-blastplus-db\n')
                 file_id.write(f'acrogymnospermae_blastplus_db_dir={gymnotoa_db_dir}/Acrogymnospermae-consensus-blastplus-db\n')
@@ -547,7 +547,7 @@ class FormRecreateConfigFile(QWidget):
                 file_id.write( 'lncrna_blastplus_db_name=lncRNA-blastplus-db\n')
                 file_id.write(f'lncrna_blastplus_db_dir={gymnotoa_db_dir}/lncRNA-blastplus-db\n')
                 file_id.write(f'lncrna_blastplus_db_path={gymnotoa_db_dir}/lncRNA-blastplus-db/lncRNA-blastplus-db\n')
-                file_id.write(f'cluster_stats_path={gymnotoa_db_dir}/gymnoTOA-stats.ini\n')
+                file_id.write(f'cluster_stats_path={gymnotoa_db_dir}/{genlib.get_db_name()}-stats.ini\n')
                 file_id.write(f'busco_stats_path={gymnotoa_db_dir}/busco-assessment.txt\n')
                 file_id.write( '\n')
                 file_id.write( '[CodAn models]\n')
