@@ -67,7 +67,7 @@ def get_app_version():
     Get the application version.
     '''
 
-    return '0.18'
+    return '0.19'
 
 #-------------------------------------------------------------------------------
 
@@ -168,8 +168,7 @@ def get_compressed_db_url():
     Get the URL where the compressed gymnoTOA database is available to download.
     '''
 
-    # -- return f'https://drive.upm.es/s/LTssGhCHe1Wh9Os/download?path=%%2F&files={get_compressed_db_name()}'
-    return f'https://drive.upm.es/s/3ktu4uxWM6M4Puz/download'
+    return f'https://drive.upm.es/s/LTssGhCHe1Wh9Os/download?path=%%2F&files={get_compressed_db_name()}'
 
 #-------------------------------------------------------------------------------
 
@@ -251,17 +250,17 @@ def get_process_download_gymnotoa_db_code():
     from the server X.
     '''
 
-    return 'download-gymnotoadb'
+    return f'download-{get_db_name().lower()}'
 
 #-------------------------------------------------------------------------------
 
-def get_process_download_gymnotoa_database_name():
+def get_process_download_gymnotoa_db_name():
     '''
     Get the name used to title processes to download the gymnoTOA database
     from the server X.
     '''
 
-    return f'Download {get_app_short_name()} database'
+    return f'Download {get_db_name()}'
 
 #-------------------------------------------------------------------------------
 
@@ -990,7 +989,7 @@ def get_submitting_dict():
 
     # build the submitting process dictionary
     submitting_dict = {}
-    submitting_dict['download_gymnotoa_database']= {'text': get_process_download_gymnotoa_database_name()}
+    submitting_dict['download_gymnotoa_db']= {'text': get_process_download_gymnotoa_db_name()}
     submitting_dict['install_miniconda3']= {'text': f'{get_miniconda3_name()} installation'}
     submitting_dict['install_bioconda_package_list']= {'text': 'Bioconda package list installation'}
     submitting_dict['run_annotation_pipeline']= {'text': get_process_run_annotation_pipeline_name()}
@@ -1032,7 +1031,7 @@ def get_process_dict():
 
     # build the process dictionary
     process_dict = {}
-    process_dict[get_process_download_gymnotoa_db_code()]= {'name': get_process_download_gymnotoa_database_name(), 'process_type': get_result_database_subdir()}
+    process_dict[get_process_download_gymnotoa_db_code()]= {'name': get_process_download_gymnotoa_db_name(), 'process_type': get_result_database_subdir()}
     process_dict[get_miniconda3_code()]= {'name': get_miniconda3_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_blastplus_code()]= {'name': get_blastplus_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_codan_code()]= {'name': get_codan_name(), 'process_type': get_result_installation_subdir()}
