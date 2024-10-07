@@ -751,7 +751,7 @@ class DialogAbout(QDialog):
 
     # set the window dimensions
     WINDOW_HEIGHT = 300
-    WINDOW_WIDTH = 750
+    WINDOW_WIDTH = 790
 
     #---------------
 
