@@ -828,6 +828,33 @@ def get_codan_conda_code():
 
 #-------------------------------------------------------------------------------
 
+def get_diamond_code():
+    '''
+    Get the DIAMOND code used to identify its processes.
+    '''
+
+    return 'diamond'
+
+#-------------------------------------------------------------------------------
+
+def get_diamond_name():
+    '''
+    Get the DIAMOND name used to title.
+    '''
+
+    return 'DIAMOND'
+
+#-------------------------------------------------------------------------------
+
+def get_diamond_conda_code():
+    '''
+    Get the DIAMOND code used to identify the Conda package.
+    '''
+
+    return 'diamond'
+
+#-------------------------------------------------------------------------------
+
 def check_code(literal, code_list, case_sensitive=False):
     '''
     Check if a literal is in a code list.
@@ -1035,6 +1062,7 @@ def get_process_dict():
     process_dict[get_miniconda3_code()]= {'name': get_miniconda3_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_blastplus_code()]= {'name': get_blastplus_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_codan_code()]= {'name': get_codan_name(), 'process_type': get_result_installation_subdir()}
+    process_dict[get_diamond_code()]= {'name': get_diamond_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_process_run_annotation_pipeline_code()]= {'name': get_process_run_annotation_pipeline_name(), 'process_type': get_result_run_subdir()}
     process_dict[get_process_restart_annotation_pipeline_code()]= {'name': get_process_restart_annotation_pipeline_name(), 'process_type': get_result_run_subdir()}
     process_dict[get_process_run_enrichment_analysis_code()]= {'name': get_process_run_enrichment_analysis_name(), 'process_type': get_result_run_subdir()}
@@ -1290,7 +1318,7 @@ def read_alignment_record(file_name, file_id, record_counter):
 
         # extract data
         # record format: qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <record_sep>
-        field_sep = ';'
+        field_sep = '\t'
         record_sep = '\n'
         data_list = re.split(field_sep, record.replace(record_sep,''))
         try:
@@ -1344,7 +1372,8 @@ def read_functional_annotation_record(file_name, file_id, record_counter):
     if record != '':
 
         # extract data
-        # record format: qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <record_sep>
+        # record format (old):  qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <field_sep> algorithm <field_sep> ncbi_description <field_sep> ncbi_species <field_sep> tair10_ortholog_seq_id <field_sep> interpro_goterms <field_sep> panther_goterms <field_sep> metacyc_pathways <field_sep> reactome_pathways <field_sep> eggnog_ortholog_seq_id <field_sep> eggnog_ortholog_species <field_sep> eggnog_ogs <field_sep> cog_category <field_sep> eggnog_description <field_sep> eggnog_goterms <field_sep> ec <field_sep> kegg_kos <field_sep> kegg_pathways <field_sep> kegg_modules <field_sep> kegg_reactions <field_sep> kegg_rclasses <field_sep> brite <field_sep> kegg_tc <field_sep> cazy <field_sep> pfams 
+        # record format: qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <field_sep> algorithm <field_sep> ncbi_description <field_sep> ncbi_species <field_sep> tair10_ortholog_seq_id <field_sep> interpro_goterms <field_sep> panther_goterms <field_sep> metacyc_pathways <field_sep> eggnog_ortholog_seq_id <field_sep> eggnog_ortholog_species <field_sep> eggnog_ogs <field_sep> cog_category <field_sep> eggnog_description <field_sep> eggnog_goterms <field_sep> ec <field_sep> kegg_kos <field_sep> kegg_pathways <field_sep> kegg_modules <field_sep> kegg_reactions <field_sep> kegg_rclasses <field_sep> brite <field_sep> kegg_tc <field_sep> cazy <field_sep> pfams
         field_sep = ';'
         record_sep = '\n'
         data_list = re.split(field_sep, record.replace(record_sep,''))
@@ -1361,7 +1390,7 @@ def read_functional_annotation_record(file_name, file_id, record_counter):
             send = data_list[9].strip()
             evalue = data_list[10].strip()
             bitscore = data_list[11].strip()
-            aligner = data_list[12].strip()
+            algorithm = data_list[12].strip()
             ncbi_description = data_list[13].strip()
             ncbi_species = data_list[14].strip()
             tair10_ortholog_seq_id = data_list[15].strip()
@@ -1392,8 +1421,8 @@ def read_functional_annotation_record(file_name, file_id, record_counter):
         key = f'{qseqid}-{sseqid}'
 
         # get the record data dictionary
-        # -- data_dict = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'length': length, 'mismatch': mismatch, 'gapopen': gapopen, 'qstart': qstart, 'qend': qend, 'sstart': sstart, 'send': send, 'evalue': evalue, 'bitscore': bitscore, 'aligner': aligner, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'reactome_pathways': reactome_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
-        data_dict = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'length': length, 'mismatch': mismatch, 'gapopen': gapopen, 'qstart': qstart, 'qend': qend, 'sstart': sstart, 'send': send, 'evalue': evalue, 'bitscore': bitscore, 'aligner': aligner, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
+        # -- data_dict = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'length': length, 'mismatch': mismatch, 'gapopen': gapopen, 'qstart': qstart, 'qend': qend, 'sstart': sstart, 'send': send, 'evalue': evalue, 'bitscore': bitscore, 'algorithm': algorithm, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'reactome_pathways': reactome_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
+        data_dict = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'length': length, 'mismatch': mismatch, 'gapopen': gapopen, 'qstart': qstart, 'qend': qend, 'sstart': sstart, 'send': send, 'evalue': evalue, 'bitscore': bitscore, 'algorithm': algorithm, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
 
     # if there is not record
     else:

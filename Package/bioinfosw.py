@@ -312,6 +312,10 @@ class FormInstallBioinfoSoftware(QWidget):
                 package_list = [(genlib.get_codan_conda_code(), version)]
                 process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
                 process.exec()
+            elif self.software_code == genlib.get_diamond_code():
+                package_list = [(genlib.get_diamond_conda_code(), version)]
+                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
+                process.exec()
 
         # close the windows
         if OK:

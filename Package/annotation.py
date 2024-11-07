@@ -154,6 +154,16 @@ class FormRunAnnotationPipeline(QWidget):
         self.combobox_codan_model.currentIndexChanged.connect(self.check_inputs)
         self.combobox_codan_model.setFixedWidth(fontmetrics.width('9'*22))
 
+        # create and configure "label_alignment_tool"
+        label_alignment_tool = QLabel()
+        label_alignment_tool.setText('Alignment tool')
+        label_alignment_tool.setFixedWidth(fontmetrics.width('9'*18))
+
+        # create and configure "combobox_alignment_tool"
+        self.combobox_alignment_tool = QComboBox()
+        self.combobox_alignment_tool.currentIndexChanged.connect(self.check_inputs)
+        self.combobox_alignment_tool.setFixedWidth(fontmetrics.width('9'*22))
+
         # create and configure "evalue"
         label_evalue = QLabel()
         label_evalue.setText('evalue')
@@ -194,15 +204,15 @@ class FormRunAnnotationPipeline(QWidget):
         self.lineedit_qcov_hsp_perc.setFixedWidth(fontmetrics.width('9'*6))
         self.lineedit_qcov_hsp_perc.editingFinished.connect(self.check_inputs)
 
-        # create and configure "label_other_parameters_blast"
-        label_other_parameters_blast = QLabel()
-        label_other_parameters_blast.setText('Other params')
-        label_other_parameters_blast.setFixedWidth(fontmetrics.width('9'*12))
+        # create and configure "label_other_parameters"
+        label_other_parameters = QLabel()
+        label_other_parameters.setText('Other params')
+        label_other_parameters.setFixedWidth(fontmetrics.width('9'*12))
 
-        # create and configure "lineedit_other_parameters_blast"
-        self.lineedit_other_parameters_blast = QLineEdit()
-        self.lineedit_other_parameters_blast.setFixedWidth(fontmetrics.width('9'*75))
-        self.lineedit_other_parameters_blast.editingFinished.connect(self.check_inputs)
+        # create and configure "lineedit_other_parameters"
+        self.lineedit_other_parameters = QLineEdit()
+        self.lineedit_other_parameters.setFixedWidth(fontmetrics.width('9'*75))
+        self.lineedit_other_parameters.editingFinished.connect(self.check_inputs)
 
         # create and configure "empty"
         label_empty = QLabel()
@@ -222,7 +232,7 @@ class FormRunAnnotationPipeline(QWidget):
         gridlayout_blast_param.setColumnStretch(7, 1)
         gridlayout_blast_param.setColumnStretch(8, 1)
         gridlayout_blast_param.setColumnStretch(9, 1)
-        gridlayout_blast_param.setColumnStretch(10, 2)
+        gridlayout_blast_param.setColumnStretch(10, 1)
         gridlayout_blast_param.addWidget(label_evalue, 0, 0, 1, 1)
         gridlayout_blast_param.addWidget(self.lineedit_evalue, 0, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_blast_param.addWidget(label_empty, 0, 2, 1, 1)
@@ -234,11 +244,11 @@ class FormRunAnnotationPipeline(QWidget):
         gridlayout_blast_param.addWidget(label_empty, 0, 8, 1, 1)
         gridlayout_blast_param.addWidget(label_qcov_hsp_perc, 0, 9, 1, 1)
         gridlayout_blast_param.addWidget(self.lineedit_qcov_hsp_perc, 0, 10, 1, 1, alignment=Qt.AlignLeft)
-        gridlayout_blast_param.addWidget(label_other_parameters_blast, 1, 0, 1, 1)
-        gridlayout_blast_param.addWidget(self.lineedit_other_parameters_blast, 1, 1, 1, 10, alignment=Qt.AlignLeft)
+        gridlayout_blast_param.addWidget(label_other_parameters, 1, 0, 1, 1)
+        gridlayout_blast_param.addWidget(self.lineedit_other_parameters, 1, 1, 1, 10, alignment=Qt.AlignLeft)
 
         # create and configure "groupbox_blast_param"
-        groupbox_blast_param = QGroupBox('BLAST+ parameters')
+        groupbox_blast_param = QGroupBox('Alignment parameters')
         groupbox_blast_param.setLayout(gridlayout_blast_param)
 
         # create and configure "gridlayout_data"
@@ -248,16 +258,22 @@ class FormRunAnnotationPipeline(QWidget):
         gridlayout_data.setRowMinimumHeight(2, 40)
         gridlayout_data.setRowMinimumHeight(3, 120)
         gridlayout_data.setColumnStretch(0,1)
-        gridlayout_data.setColumnStretch(1,15)
+        gridlayout_data.setColumnStretch(1,1)
         gridlayout_data.setColumnStretch(2,1)
-        gridlayout_data.addWidget(label_threads, 0, 0)
-        gridlayout_data.addWidget(self.lineedit_threads, 0, 1, alignment=Qt.AlignLeft)
-        gridlayout_data.addWidget(label_transcript_file, 1, 0)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1)
-        gridlayout_data.addWidget(pushbutton_search_transcript_file, 1, 2)
-        gridlayout_data.addWidget(label_codan_model, 2, 0)
-        gridlayout_data.addWidget(self.combobox_codan_model, 2, 1, alignment=Qt.AlignLeft)
-        gridlayout_data.addWidget(groupbox_blast_param, 3, 0, 1, 3)
+        gridlayout_data.setColumnStretch(3,1)
+        gridlayout_data.setColumnStretch(4,15)
+        gridlayout_data.setColumnStretch(5,1)
+        gridlayout_data.addWidget(label_threads, 0, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_threads, 0, 1, 1, 1, alignment=Qt.AlignLeft)
+        gridlayout_data.addWidget(label_transcript_file, 1, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 4)
+        gridlayout_data.addWidget(pushbutton_search_transcript_file, 1, 5, 1, 1)
+        gridlayout_data.addWidget(label_codan_model, 2, 0, 1, 1)
+        gridlayout_data.addWidget(self.combobox_codan_model, 2, 1, 1, 1, alignment=Qt.AlignLeft)
+        gridlayout_data.addWidget(label_empty, 2, 2, 1, 1)
+        gridlayout_data.addWidget(label_alignment_tool, 2, 3, 1, 1)
+        gridlayout_data.addWidget(self.combobox_alignment_tool, 2, 4, 1, 1, alignment=Qt.AlignLeft)
+        gridlayout_data.addWidget(groupbox_blast_param, 3, 0, 1, 6)
 
         # create and configure "groupbox_data"
         groupbox_data = QGroupBox()
@@ -331,6 +347,9 @@ class FormRunAnnotationPipeline(QWidget):
         # populate data in "combobox_codan_model"
         self.combobox_codan_model_populate()
 
+        # populate data in "combobox_alignment_tool"
+        self.combobox_alignment_tool_populate()
+
         # set initial value in "lineedit_evalue"
         self.lineedit_evalue.setText('1E-6')
 
@@ -343,8 +362,8 @@ class FormRunAnnotationPipeline(QWidget):
         # set initial value in "lineedit_qcov_hsp_perc"
         self.lineedit_qcov_hsp_perc.setText('0.0')
 
-        # set initial value in "lineedit_other_parameters_blast"
-        self.lineedit_other_parameters_blast.setText('NONE')
+        # set initial value in "lineedit_other_parameters"
+        self.lineedit_other_parameters.setText('NONE')
 
     #---------------
 
@@ -380,8 +399,8 @@ class FormRunAnnotationPipeline(QWidget):
         if not self.lineedit_qcov_hsp_perc_editing_finished():
             OK = False
 
-        # check "lineedit_other_parameters_blast" when the editing finished
-        if not self.lineedit_other_parameters_blast_editing_finished():
+        # check "lineedit_other_parameters" when the editing finished
+        if not self.lineedit_other_parameters_editing_finished():
             OK = False
 
         # check all inputs are OK
@@ -391,7 +410,7 @@ class FormRunAnnotationPipeline(QWidget):
             self.parent.statusBar().showMessage('WARNING: One or more input values are wrong or empty.')
 
         # enable "pushbutton_execute"
-        if OK and self.lineedit_threads.text() != '' and self.lineedit_transcript_file.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters_blast.text() != '':
+        if OK and self.lineedit_threads.text() != '' and self.lineedit_transcript_file.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -492,6 +511,29 @@ class FormRunAnnotationPipeline(QWidget):
     def combobox_codan_model_currentIndexChanged(self):
         '''
         Process the event when an item of "combobox_codan_model" has been selected.
+        '''
+
+        # check the content of inputs
+        self.check_inputs()
+
+    #---------------
+
+    def combobox_alignment_tool_populate(self):
+        '''
+        Populate data in "combobox_alignment_tool".
+        '''
+
+        # populate data in "combobox_alignment_tool"
+        self.combobox_alignment_tool.addItems([genlib.get_blastplus_name(), genlib.get_diamond_name()])
+
+        # simultate "combobox_alignment_tool" index has changed
+        self.combobox_alignment_tool_currentIndexChanged()
+
+    #---------------
+
+    def combobox_alignment_tool_currentIndexChanged(self):
+        '''
+        Process the event when an item of "combobox_alignment_tool" has been selected.
         '''
 
         # check the content of inputs
@@ -610,38 +652,38 @@ class FormRunAnnotationPipeline(QWidget):
 
     #---------------
 
-    def lineedit_other_parameters_blast_editing_finished(self):
+    def lineedit_other_parameters_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_other_parameters_blast"
+        Perform necessary actions after finishing editing "lineedit_other_parameters"
         '''
 
         # initialize the control variable
         OK = True
 
-        # chek if "lineedit_other_parameters_blast" is empty
-        if self.lineedit_other_parameters_blast.text() == '':
+        # chek if "lineedit_other_parameters" is empty
+        if self.lineedit_other_parameters.text() == '':
             OK = False
-            self.lineedit_other_parameters_blast.setStyleSheet('background-color: white')
+            self.lineedit_other_parameters.setStyleSheet('background-color: white')
 
-        # chek if "lineedit_other_parameters_blast" is NONE
-        elif self.lineedit_other_parameters_blast.text().upper() == 'NONE':
-            self.lineedit_other_parameters_blast.setText('NONE')
-            self.lineedit_other_parameters_blast.setStyleSheet('background-color: white')
+        # chek if "lineedit_other_parameters" is NONE
+        elif self.lineedit_other_parameters.text().upper() == 'NONE':
+            self.lineedit_other_parameters.setText('NONE')
+            self.lineedit_other_parameters.setStyleSheet('background-color: white')
 
-        # chek if lineedit_other_parameters_blast" is OK
-        elif self.lineedit_other_parameters_blast.text() != '' and self.lineedit_other_parameters_blast.text() != 'NONE':
+        # chek if lineedit_other_parameters" is OK
+        elif self.lineedit_other_parameters.text() != '' and self.lineedit_other_parameters.text() != 'NONE':
             not_allowed_parameters_list = ['num_threads', 'db', 'query', 'evalue', 'max_target_seqs', 'max_hsps', 'qcov_hsp_perc', 'outfmt', 'out']
-            (OK, error_list) = genlib.check_parameter_list(self.lineedit_other_parameters_blast.text(), 'other_parameters', not_allowed_parameters_list)
+            (OK, error_list) = genlib.check_parameter_list(self.lineedit_other_parameters.text(), 'other_parameters', not_allowed_parameters_list)
             if OK:
-                self.lineedit_other_parameters_blast.setStyleSheet('background-color: white')
+                self.lineedit_other_parameters.setStyleSheet('background-color: white')
             else:
-                self.lineedit_other_parameters_blast.setStyleSheet('background-color: red')
+                self.lineedit_other_parameters.setStyleSheet('background-color: red')
                 error_list_text = '\n'.join(error_list)
                 text = f'Other params format:\n\n--parameter-1[=value-1][; --parameter-2[=value-2][; ...]]\n\n{error_list_text}'
                 QMessageBox.critical(self, self.title, text, buttons=QMessageBox.Ok)
 
         else:
-            self.lineedit_other_parameters_blast.setStyleSheet('background-color: white')
+            self.lineedit_other_parameters.setStyleSheet('background-color: white')
 
         # return the control variable
         return OK
@@ -676,23 +718,26 @@ class FormRunAnnotationPipeline(QWidget):
             # get the CONDA model
             codan_model = self.combobox_codan_model.currentText()
 
-            # get the BLAST+ parameter evalue
+            # get the alignment tool
+            alignment_tool = self.combobox_alignment_tool.currentText()
+
+            # get the alignment parameter evalue
             evalue = self.lineedit_evalue.text()
 
-            # get the BLAST+ parameter max_target_seqs
+            # get the alignment parameter max_target_seqs
             max_target_seqs = self.lineedit_max_target_seqs.text()
 
-            # get the BLAST+ parameter max_hsps
+            # get the alignment parameter max_hsps
             max_hsps = self.lineedit_max_hsps.text()
 
-            # get the BLAST+ parameter qcov_hsp_perc
+            # get the alignment parameter qcov_hsp_perc
             qcov_hsp_perc = self.lineedit_qcov_hsp_perc.text()
 
-            # get other parameters of BLAST+
-            other_parameters_blast = self.lineedit_other_parameters_blast.text()
+            # get other parameters of the alignment
+            other_parameters = self.lineedit_other_parameters.text()
 
             # create and execute "DialogProcess"
-            process = dialogs.DialogProcess(self, self.head, self.run_annotation_pipeline, threads, transcript_file, codan_model, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters_blast)
+            process = dialogs.DialogProcess(self, self.head, self.run_annotation_pipeline, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters)
             process.exec()
 
         # close the windows
@@ -712,7 +757,7 @@ class FormRunAnnotationPipeline(QWidget):
 
    #---------------
 
-    def run_annotation_pipeline(self, process, threads, transcript_file, codan_model, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters_blast):
+    def run_annotation_pipeline(self, process, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, parameters_blast):
         '''
         Run a functional annotation pipeline.
         '''
@@ -770,7 +815,7 @@ class FormRunAnnotationPipeline(QWidget):
             process.write(f'{genlib.get_separator()}\n')
             script_name = f'{genlib.get_process_run_annotation_pipeline_code()}-process.sh'
             process.write(f'Building the process script {script_name} ...\n')
-            (OK, _) = self.build_run_annotation_pipeline_script(temp_dir, script_name, current_run_dir, threads, transcript_file, codan_model, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters_blast)
+            (OK, _) = self.build_run_annotation_pipeline_script(temp_dir, script_name, current_run_dir, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, parameters_blast)
             if OK:
                 process.write('The file is built.\n')
             else:
@@ -854,7 +899,7 @@ class FormRunAnnotationPipeline(QWidget):
 
     #---------------
 
-    def build_run_annotation_pipeline_script(self, directory, script_name, current_run_dir, threads, transcript_file, codan_model, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters_blast):
+    def build_run_annotation_pipeline_script(self, directory, script_name, current_run_dir, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters):
         '''
         Build the script to run a functional annotation pipeline.
         '''
@@ -869,6 +914,8 @@ class FormRunAnnotationPipeline(QWidget):
         app_db_path = self.app_config_dict[f'{genlib.get_app_short_name()} database']['app_db_path']
         acrogymnospermae_blastplus_db_name = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_blastplus_db_name']
         acrogymnospermae_blastplus_db_dir = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_blastplus_db_dir']
+        acrogymnospermae_diamond_db_name = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_diamond_db_name']
+        acrogymnospermae_diamond_db_dir = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_diamond_db_dir']
         lncrna_blastplus_db_name = self.app_config_dict[f'{genlib.get_app_short_name()} database']['lncrna_blastplus_db_name']
         lncrna_blastplus_db_dir = self.app_config_dict[f'{genlib.get_app_short_name()} database']['lncrna_blastplus_db_dir']
         codan_model_dir = self.app_config_dict['CodAn models']['codan_model_dir']
@@ -892,8 +939,8 @@ class FormRunAnnotationPipeline(QWidget):
         besthit_functional_annotation_file = f'./{genlib.get_besthit_functional_annotation_file_name()}'
 
         # set the annotation file head
-        # -- head = '1i qseqid;sseqid;pident;length;mismatch;gapopen;qstart;qend;sstart;send;evalue;bitscore;aligner;ncbi_description;ncbi_species;tair10_ortholog_seq_id;interpro_goterms;panther_goterms;metacyc_pathways;reactome_pathways;eggnog_ortholog_seq_id;eggnog_ortholog_species;eggnog_ogs;cog_category;eggnog_description;eggnog_goterms;ec;kegg_kos;kegg_pathways;kegg_modules;kegg_reactions;kegg_rclasses;brite;kegg_tc;cazy;pfams'
-        head = '1i qseqid;sseqid;pident;length;mismatch;gapopen;qstart;qend;sstart;send;evalue;bitscore;aligner;ncbi_description;ncbi_species;tair10_ortholog_seq_id;interpro_goterms;panther_goterms;metacyc_pathways;eggnog_ortholog_seq_id;eggnog_ortholog_species;eggnog_ogs;cog_category;eggnog_description;eggnog_goterms;ec;kegg_kos;kegg_pathways;kegg_modules;kegg_reactions;kegg_rclasses;brite;kegg_tc;cazy;pfams'
+        # -- head = '1i qseqid;sseqid;pident;length;mismatch;gapopen;qstart;qend;sstart;send;evalue;bitscore;algorithm;ncbi_description;ncbi_species;tair10_ortholog_seq_id;interpro_goterms;panther_goterms;metacyc_pathways;reactome_pathways;eggnog_ortholog_seq_id;eggnog_ortholog_species;eggnog_ogs;cog_category;eggnog_description;eggnog_goterms;ec;kegg_kos;kegg_pathways;kegg_modules;kegg_reactions;kegg_rclasses;brite;kegg_tc;cazy;pfams'
+        head = '1i qseqid;sseqid;pident;length;mismatch;gapopen;qstart;qend;sstart;send;evalue;bitscore;algorithm;ncbi_description;ncbi_species;tair10_ortholog_seq_id;interpro_goterms;panther_goterms;metacyc_pathways;eggnog_ortholog_seq_id;eggnog_ortholog_species;eggnog_ogs;cog_category;eggnog_description;eggnog_goterms;ec;kegg_kos;kegg_pathways;kegg_modules;kegg_reactions;kegg_rclasses;brite;kegg_tc;cazy;pfams'
 
         # set the script path
         script_path = f'{directory}/{script_name}'
@@ -944,11 +991,12 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write(f'        echo "[Annotation parameters]" > {params_file}\n')
                 file_id.write(f'        echo "transcript_file = {transcript_file}" >> {params_file}\n')
                 file_id.write(f'        echo "codan_model = {codan_model}" >> {params_file}\n')
+                file_id.write(f'        echo "alignment_tool = {alignment_tool}" >> {params_file}\n')
                 file_id.write(f'        echo "evalue = {evalue}" >> {params_file}\n')
                 file_id.write(f'        echo "max_target_seqs = {max_target_seqs}" >> {params_file}\n')
                 file_id.write(f'        echo "max_hsps = {max_hsps}" >> {params_file}\n')
                 file_id.write(f'        echo "qcov_hsp_perc = {qcov_hsp_perc}" >> {params_file}\n')
-                file_id.write(f'        echo "other_parameters_blast = {other_parameters_blast}" >> {params_file}\n')
+                file_id.write(f'        echo "other_parameters = {other_parameters}" >> {params_file}\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error echo $RC; fi\n')
                 file_id.write( '        echo "Parameters are saved."\n')
@@ -987,98 +1035,158 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function align_peptides_2_acrogymnospermae_blastplus_db\n')
+                file_id.write( 'function align_peptides_2_alignment_tool_acrogymnospermae_db\n')
                 file_id.write( '{\n')
                 file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-peptides-2-acrogymnospermae-blastplus-db.ok\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-peptides-2-alignment-tool-acrogymnospermae-db.ok\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Aligning peptides to BLAST+ Acrogymnospermae database ..."\n')
+                file_id.write(f'    echo "Aligning peptides to {alignment_tool} Acrogymnospermae database ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
-                file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
-                file_id.write( '        /usr/bin/time \\\n')
-                file_id.write( '            blastp \\\n')
-                file_id.write(f'                -num_threads {threads} \\\n')
-                file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
-                file_id.write(f'                -query {codan_output_dir}/PEP_sequences.fa \\\n')
-                file_id.write(f'                -evalue {evalue} \\\n')
-                file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
-                file_id.write(f'                -max_hsps {max_hsps} \\\n')
-                file_id.write(f'                -qcov_hsp_perc {qcov_hsp_perc} \\\n')
-                file_id.write( '                -outfmt "6 delim=; qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
-                if other_parameters_blast.upper() != 'NONE':
-                    parameter_list = [x.strip() for x in other_parameters_blast.split(';')]
-                    for parameter in parameter_list:
-                        if parameter.find('=') > 0:
-                            pattern = r'^--(.+)=(.+)$'
-                            mo = re.search(pattern, parameter)
-                            parameter_name = mo.group(1).strip()
-                            parameter_value = mo.group(2).strip()
-                            file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
-                        else:
-                            pattern = r'^--(.+)$'
-                            mo = re.search(pattern, parameter)
-                            parameter_name = mo.group(1).strip()
-                            file_id.write(f'                -{parameter_name} \\\n')
-                file_id.write(f'                -out {blastp_clade_alignment_file}\n')
-                file_id.write( '        RC=$?\n')
-                file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastp $RC; fi\n')
-                file_id.write( '        conda deactivate\n')
+                if alignment_tool == genlib.get_blastplus_name():
+                    file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
+                    file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
+                    file_id.write( '        /usr/bin/time \\\n')
+                    file_id.write( '            blastp \\\n')
+                    file_id.write(f'                -num_threads {threads} \\\n')
+                    file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
+                    file_id.write(f'                -query {codan_output_dir}/PEP_sequences.fa \\\n')
+                    file_id.write(f'                -evalue {evalue} \\\n')
+                    file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
+                    file_id.write(f'                -max_hsps {max_hsps} \\\n')
+                    file_id.write(f'                -qcov_hsp_perc {qcov_hsp_perc} \\\n')
+                    file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
+                    if other_parameters.upper() != 'NONE':
+                        parameter_list = [x.strip() for x in other_parameters.split(';')]
+                        for parameter in parameter_list:
+                            if parameter.find('=') > 0:
+                                pattern = r'^--(.+)=(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                parameter_value = mo.group(2).strip()
+                                file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                            else:
+                                pattern = r'^--(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                file_id.write(f'                -{parameter_name} \\\n')
+                    file_id.write(f'                -out {blastp_clade_alignment_file}\n')
+                    file_id.write( '        RC=$?\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastp $RC; fi\n')
+                    file_id.write( '        conda deactivate\n')
+                elif alignment_tool == genlib.get_diamond_name():
+                    file_id.write(f'        source {miniconda3_bin_dir}/activate diamond\n')
+                    file_id.write( '        /usr/bin/time \\\n')
+                    file_id.write( '            diamond blastp \\\n')
+                    file_id.write(f'                --threads {threads} \\\n')
+                    file_id.write(f'                --db {acrogymnospermae_diamond_db_dir}/{acrogymnospermae_diamond_db_name} \\\n')
+                    file_id.write(f'                --query {codan_output_dir}/PEP_sequences.fa \\\n')
+                    file_id.write(f'                --evalue {evalue} \\\n')
+                    file_id.write(f'                --max-target-seqs {max_target_seqs} \\\n')
+                    file_id.write(f'                --max-hsps {max_hsps} \\\n')
+                    file_id.write( '                --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \\\n')
+                    if other_parameters.upper() != 'NONE':
+                        parameter_list = [x.strip() for x in other_parameters.split(';')]
+                        for parameter in parameter_list:
+                            if parameter.find('=') > 0:
+                                pattern = r'^--(.+)=(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                parameter_value = mo.group(2).strip()
+                                file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                            else:
+                                pattern = r'^--(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                file_id.write(f'                -{parameter_name} \\\n')
+                    file_id.write(f'                --out {blastp_clade_alignment_file}\n')
+                    file_id.write( '        RC=$?\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error diamond-blastp $RC; fi\n')
+                    file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Alignment is done."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function align_transcriptome_2_acrogymnospermae_blastplus_db\n')
+                file_id.write( 'function align_transcriptome_2_alignment_tool_acrogymnospermae_db\n')
                 file_id.write( '{\n')
                 file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-acrogymnospermae-blastplus-db.ok\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-alignment-tool-acrogymnospermae-db.ok\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Aligning transcriptome to BLAST+ Acrogymnospermae database ..."\n')
+                file_id.write(f'    echo "Aligning transcriptome to {alignment_tool} Acrogymnospermae database ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
-                file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
-                file_id.write( '        /usr/bin/time \\\n')
-                file_id.write( '            blastx \\\n')
-                file_id.write(f'                -num_threads {threads} \\\n')
-                file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
-                file_id.write(f'                -query {transcript_file} \\\n')
-                file_id.write(f'                -evalue {evalue} \\\n')
-                file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
-                file_id.write(f'                -max_hsps {max_hsps} \\\n')
-                file_id.write(f'                -qcov_hsp_perc {qcov_hsp_perc} \\\n')
-                file_id.write( '                -outfmt "6 delim=; qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
-                if other_parameters_blast.upper() != 'NONE':
-                    parameter_list = [x.strip() for x in other_parameters_blast.split(';')]
-                    for parameter in parameter_list:
-                        if parameter.find('=') > 0:
-                            pattern = r'^--(.+)=(.+)$'
-                            mo = re.search(pattern, parameter)
-                            parameter_name = mo.group(1).strip()
-                            parameter_value = mo.group(2).strip()
-                            file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
-                        else:
-                            pattern = r'^--(.+)$'
-                            mo = re.search(pattern, parameter)
-                            parameter_name = mo.group(1).strip()
-                            file_id.write(f'                -{parameter_name} \\\n')
-                file_id.write(f'                -out {blastx_clade_alignment_file}\n')
-                file_id.write( '        RC=$?\n')
-                file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastx $RC; fi\n')
-                file_id.write( '        conda deactivate\n')
+                if alignment_tool == genlib.get_blastplus_name():
+                    file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
+                    file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
+                    file_id.write( '        /usr/bin/time \\\n')
+                    file_id.write( '            blastx \\\n')
+                    file_id.write(f'                -num_threads {threads} \\\n')
+                    file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
+                    file_id.write(f'                -query {transcript_file} \\\n')
+                    file_id.write(f'                -evalue {evalue} \\\n')
+                    file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
+                    file_id.write(f'                -max_hsps {max_hsps} \\\n')
+                    file_id.write(f'                -qcov_hsp_perc {qcov_hsp_perc} \\\n')
+                    file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
+                    if other_parameters.upper() != 'NONE':
+                        parameter_list = [x.strip() for x in other_parameters.split(';')]
+                        for parameter in parameter_list:
+                            if parameter.find('=') > 0:
+                                pattern = r'^--(.+)=(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                parameter_value = mo.group(2).strip()
+                                file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                            else:
+                                pattern = r'^--(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                file_id.write(f'                -{parameter_name} \\\n')
+                    file_id.write(f'                -out {blastx_clade_alignment_file}\n')
+                    file_id.write( '        RC=$?\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastx $RC; fi\n')
+                    file_id.write( '        conda deactivate\n')
+                elif alignment_tool == genlib.get_diamond_name():
+                    file_id.write(f'        source {miniconda3_bin_dir}/activate diamond\n')
+                    file_id.write( '        /usr/bin/time \\\n')
+                    file_id.write( '            diamond blastx \\\n')
+                    file_id.write(f'                --threads {threads} \\\n')
+                    file_id.write(f'                --db {acrogymnospermae_diamond_db_dir}/{acrogymnospermae_diamond_db_name} \\\n')
+                    file_id.write(f'                --query {transcript_file} \\\n')
+                    file_id.write(f'                --evalue {evalue} \\\n')
+                    file_id.write(f'                --max-target-seqs {max_target_seqs} \\\n')
+                    file_id.write(f'                --max-hsps {max_hsps} \\\n')
+                    file_id.write( '                --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \\\n')
+                    if other_parameters.upper() != 'NONE':
+                        parameter_list = [x.strip() for x in other_parameters.split(';')]
+                        for parameter in parameter_list:
+                            if parameter.find('=') > 0:
+                                pattern = r'^--(.+)=(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                parameter_value = mo.group(2).strip()
+                                file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                            else:
+                                pattern = r'^--(.+)$'
+                                mo = re.search(pattern, parameter)
+                                parameter_name = mo.group(1).strip()
+                                file_id.write(f'                -{parameter_name} \\\n')
+                    file_id.write(f'                --out {blastx_clade_alignment_file}\n')
+                    file_id.write( '        RC=$?\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error diamond-blastx $RC; fi\n')
+                    file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Alignment is done."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function align_trancriptome_2_lncrna_blastplus_db\n')
+                file_id.write( 'function align_trancriptome_2_blastplus_lncrna_db\n')
                 file_id.write( '{\n')
                 file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-trancriptome-2-lncRNA-blastplus-db.ok\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-trancriptome-2-blastplus-lncRNA-db.ok\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write( '    echo "Aligning trancriptome to BLAST+ lncRNA database ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
@@ -1095,7 +1203,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '                -max_target_seqs 1 \\\n')
                 file_id.write( '                -max_hsps 1 \\\n')
                 file_id.write( '                -qcov_hsp_perc 0.0 \\\n')
-                file_id.write( '                -outfmt "6 delim=; qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
+                file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
                 file_id.write(f'                -out {blastn_lncrna_alignment_file}\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastn $RC; fi\n')
@@ -1268,9 +1376,9 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( 'activate_env_base\n')
                 file_id.write( 'save_params\n')
                 file_id.write( 'predict_orfs\n')
-                file_id.write( 'align_peptides_2_acrogymnospermae_blastplus_db\n')
-                file_id.write( 'align_transcriptome_2_acrogymnospermae_blastplus_db\n')
-                file_id.write( 'align_trancriptome_2_lncrna_blastplus_db\n')
+                file_id.write( 'align_peptides_2_alignment_tool_acrogymnospermae_db\n')
+                file_id.write( 'align_transcriptome_2_alignment_tool_acrogymnospermae_db\n')
+                file_id.write( 'align_trancriptome_2_blastplus_lncrna_db\n')
                 file_id.write( 'concat_functional_annotations\n')
                 file_id.write( 'sort_functional_annotations\n')
                 file_id.write( 'add_heads\n')
@@ -1392,6 +1500,17 @@ class FormRestartAnnotationPipeline(QWidget):
         self.lineedit_codan_model.editingFinished.connect(self.check_inputs)
         self.lineedit_codan_model.setDisabled(True)
 
+        # create and configure "label_alignment_tool"
+        label_alignment_tool = QLabel()
+        label_alignment_tool.setText('Alignment tool')
+        label_alignment_tool.setFixedWidth(fontmetrics.width('9'*18))
+
+        # create and configure "lineedit_alignment_tool"
+        self.lineedit_alignment_tool = QLineEdit()
+        self.lineedit_alignment_tool.setFixedWidth(fontmetrics.width('9'*12))
+        self.lineedit_alignment_tool.editingFinished.connect(self.check_inputs)
+        self.lineedit_alignment_tool.setDisabled(True)
+
         # create and configure "evalue"
         label_evalue = QLabel()
         label_evalue.setText('evalue')
@@ -1436,16 +1555,16 @@ class FormRestartAnnotationPipeline(QWidget):
         self.lineedit_qcov_hsp_perc.editingFinished.connect(self.check_inputs)
         self.lineedit_qcov_hsp_perc.setDisabled(True)
 
-        # create and configure "label_other_parameters_blast"
-        label_other_parameters_blast = QLabel()
-        label_other_parameters_blast.setText('Other params')
-        label_other_parameters_blast.setFixedWidth(fontmetrics.width('9'*12))
+        # create and configure "label_other_parameters"
+        label_other_parameters = QLabel()
+        label_other_parameters.setText('Other params')
+        label_other_parameters.setFixedWidth(fontmetrics.width('9'*12))
 
-        # create and configure "lineedit_other_parameters_blast"
-        self.lineedit_other_parameters_blast = QLineEdit()
-        self.lineedit_other_parameters_blast.setFixedWidth(fontmetrics.width('9'*52))
-        self.lineedit_other_parameters_blast.editingFinished.connect(self.check_inputs)
-        self.lineedit_other_parameters_blast.setDisabled(True)
+        # create and configure "lineedit_other_parameters"
+        self.lineedit_other_parameters = QLineEdit()
+        self.lineedit_other_parameters.setFixedWidth(fontmetrics.width('9'*52))
+        self.lineedit_other_parameters.editingFinished.connect(self.check_inputs)
+        self.lineedit_other_parameters.setDisabled(True)
 
         # create and configure "empty"
         label_empty = QLabel()
@@ -1466,9 +1585,12 @@ class FormRestartAnnotationPipeline(QWidget):
         gridlayout_data.setColumnStretch(10, 1)
         gridlayout_data.addWidget(self.tablewidget, 0, 0, 1, 11)
         gridlayout_data.addWidget(label_transcript_file, 1, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 10)
-        gridlayout_data.addWidget(label_codan_model, 2, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_codan_model, 2, 1, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 7)
+        gridlayout_data.addWidget(label_empty, 1, 8, 1, 1)
+        gridlayout_data.addWidget(label_codan_model, 1, 9, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_codan_model, 1, 10, 1, 1)
+        gridlayout_data.addWidget(label_alignment_tool, 2, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_alignment_tool, 2, 1, 1, 1)
         gridlayout_data.addWidget(label_empty, 2, 2, 1, 1)
         gridlayout_data.addWidget(label_evalue, 2, 3, 1, 1)
         gridlayout_data.addWidget(self.lineedit_evalue, 2, 4, 1, 1)
@@ -1481,8 +1603,8 @@ class FormRestartAnnotationPipeline(QWidget):
         gridlayout_data.addWidget(label_qcov_hsp_perc, 3, 0, 1, 1)
         gridlayout_data.addWidget(self.lineedit_qcov_hsp_perc, 3, 1, 1, 1)
         gridlayout_data.addWidget(label_empty, 3, 2, 1, 1)
-        gridlayout_data.addWidget(label_other_parameters_blast, 3, 3, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_other_parameters_blast, 3, 4, 1, 1)
+        gridlayout_data.addWidget(label_other_parameters, 3, 3, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_other_parameters, 3, 4, 1, 1)
 
         # create and configure "groupbox_data"
         groupbox_data = QGroupBox()
@@ -1560,6 +1682,9 @@ class FormRestartAnnotationPipeline(QWidget):
         # initialize "lineedit_codan_model"
         self.lineedit_codan_model.setText('')
 
+        # initialize "lineedit_alignment_tool"
+        self.lineedit_alignment_tool.setText('')
+
         # initialize "lineedit_evalue"
         self.lineedit_evalue.setText('')
 
@@ -1572,8 +1697,8 @@ class FormRestartAnnotationPipeline(QWidget):
         # initialize "lineedit_qcov_hsp_perc"
         self.lineedit_qcov_hsp_perc.setText('')
 
-        # initialize "lineedit_other_parameters_blast"
-        self.lineedit_other_parameters_blast.setText('')
+        # initialize "lineedit_other_parameters"
+        self.lineedit_other_parameters.setText('')
 
     #---------------
 
@@ -1599,6 +1724,10 @@ class FormRestartAnnotationPipeline(QWidget):
         if not self.lineedit_codan_model_editing_finished():
             OK = False
 
+        # check "lineedit_alignment_tool" when the editing finished
+        if not self.lineedit_alignment_tool_editing_finished():
+            OK = False
+
         # check "lineedit_evalue" when the editing finished
         if not self.lineedit_evalue_editing_finished():
             OK = False
@@ -1615,8 +1744,8 @@ class FormRestartAnnotationPipeline(QWidget):
         if not self.lineedit_qcov_hsp_perc_editing_finished():
             OK = False
 
-        # check "lineedit_other_parameters_blast" when the editing finished
-        if not self.lineedit_other_parameters_blast_editing_finished():
+        # check "lineedit_other_parameters" when the editing finished
+        if not self.lineedit_other_parameters_editing_finished():
             OK = False
 
         # check all inputs are OK
@@ -1626,7 +1755,7 @@ class FormRestartAnnotationPipeline(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_codan_model.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters_blast.text() != '':
+        if OK and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_codan_model.text() != ''  and self.lineedit_alignment_tool.text() != ''and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -1668,6 +1797,9 @@ class FormRestartAnnotationPipeline(QWidget):
             # set the transcript file path in "lineedit_codan_model"
             self.lineedit_codan_model.setText(params_dict['Annotation parameters']['codan_model'])
 
+            # set the transcript file path in "lineedit_alignment_tool"
+            self.lineedit_alignment_tool.setText(params_dict['Annotation parameters']['alignment_tool'])
+
             # set the transcript file path in "lineedit_evalue"
             self.lineedit_evalue.setText(params_dict['Annotation parameters']['evalue'])
 
@@ -1680,8 +1812,8 @@ class FormRestartAnnotationPipeline(QWidget):
             # set the transcript file path in "lineedit_qcov_hsp_perc"
             self.lineedit_qcov_hsp_perc.setText(params_dict['Annotation parameters']['qcov_hsp_perc'])
 
-            # set the transcript file path in "lineedit_other_parameters_blast"
-            self.lineedit_other_parameters_blast.setText(params_dict['Annotation parameters']['other_parameters_blast'])
+            # set the transcript file path in "lineedit_other_parameters"
+            self.lineedit_other_parameters.setText(params_dict['Annotation parameters']['other_parameters'])
 
         # check the content of inputs
         self.check_inputs()
@@ -1728,6 +1860,19 @@ class FormRestartAnnotationPipeline(QWidget):
     def lineedit_codan_model_editing_finished(self):
         '''
         Perform necessary actions after finishing editing "lineedit_codan_model"
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # return the control variable
+        return OK
+
+    #---------------
+
+    def lineedit_alignment_tool_editing_finished(self):
+        '''
+        Perform necessary actions after finishing editing "lineedit_alignment_tool"
         '''
 
         # initialize the control variable
@@ -1790,9 +1935,9 @@ class FormRestartAnnotationPipeline(QWidget):
 
     #---------------
 
-    def lineedit_other_parameters_blast_editing_finished(self):
+    def lineedit_other_parameters_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_other_parameters_blast"
+        Perform necessary actions after finishing editing "lineedit_other_parameters"
         '''
 
         # initialize the control variable
@@ -2150,6 +2295,17 @@ class FormBrowseAnnotationResults(QWidget):
         self.lineedit_codan_model.editingFinished.connect(self.check_inputs)
         self.lineedit_codan_model.setDisabled(True)
 
+        # create and configure "label_alignment_tool"
+        label_alignment_tool = QLabel()
+        label_alignment_tool.setText('Alignment tool')
+        label_alignment_tool.setFixedWidth(fontmetrics.width('9'*18))
+
+        # create and configure "lineedit_alignment_tool"
+        self.lineedit_alignment_tool = QLineEdit()
+        self.lineedit_alignment_tool.setFixedWidth(fontmetrics.width('9'*12))
+        self.lineedit_alignment_tool.editingFinished.connect(self.check_inputs)
+        self.lineedit_alignment_tool.setDisabled(True)
+
         # create and configure "evalue"
         label_evalue = QLabel()
         label_evalue.setText('evalue')
@@ -2194,16 +2350,16 @@ class FormBrowseAnnotationResults(QWidget):
         self.lineedit_qcov_hsp_perc.editingFinished.connect(self.check_inputs)
         self.lineedit_qcov_hsp_perc.setDisabled(True)
 
-        # create and configure "label_other_parameters_blast"
-        label_other_parameters_blast = QLabel()
-        label_other_parameters_blast.setText('Other params')
-        label_other_parameters_blast.setFixedWidth(fontmetrics.width('9'*12))
+        # create and configure "label_other_parameters"
+        label_other_parameters = QLabel()
+        label_other_parameters.setText('Other params')
+        label_other_parameters.setFixedWidth(fontmetrics.width('9'*12))
 
-        # create and configure "lineedit_other_parameters_blast"
-        self.lineedit_other_parameters_blast = QLineEdit()
-        self.lineedit_other_parameters_blast.setFixedWidth(fontmetrics.width('9'*52))
-        self.lineedit_other_parameters_blast.editingFinished.connect(self.check_inputs)
-        self.lineedit_other_parameters_blast.setDisabled(True)
+        # create and configure "lineedit_other_parameters"
+        self.lineedit_other_parameters = QLineEdit()
+        self.lineedit_other_parameters.setFixedWidth(fontmetrics.width('9'*52))
+        self.lineedit_other_parameters.editingFinished.connect(self.check_inputs)
+        self.lineedit_other_parameters.setDisabled(True)
 
         # create and configure "empty"
         label_empty = QLabel()
@@ -2226,10 +2382,12 @@ class FormBrowseAnnotationResults(QWidget):
         gridlayout_data.addWidget(self.combobox_annotation_result_type, 0, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(self.tablewidget, 1, 0, 1, 11)
         gridlayout_data.addWidget(label_transcript_file, 2, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 2, 1, 1, 10)
-        gridlayout_data.addWidget(label_codan_model, 3, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_codan_model, 3, 1, 1, 1)
-        gridlayout_data.addWidget(label_empty, 3, 2, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_transcript_file, 2, 1, 1, 7)
+        gridlayout_data.addWidget(label_empty, 2, 8, 1, 1)
+        gridlayout_data.addWidget(label_codan_model, 2, 9, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_codan_model, 2, 10, 1, 1)
+        gridlayout_data.addWidget(label_alignment_tool, 3, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_alignment_tool, 3, 1, 1, 1)
         gridlayout_data.addWidget(label_evalue, 3, 3, 1, 1)
         gridlayout_data.addWidget(self.lineedit_evalue, 3, 4, 1, 1)
         gridlayout_data.addWidget(label_empty, 3, 5, 1, 1)
@@ -2241,8 +2399,8 @@ class FormBrowseAnnotationResults(QWidget):
         gridlayout_data.addWidget(label_qcov_hsp_perc, 4, 0, 1, 1)
         gridlayout_data.addWidget(self.lineedit_qcov_hsp_perc, 4, 1, 1, 1)
         gridlayout_data.addWidget(label_empty, 4, 2, 1, 1)
-        gridlayout_data.addWidget(label_other_parameters_blast, 4, 3, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_other_parameters_blast, 4, 4, 1, 1)
+        gridlayout_data.addWidget(label_other_parameters, 4, 3, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_other_parameters, 4, 4, 1, 1)
 
         # create and configure "groupbox_data"
         groupbox_data = QGroupBox()
@@ -2321,6 +2479,9 @@ class FormBrowseAnnotationResults(QWidget):
         # initialize "lineedit_codan_model"
         self.lineedit_codan_model.setText('')
 
+        # initialize "lineedit_alignment_tool"
+        self.lineedit_alignment_tool.setText('')
+
         # initialize "lineedit_evalue"
         self.lineedit_evalue.setText('')
 
@@ -2333,8 +2494,8 @@ class FormBrowseAnnotationResults(QWidget):
         # initialize "lineedit_qcov_hsp_perc"
         self.lineedit_qcov_hsp_perc.setText('')
 
-        # initialize "lineedit_other_parameters_blast"
-        self.lineedit_other_parameters_blast.setText('')
+        # initialize "lineedit_other_parameters"
+        self.lineedit_other_parameters.setText('')
 
     #---------------
 
@@ -2360,6 +2521,10 @@ class FormBrowseAnnotationResults(QWidget):
         if not self.lineedit_codan_model_editing_finished():
             OK = False
 
+        # check "lineedit_alignment_tool" when the editing finished
+        if not self.lineedit_alignment_tool_editing_finished():
+            OK = False
+
         # check "lineedit_evalue" when the editing finished
         if not self.lineedit_evalue_editing_finished():
             OK = False
@@ -2376,8 +2541,8 @@ class FormBrowseAnnotationResults(QWidget):
         if not self.lineedit_qcov_hsp_perc_editing_finished():
             OK = False
 
-        # check "lineedit_other_parameters_blast" when the editing finished
-        if not self.lineedit_other_parameters_blast_editing_finished():
+        # check "lineedit_other_parameters" when the editing finished
+        if not self.lineedit_other_parameters_editing_finished():
             OK = False
 
         # check all inputs are OK
@@ -2387,7 +2552,7 @@ class FormBrowseAnnotationResults(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and self.combobox_annotation_result_type.currentText() != '' and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_codan_model.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters_blast.text() != '':
+        if OK and self.combobox_annotation_result_type.currentText() != '' and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_codan_model.text() != '' and self.lineedit_alignment_tool.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -2455,6 +2620,9 @@ class FormBrowseAnnotationResults(QWidget):
             # set the transcript file path in "lineedit_codan_model"
             self.lineedit_codan_model.setText(params_dict['Annotation parameters']['codan_model'])
 
+            # set the transcript file path in "lineedit_alignment_tool"
+            self.lineedit_alignment_tool.setText(params_dict['Annotation parameters']['alignment_tool'])
+
             # set the transcript file path in "lineedit_evalue"
             self.lineedit_evalue.setText(params_dict['Annotation parameters']['evalue'])
 
@@ -2467,8 +2635,8 @@ class FormBrowseAnnotationResults(QWidget):
             # set the transcript file path in "lineedit_qcov_hsp_perc"
             self.lineedit_qcov_hsp_perc.setText(params_dict['Annotation parameters']['qcov_hsp_perc'])
 
-            # set the transcript file path in "lineedit_other_parameters_blast"
-            self.lineedit_other_parameters_blast.setText(params_dict['Annotation parameters']['other_parameters_blast'])
+            # set the transcript file path in "lineedit_other_parameters"
+            self.lineedit_other_parameters.setText(params_dict['Annotation parameters']['other_parameters'])
 
         # check the content of inputs
         self.check_inputs()
@@ -2515,6 +2683,19 @@ class FormBrowseAnnotationResults(QWidget):
     def lineedit_codan_model_editing_finished(self):
         '''
         Perform necessary actions after finishing editing "lineedit_codan_model"
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # return the control variable
+        return OK
+
+    #---------------
+
+    def lineedit_alignment_tool_editing_finished(self):
+        '''
+        Perform necessary actions after finishing editing "lineedit_alignment_tool"
         '''
 
         # initialize the control variable
@@ -2577,9 +2758,9 @@ class FormBrowseAnnotationResults(QWidget):
 
     #---------------
 
-    def lineedit_other_parameters_blast_editing_finished(self):
+    def lineedit_other_parameters_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_other_parameters_blast"
+        Perform necessary actions after finishing editing "lineedit_other_parameters"
         '''
 
         # initialize the control variable
@@ -2831,7 +3012,7 @@ class FormBrowseAnnotationResults(QWidget):
             # -- send = data_dict['send']
             evalue = data_dict['evalue']
             # -- bitscore = data_dict['bitscore']
-            aligner = data_dict['aligner']
+            algorithm = data_dict['algorithm']
             ncbi_description = data_dict['ncbi_description']
             ncbi_species = data_dict['ncbi_species']
             tair10_ortholog_seq_id = data_dict['tair10_ortholog_seq_id']
@@ -2860,15 +3041,15 @@ class FormBrowseAnnotationResults(QWidget):
             key = f'{qseqid}-{sseqid}'
 
             # add data to the dictionary
-            # -- functional_annotation_dict[key] = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'length': length, 'mismatch': mismatch, 'gapopen': gapopen, 'qstart': qstart, 'qend': qend, 'sstart': sstart, 'send': send, 'evalue': evalue, 'bitscore': bitscore, 'aligner': aligner, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'reactome_pathways': reactome_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
-            functional_annotation_dict[key] = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'evalue': evalue, 'aligner': aligner, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
+            # -- functional_annotation_dict[key] = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'length': length, 'mismatch': mismatch, 'gapopen': gapopen, 'qstart': qstart, 'qend': qend, 'sstart': sstart, 'send': send, 'evalue': evalue, 'bitscore': bitscore, 'algorithm': algorithm, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'reactome_pathways': reactome_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
+            functional_annotation_dict[key] = {'qseqid': qseqid, 'sseqid': sseqid, 'pident': pident, 'evalue': evalue, 'algorithm': algorithm, 'ncbi_description': ncbi_description, 'ncbi_species': ncbi_species, 'tair10_ortholog_seq_id': tair10_ortholog_seq_id, 'interpro_goterms': interpro_goterms, 'panther_goterms': panther_goterms, 'metacyc_pathways': metacyc_pathways, 'eggnog_ortholog_seq_id': eggnog_ortholog_seq_id, 'eggnog_ortholog_species': eggnog_ortholog_species, 'eggnog_ogs': eggnog_ogs, 'cog_category': cog_category, 'eggnog_description': eggnog_description, 'eggnog_goterms': eggnog_goterms, 'ec': ec, 'kegg_kos': kegg_kos, 'kegg_pathways': kegg_pathways, 'kegg_modules': kegg_modules, 'kegg_reactions': kegg_reactions, 'kegg_rclasses': kegg_rclasses, 'brite': brite, 'kegg_tc': kegg_tc, 'cazy': cazy, 'pfams': pfams}
 
             # read the next record
             (record, key, data_dict) = genlib.read_functional_annotation_record(functional_annotation_file, functional_annotation_file_id, annotation_counter)
 
         # build the data list
-        # -- data_list = ['qseqid', 'sseqid', 'pident', 'length', 'mismatch', 'gapopen', 'qstart', 'qend', 'sstart', 'send', 'evalue', 'bitscore', 'aligner', 'ncbi_description', 'ncbi_species', 'tair10_ortholog_seq_id', 'interpro_goterms', 'panther_goterms', 'metacyc_pathways', 'reactome_pathways', 'eggnog_ortholog_seq_id', 'eggnog_ortholog_species', 'eggnog_ogs', 'cog_category', 'eggnog_description', 'eggnog_goterms', 'ec', 'kegg_kos', 'kegg_pathways', 'kegg_modules', 'kegg_reactions', 'kegg_rclasses', 'brite', 'kegg_tc', 'cazy', 'pfams']
-        data_list = ['qseqid', 'sseqid', 'pident', 'evalue', 'aligner', 'ncbi_description', 'ncbi_species', 'tair10_ortholog_seq_id', 'interpro_goterms', 'panther_goterms', 'metacyc_pathways', 'eggnog_ortholog_seq_id', 'eggnog_ortholog_species', 'eggnog_ogs', 'cog_category', 'eggnog_description', 'eggnog_goterms', 'ec', 'kegg_kos', 'kegg_pathways', 'kegg_modules', 'kegg_reactions', 'kegg_rclasses', 'brite', 'kegg_tc', 'cazy', 'pfams']
+        # -- data_list = ['qseqid', 'sseqid', 'pident', 'length', 'mismatch', 'gapopen', 'qstart', 'qend', 'sstart', 'send', 'evalue', 'bitscore', 'algorithm', 'ncbi_description', 'ncbi_species', 'tair10_ortholog_seq_id', 'interpro_goterms', 'panther_goterms', 'metacyc_pathways', 'reactome_pathways', 'eggnog_ortholog_seq_id', 'eggnog_ortholog_species', 'eggnog_ogs', 'cog_category', 'eggnog_description', 'eggnog_goterms', 'ec', 'kegg_kos', 'kegg_pathways', 'kegg_modules', 'kegg_reactions', 'kegg_rclasses', 'brite', 'kegg_tc', 'cazy', 'pfams']
+        data_list = ['qseqid', 'sseqid', 'pident', 'evalue', 'algorithm', 'ncbi_description', 'ncbi_species', 'tair10_ortholog_seq_id', 'interpro_goterms', 'panther_goterms', 'metacyc_pathways', 'eggnog_ortholog_seq_id', 'eggnog_ortholog_species', 'eggnog_ogs', 'cog_category', 'eggnog_description', 'eggnog_goterms', 'ec', 'kegg_kos', 'kegg_pathways', 'kegg_modules', 'kegg_reactions', 'kegg_rclasses', 'brite', 'kegg_tc', 'cazy', 'pfams']
 
         # build the data dictionary
         data_dict = {}
@@ -2884,7 +3065,7 @@ class FormBrowseAnnotationResults(QWidget):
         # -- data_dict['send'] = {'text': 'send', 'width': 80, 'alignment': 'right'}
         data_dict['evalue'] = {'text': 'evalue', 'width': 80, 'alignment': 'right'}
         # -- data_dict['bitscore'] = {'text': 'bitscore', 'width': 80, 'alignment': 'right'}
-        data_dict['aligner'] = {'text': 'Aligner', 'width': 80, 'alignment': 'left'}
+        data_dict['algorithm'] = {'text': 'Algorithm', 'width': 80, 'alignment': 'left'}
         data_dict['ncbi_description'] = {'text': 'NCBI description', 'width': 400, 'alignment': 'left'}
         data_dict['ncbi_species'] = {'text': 'NCBI species', 'width': 200, 'alignment': 'left'}
         data_dict['tair10_ortholog_seq_id'] = {'text': 'TAIR10 orth. seq. id', 'width': 180, 'alignment': 'left'}

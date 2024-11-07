@@ -243,7 +243,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
             send = blastp_clade_alignment_data_dict['send']
             evalue = blastp_clade_alignment_data_dict['evalue']
             bitscore = blastp_clade_alignment_data_dict['bitscore']
-            aligner = 'blastp'
+            algorithm = 'blastp'
 
             # get the most frecuent species in sseqid
             (ncbi_description, ncbi_species) = sqllib.get_mmseqs2_seq_mf_data(conn, sseqid)
@@ -278,8 +278,8 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
             pfams = emapper_annotation_dict.get('pfams', '-')
 
             # write record of the functional annotation file with all hits per sequence
-            # -- functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{aligner};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{reactome_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
-            functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{aligner};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
+            # -- functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{algorithm};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{reactome_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
+            functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{algorithm};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
             complete_functional_annotation_file_id.write(f'{functional_annotation_record}\n')
 
             # add 1 to the counter of records written in the functional annotation file with all hits per sequence
@@ -358,7 +358,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
             send = blastx_clade_alignment_data_dict['send']
             evalue = blastx_clade_alignment_data_dict['evalue']
             bitscore = blastx_clade_alignment_data_dict['bitscore']
-            aligner = 'blastx'
+            algorithm = 'blastx'
 
             # when the "old" sequence identification is not in the sequence identification set
             if old_qseqid not in qseqid_set:
@@ -396,8 +396,8 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
                 pfams = emapper_annotation_dict.get('pfams', '-')
 
                 # write record of the functional annotation file with all hits per sequence
-                # -- functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{aligner};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{reactome_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
-                functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{aligner};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
+                # -- functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{algorithm};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{reactome_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
+                functional_annotation_record = f'{qseqid};{sseqid};{pident};{length};{mismatch};{gapopen};{qstart};{qend};{sstart};{send};{evalue};{bitscore};{algorithm};{ncbi_description};{ncbi_species};{tair10_ortholog_seq_id};{interpro_goterms};{panther_goterms};{metacyc_pathways};{eggnog_ortholog_seq_id};{eggnog_ortholog_species};{eggnog_ogs};{cog_category};{eggnog_description};{eggnog_goterms};{ec};{kegg_kos};{kegg_pathways};{kegg_modules};{kegg_reactions};{kegg_rclasses};{brite};{kegg_tc};{cazy};{pfams}'
                 complete_functional_annotation_file_id.write(f'{functional_annotation_record}\n')
 
                 # add 1 to the counter of records written in the functional annotation file with all hits per sequence
@@ -458,7 +458,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
 
         # get alignment data
         qseqid = blastn_lncrna_alignment_data_dict['qseqid']
-        aligner = 'blastn'
+        algorithm = 'blastn'
 
         # when the sequence identification is not in the sequence identification set
         if qseqid not in qseqid_set:
@@ -467,8 +467,8 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
             qseqid_set.add(qseqid)
 
             # write record in the functional annotation files
-            # -- functional_annotation_record = f'{qseqid};{genlib.get_potential_lncrn()};-;-;-;-;-;-;-;-;-;-;{aligner};-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-'
-            functional_annotation_record = f'{qseqid};{genlib.get_potential_lncrn()};-;-;-;-;-;-;-;-;-;-;{aligner};-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-'
+            # -- functional_annotation_record = f'{qseqid};{genlib.get_potential_lncrn()};-;-;-;-;-;-;-;-;-;-;{algorithm};-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-'
+            functional_annotation_record = f'{qseqid};{genlib.get_potential_lncrn()};-;-;-;-;-;-;-;-;-;-;{algorithm};-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-;-'
             complete_functional_annotation_file_id.write(f'{functional_annotation_record}\n')
             besthit_functional_annotation_file_id.write(f'{functional_annotation_record}\n')
 

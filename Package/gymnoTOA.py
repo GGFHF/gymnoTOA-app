@@ -48,6 +48,21 @@ try:
 except Exception as e:
     raise genlib.ProgramException('', 'S002', 'PyQt5')
 
+try:
+    import pandas
+except Exception as e:
+    raise genlib.ProgramException('', 'S002', 'Pandas')
+
+try:
+    import matplotlib
+except Exception as e:
+    raise genlib.ProgramException('', 'S002', 'Matplotlib')
+
+try:
+    import plotnine
+except Exception as e:
+    raise genlib.ProgramException('', 'S002', 'Plotnine')
+
 import annotation
 import bioinfosw
 import configuration
@@ -142,6 +157,11 @@ class MainWindow(QMainWindow):
         action_install_codan = QAction(genlib.get_codan_name(), self)
         action_install_codan.setStatusTip(f'Install {genlib.get_codan_name()} software.')
         action_install_codan.triggered.connect(self.action_install_codan_clicked)
+
+        # create and configure "action_install_diamond"
+        action_install_diamond = QAction(genlib.get_diamond_name(), self)
+        action_install_diamond.setStatusTip(f'Install {genlib.get_diamond_name()} software.')
+        action_install_diamond.triggered.connect(self.action_install_diamond_clicked)
 
         # create and configure "action_download_gymno_db"
         action_download_gymno_db = QAction(f'Download {genlib.get_db_name()}', self)
@@ -284,6 +304,7 @@ class MainWindow(QMainWindow):
         submenu_bioinfo.addSeparator()
         submenu_bioinfo.addAction(action_install_blastplus)
         submenu_bioinfo.addAction(action_install_codan)
+        submenu_bioinfo.addAction(action_install_diamond)
 
         # create and configure "menu_database" and its submenus
         menu_database = menubar.addMenu('&Database')
@@ -559,6 +580,33 @@ class MainWindow(QMainWindow):
 
         # create a new subwindow to perform the action
         subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_codan_code(), genlib.get_codan_name())
+
+        # create "widget_central"
+        widget_central = QWidget(self)
+
+        # create and configure "v_box_layout"
+        v_box_layout = QVBoxLayout(widget_central)
+        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+
+        # set the central widget in "MainWindow"
+        self.setCentralWidget(widget_central)
+
+        # save the current subwindow
+        self.current_subwindow = subwindow
+
+    #---------------
+
+    def action_install_diamond_clicked(self):
+        '''
+        Install DIAMOND software.
+        '''
+
+        # close the existing subwindow
+        if self.current_subwindow is not None:
+            self.current_subwindow.close()
+
+        # create a new subwindow to perform the action
+        subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_diamond_code(), genlib.get_diamond_name())
 
         # create "widget_central"
         widget_central = QWidget(self)
@@ -1234,27 +1282,6 @@ if __name__ == '__main__':
     program_name = os.path.basename(__file__)
     if not os.path.isfile(os.path.join(current_dir, program_name)):
         print(f'*** ERROR: {program_name} has to be run in the {genlib.get_app_short_name()} home directory.')
-        sys.exit(1)
-
-    # check if Pandas is installed
-    try:
-        import pandas
-    except Exception as e:
-        print('*** ERROR: The library Pandas is not installed.')
-        sys.exit(1)
-
-    # check if Matplotlib is installed
-    try:
-        import matplotlib
-    except Exception as e:
-        print('*** ERROR: The library Matplotlib is not installed.')
-        sys.exit(1)
-
-    # check if Plotnine is installed
-    try:
-        import plotnine
-    except Exception as e:
-        print('*** ERROR: The library plotnine is not installed.')
         sys.exit(1)
 
     # set the font
