@@ -30,9 +30,9 @@
 # Parameters
 # ==========
 
-# You have to modify the path of the file and directories to assign them to the
-# locations of the computer where this script is run. The values of the other
-# parameters are assigned according to the experiment.
+# Modify the path of the file and directories to assign them to the locations
+# of the computer where this script is run. The values of the other parameters
+# are assigned according to the experiment.
 
 # commom parameters
 GYMNOTOA_APP_DIR=$HOME/Apps/gymnoTOA-app-main/Package
