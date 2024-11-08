@@ -27,13 +27,21 @@
 
 #-------------------------------------------------------------------------------
 
+# Parameters
+# ==========
+
+# You have to modify the path of the file and directories to assign them to the
+# locations of the computer where this script is run. The values of the other
+# parameters are assigned according to the experiment.
+
 # commom parameters
 GYMNOTOA_APP_DIR=$HOME/Apps/gymnoTOA-app-main/Package
 MINICONDA3_DIR=$HOME/gymnoTOA-app-Miniconda3
 DBS_DIR=$HOME/gymnoTOA-app-databases
+GYMNOTOA_PIPELINES_DIR=$HOME/Apps/gymnoTOA-app-main/pipelines
 
 # annotation parameters (descriptions in run-annotation-pipeline-process.sh)
-TRANSCRIPTS=$HOME/Apps/gymnoTOA/sample-data/PinusCanariensisXilogenesisGESU01.1-1000seqs.fsa
+TRANSCRIPTS=$HOME/Apps/gymnoTOA-app-main/sample-data/PinusCanariensisXilogenesisGESU01.1-1000seqs.fsa
 MODEL=PLANTS_full
 ALIGNER=DIAMOND
 EVALUE=1E-6
@@ -52,9 +60,9 @@ ENRICHMENT_DIR=$HOME/Documents/enrichment-test
 
 #-------------------------------------------------------------------------------
 
-# process the funcional annotation
+# process the functional annotation
 
-$GYMNOTOA_APP_DIR/pipelines/run-annotation-pipeline-process.sh \
+$GYMNOTOA_PIPELINES_DIR/run-annotation-pipeline-process.sh \
     $GYMNOTOA_APP_DIR \
     $MINICONDA3_DIR \
     $DBS_DIR \
@@ -74,7 +82,7 @@ if [ $RC -ne 0 ]; then exit 1; fi
 
 # process the enrichment analysis
 
-$GYMNOTOA_APP_DIR/pipelines/run-enrichment-analysis-process.sh \
+$GYMNOTOA_PIPELINES_DIR/run-enrichment-analysis-process.sh \
     $GYMNOTOA_APP_DIR \
     $MINICONDA3_DIR \
     $DBS_DIR \

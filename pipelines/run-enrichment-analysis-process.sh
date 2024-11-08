@@ -99,7 +99,7 @@ function calculate_besthit_enrichment_analysis
     /usr/bin/time \
         $GYMNOTOA_APP_DIR/calculate-enrichment-analysis.py \
             --db=$DBS_DIR/gymnoTOA-db/gymnoTOA-db.db \
-            --annotations=/home/fmm/gymnoTOA-app-results/run/run-annotation-pipeline-240711-164314/functional-annotations-besthit.csv \
+            --annotations=$ANNOTATION_DIR/functional-annotations-besthit.csv \
             --species=$SPECIES \
             --method=$METHOD \
             --msqannot=$MSQANNOT \
@@ -125,7 +125,7 @@ function calculate_complete_enrichment_analysis
         /usr/bin/time \
             $GYMNOTOA_APP_DIR/calculate-enrichment-analysis.py \
                 --db=$DBS_DIR/gymnoTOA-db/gymnoTOA-db.db \
-                --annotations=/home/fmm/gymnoTOA-app-results/run/run-annotation-pipeline-240711-164314/functional-annotations-complete.csv \
+                --annotations=$ANNOTATION_DIR/functional-annotations-complete.csv \
                 --species=$SPECIES \
                 --method=$METHOD \
                 --msqannot=$MSQANNOT \

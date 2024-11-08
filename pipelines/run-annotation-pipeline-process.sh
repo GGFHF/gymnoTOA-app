@@ -130,7 +130,7 @@ function align_peptides_2_alignment_tool_acrogymnospermae_db
         /usr/bin/time \
             blastp \
                 -num_threads $THREADS \
-                -db Acrogymnospermae-consensus-diamond-db \
+                -db Acrogymnospermae-consensus-blastplus-db \
                 -query $ANNOTATION_DIR/codan_output/PEP_sequences.fa \
                 -evalue $EVALUE \
                 -max_target_seqs $MAX_TARGET_SEQS \
@@ -177,7 +177,7 @@ function align_transcriptome_2_alignment_tool_acrogymnospermae_db
         /usr/bin/time \
             blastx \
                 -num_threads $THREADS \
-                -db Acrogymnospermae-consensus-diamond-db \
+                -db Acrogymnospermae-consensus-blastplus-db \
                 -query $TRANSCRIPTS \
                 -evalue $EVALUE \
                 -max_target_seqs $MAX_TARGET_SEQS \
