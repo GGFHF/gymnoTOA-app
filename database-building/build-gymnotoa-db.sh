@@ -131,9 +131,9 @@
 # InterProScan
 # ============
 #
-#    $ OLD_VERSION=5.69-101.0
-#    $ NEW_VERSION=5.70-102.0
-#    $ sudo apt install libgomp1 (en Ubuntu 20.04) 
+#    $ [OLD_VERSION=5.70-102.0]
+#    $ NEW_VERSION=5.71-102.0
+#    $ sudo apt install libgomp1 (if Ubuntu 20.04) 
 #    $ cd /ngscloud2/apps
 #    $ wget http://ftp.ebi.ac.uk/pub/software/unix/iprscan/5/$NEW_VERSION/interproscan-$NEW_VERSION-64-bit.tar.gz
 #    $ [unlink InterProScan]
