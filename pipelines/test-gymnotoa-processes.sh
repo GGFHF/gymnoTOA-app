@@ -2,13 +2,13 @@
 
 #-------------------------------------------------------------------------------
 
-# This script tests a functional annotation process followed by an enrichment
+# This example script shows how to run a functional annotation followed by an enrichment
 # analysis of annotation results using the scripts run-annotation-pipeline-process.sh
-#  and run-enrichment-analysis-process.sh.
+# and run-enrichment-analysis-process.sh.
 #
 # This software has been developed by:
 #
-#    GI en Especies Leñosas (WooSp)
+#    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
 #    Dpto. Sistemas y Recursos Naturales
 #    ETSI Montes, Forestal y del Medio Natural
 #    Universidad Politecnica de Madrid
@@ -22,41 +22,42 @@
 # ==============
 #
 # Before executing this script it is necessary that the software used is installed
-# (Miniconda3, CodAn, BLAST+ and DIAMOND) and the gymnoTOA-db is downloaded. Check
-# how to perform these actions in the gymnoTOA-app manual.
+# (Miniforge3, CodAn, BLAST+ and DIAMOND) and the gymnoTOA-db is downloaded. Check
+# how to perform these actions in the capter "Functional annotation and enrichment
+# analysis on Linux servers" of gymnoTOA-app manual.
 
 #-------------------------------------------------------------------------------
 
 # Parameters
 # ==========
 
-# Modify the path of the file and directories to assign them to the locations
-# of the computer where this script is run.
+# This is an example script. Modify the paths of file and directories to assign them
+# to PROPER LOCATIONS of the computer where this script will be run.
 # The values of the other parameters are assigned according to the experiment.
 
 # commom parameters
-GYMNOTOA_APP_DIR=$HOME/Apps/gymnoTOA-app-main/Package
-MINICONDA3_DIR=$HOME/gymnoTOA-app-Miniconda3
-DBS_DIR=$HOME/gymnoTOA-app-databases
-GYMNOTOA_PIPELINES_DIR=$HOME/Apps/gymnoTOA-app-main/pipelines
+GYMNOTOA_APP_DIR=$HOME/Apps/gymnoTOA-app/Package
+GYMNOTOA_DB_DIR=$HOME/BioData/gymnoTOA-db
+GYMNOTOA_PIPELINES_DIR=$HOME/Apps/gymnoTOA-app/pipelines
 
 # annotation parameters (descriptions in run-annotation-pipeline-process.sh)
-TRANSCRIPTS=$HOME/Apps/gymnoTOA-app-main/sample-data/PinusCanariensisXilogenesisGESU01.1-1000seqs.fsa
+FASTA_TYPE=TRANSCRIPTS
+FASTA_FILE=$HOME/Apps/gymnoTOA-app/sample-data/PinusCanariensisXilogenesisGESU01.1-1000seqs.fsa
 MODEL=PLANTS_full
-ALIGNER=DIAMOND
+ALIGNER=BLAST+
 EVALUE=1E-6
 MAX_TARGET_SEQS=20
 MAX_HSPS=999999
 QCOV_HSP_PERC=0.0
 THREADS=4
-ANNOTATION_DIR=$HOME/Documents/annotation-test
+ANNOTATION_DIR=$HOME/results/annotation-test
 
 # enrichment parameters (descriptions in run-enrichment-analysis-process.sh)
 SPECIES=all_species
 METHOD=by
 MSQANNOT=5
 MSQSPEC=10
-ENRICHMENT_DIR=$HOME/Documents/enrichment-test
+ENRICHMENT_DIR=$HOME/results/enrichment-test
 
 #-------------------------------------------------------------------------------
 
@@ -64,9 +65,9 @@ ENRICHMENT_DIR=$HOME/Documents/enrichment-test
 
 $GYMNOTOA_PIPELINES_DIR/run-annotation-pipeline-process.sh \
     $GYMNOTOA_APP_DIR \
-    $MINICONDA3_DIR \
-    $DBS_DIR \
-    $TRANSCRIPTS \
+    $GYMNOTOA_DB_DIR \
+    $FASTA_TYPE \
+    $FASTA_FILE \
     $MODEL \
     $ALIGNER \
     $EVALUE \
@@ -84,8 +85,7 @@ if [ $RC -ne 0 ]; then exit 1; fi
 
 $GYMNOTOA_PIPELINES_DIR/run-enrichment-analysis-process.sh \
     $GYMNOTOA_APP_DIR \
-    $MINICONDA3_DIR \
-    $DBS_DIR \
+    $GYMNOTOA_DB_DIR \
     $ANNOTATION_DIR \
     $SPECIES \
     $METHOD \

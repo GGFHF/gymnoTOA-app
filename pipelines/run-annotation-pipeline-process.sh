@@ -6,7 +6,7 @@
 #
 # This software has been developed by:
 #
-#    GI en Especies Leñosas (WooSp)
+#    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
 #    Dpto. Sistemas y Recursos Naturales
 #    ETSI Montes, Forestal y del Medio Natural
 #    Universidad Politecnica de Madrid
@@ -20,22 +20,24 @@
 # ==============
 #
 # Before executing this script it is necessary that the software used is installed
-# (Miniconda3, CodAn, BLAST+ and DIAMOND) and the gymnoTOA-db is downloaded. Check
-# how to perform these actions in the gymnoTOA-app manual.
+# (Miniforge3, CodAn, BLAST+ and DIAMOND) and the gymnoTOA-db is downloaded. Check
+# how to perform these actions in the capter "Functional annotation and enrichment
+# analysis on Linux servers" of gymnoTOA-app manual.
 
 #-------------------------------------------------------------------------------
 
 # Control parameters
 
-if [ "$#" -ne 12 ]; then
-    echo '*** ERROR: The following 12 parameters are required:'
+PARAM_NUM=12
+if [ "$#" -ne "$PARAM_NUM" ]; then
+    echo "*** ERROR: The following $PARAM_NUM parameters are required:"
     echo
     echo '    gymnotoa_app_dir <- path of the gymnoTOA-app directory.'
-    echo '    miniconda3_dir <- path of the gymnoTOA-app Miniconda3 directory (miniconda3_dir value in gymnoTOA-appconfig file).'
-    echo '    dbs_dir <- path of the gymnoTOA-app databases directory (database_dir value in gymnoTOA-appconfig file).'
-    echo '    transcripts <- transcripts file path.'
-    echo '    model <- CodAn model: PLANTS_full or PLANTS_partial.'
-    echo '    aligner <- alignment software: BLAST+ or DIAMOND.'
+    echo '    gymnotoa_db_dir <- path of the gymnoTOA-db directory.'
+    echo '    fasta_type <- FASTA file type: "TRANSCRIPTS" or "PROTEINS".'
+    echo '    fasta_file <- FASTA file path.'
+    echo '    model <- CodAn model: "PLANTS_full" or "PLANTS_partial".'
+    echo '    aligner <- alignment software: "BLAST+" or "DIAMOND".'
     echo '    ev <- evalue (BLAST+ and DIAMOND parameter).'
     echo '    mts <- max_target_seqs (BLAST+ and DIAMOND parameter).'
     echo '    mh <- max_hsps (BLAST+ and DIAMOND parameter).'
@@ -43,14 +45,14 @@ if [ "$#" -ne 12 ]; then
     echo '    threads <- threads number.'
     echo '    annotation_dir <- path of the annotation output directory.'
     echo
-    echo "Use: ${0##*/} gymnotoa_app_dir miniconda3_dir dbs_dir transcripts model aligner ev mts mh qhp threads annotation_dir"
+    echo "Use: ${0##*/} gymnotoa_app_dir gymnotoa_db_dir fasta_type fasta_file model aligner ev mts mh qhp threads annotation_dir"
     exit 1
 fi
 
 GYMNOTOA_APP_DIR=${1}
-MINICONDA3_DIR=${2}
-DBS_DIR=${3}
-TRANSCRIPTS=${4}
+GYMNOTOA_DB_DIR=${2}
+FASTA_TYPE=${3}
+FASTA_FILE=${4}
 MODEL=${5}
 ALIGNER=${6}
 EVALUE=${7}
@@ -64,7 +66,6 @@ ANNOTATION_DIR=${12}
 
 # set other variables
 
-MINICONDA3_BIN_DIR=$MINICONDA3_DIR/bin
 TEMP=$ANNOTATION_DIR/temp
 SEP="#########################################"
 
@@ -87,34 +88,27 @@ function init
 
 #-------------------------------------------------------------------------------
 
-function activate_env_base
-{
-    echo "$SEP"
-    echo "Activating environment base ..."
-    source $MINICONDA3_BIN_DIR/activate
-    RC=$?
-    if [ $RC -ne 0 ]; then manage_error conda $RC; fi
-    echo "Environment is activated."
-}
-
-#-------------------------------------------------------------------------------
-
 function predict_orfs
 {
     echo "$SEP"
     echo "Predicting ORFs and getting peptide sequences ..."
-    cd $ANNOTATION_DIR
-    source activate codan
-    /usr/bin/time \
-        codan.py \
-            --cpu=$THREADS \
-            --model=$MINICONDA3_DIR/envs/codan/models/$MODEL \
-            --transcripts=$TRANSCRIPTS \
-            --output=$ANNOTATION_DIR/codan_output
-    RC=$?
-    if [ $RC -ne 0 ]; then manage_error codan.py $RC; fi
-    conda deactivate
-    echo "ORFs are predicted and peptide sequences are gotten."
+    if [[ "$FASTA_TYPE" == "TRANSCRIPTS" ]]; then
+        cd $ANNOTATION_DIR
+        source activate gymnotoa-codan
+        CODAN_DIR=`echo $CONDA_PREFIX`
+        /usr/bin/time \
+            codan.py \
+                --cpu=$THREADS \
+                --model=$CODAN_DIR/models/$MODEL \
+                --transcripts=$FASTA_FILE \
+                --output=$ANNOTATION_DIR/codan_output
+        RC=$?
+        if [ $RC -ne 0 ]; then manage_error codan.py $RC; fi
+        conda deactivate
+        echo "ORFs are predicted and peptide sequences are gotten."
+    elif [[ "$FASTA_TYPE" == "PROTEINS" ]]; then
+        echo "This step is not run with a proteins file."
+    fi
 }
 
 #-------------------------------------------------------------------------------
@@ -122,16 +116,21 @@ function predict_orfs
 function align_peptides_2_alignment_tool_acrogymnospermae_db
 {
     echo "$SEP"
+    echo "Aligning peptides to the aligner Acrogymnospermae database ..."
     cd $ANNOTATION_DIR
+    if [[ "$FASTA_TYPE" == "TRANSCRIPTS" ]]; then
+        PEPTIDE_FILE=$ANNOTATION_DIR/codan_output/PEP_sequences.fa
+    elif [[ "$FASTA_TYPE" == "PROTEINS" ]]; then
+        PEPTIDE_FILE=$FASTA_FILE
+    fi
     if [ "$ALIGNER" = "BLAST+" ]; then
-        echo "Aligning peptides to BLAST+ Acrogymnospermae database ..."
-        source activate blast
-        export BLASTDB=$DBS_DIR/gymnoTOA-db/Acrogymnospermae-consensus-blastplus-db
+        source activate gymnotoa-blast
+        export BLASTDB=$GYMNOTOA_DB_DIR/Acrogymnospermae-consensus-blastplus-db
         /usr/bin/time \
             blastp \
                 -num_threads $THREADS \
                 -db Acrogymnospermae-consensus-blastplus-db \
-                -query $ANNOTATION_DIR/codan_output/PEP_sequences.fa \
+                -query $PEPTIDE_FILE \
                 -evalue $EVALUE \
                 -max_target_seqs $MAX_TARGET_SEQS \
                 -max_hsps $MAX_HSPS \
@@ -143,13 +142,12 @@ function align_peptides_2_alignment_tool_acrogymnospermae_db
         conda deactivate
         echo "Alignment is done."
     elif [ "$ALIGNER" = "DIAMOND" ]; then
-        echo "Aligning peptides to DIAMOND Acrogymnospermae database ..."
-        source activate diamond
+        source activate gymnotoa-diamond
         /usr/bin/time \
             diamond blastp \
                 --threads 4 \
-                --db $DBS_DIR/gymnoTOA-db/Acrogymnospermae-consensus-diamond-db/Acrogymnospermae-consensus-diamond-db \
-                --query $ANNOTATION_DIR/codan_output/PEP_sequences.fa \
+                --db $GYMNOTOA_DB_DIR/Acrogymnospermae-consensus-diamond-db/Acrogymnospermae-consensus-diamond-db \
+                --query $PEPTIDE_FILE \
                 --evalue $EVALUE \
                 --max-target-seqs $MAX_TARGET_SEQS \
                 --max-hsps $MAX_HSPS \
@@ -169,73 +167,82 @@ function align_transcriptome_2_alignment_tool_acrogymnospermae_db
 {
 
     echo "$SEP"
+    echo "Aligning transcriptome to the aligner Acrogymnospermae database ..."
     cd $ANNOTATION_DIR
-    if [ "$ALIGNER" = "BLAST+" ]; then
-        echo "Aligning transcriptome to BLAST+ Acrogymnospermae database ..."
-        source activate blast
-        export BLASTDB=$DBS_DIR/gymnoTOA-db/Acrogymnospermae-consensus-blastplus-db
-        /usr/bin/time \
-            blastx \
-                -num_threads $THREADS \
-                -db Acrogymnospermae-consensus-blastplus-db \
-                -query $TRANSCRIPTS \
-                -evalue $EVALUE \
-                -max_target_seqs $MAX_TARGET_SEQS \
-                -max_hsps $MAX_HSPS \
-                -qcov_hsp_perc $QCOV_HSP_PERC \
-                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \
-                -out $TEMP/blastx-clade-alignments.csv
-        RC=$?
-        if [ $RC -ne 0 ]; then manage_error blastx $RC; fi
-        conda deactivate
-        echo "Alignment is done."
-    elif [ "$ALIGNER" = "DIAMOND" ]; then
-        echo "Aligning transcriptome to DIAMOND Acrogymnospermae database ..."
-        source activate diamond
-        /usr/bin/time \
-            diamond blastx \
-                --threads 4 \
-                --db $DBS_DIR/gymnoTOA-db/Acrogymnospermae-consensus-diamond-db/Acrogymnospermae-consensus-diamond-db \
-                --query $TRANSCRIPTS \
-                --evalue $EVALUE \
-                --max-target-seqs $MAX_TARGET_SEQS \
-                --max-hsps $MAX_HSPS \
-                --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \
-                --out $TEMP/blastx-clade-alignments.csv
-        RC=$?
-        if [ $RC -ne 0 ]; then manage_error diamond-blastx $RC; fi
-        conda deactivate
-        echo "Alignment is done."
-    else
-        manage_error aligner_parameter_wrong 0
+    if [[ "$FASTA_TYPE" == "TRANSCRIPTS" ]]; then
+        if [ "$ALIGNER" = "BLAST+" ]; then
+            source activate gymnotoa-blast
+            export BLASTDB=$GYMNOTOA_DB_DIR/Acrogymnospermae-consensus-blastplus-db
+            /usr/bin/time \
+                blastx \
+                    -num_threads $THREADS \
+                    -db Acrogymnospermae-consensus-blastplus-db \
+                    -query $FASTA_FILE \
+                    -evalue $EVALUE \
+                    -max_target_seqs $MAX_TARGET_SEQS \
+                    -max_hsps $MAX_HSPS \
+                    -qcov_hsp_perc $QCOV_HSP_PERC \
+                    -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \
+                    -out $TEMP/blastx-clade-alignments.csv
+            RC=$?
+            if [ $RC -ne 0 ]; then manage_error blastx $RC; fi
+            conda deactivate
+            echo "Alignment is done."
+        elif [ "$ALIGNER" = "DIAMOND" ]; then
+            source activate gymnotoa-diamond
+            /usr/bin/time \
+                diamond blastx \
+                    --threads 4 \
+                    --db $GYMNOTOA_DB_DIR/Acrogymnospermae-consensus-diamond-db/Acrogymnospermae-consensus-diamond-db \
+                    --query $FASTA_FILE \
+                    --evalue $EVALUE \
+                    --max-target-seqs $MAX_TARGET_SEQS \
+                    --max-hsps $MAX_HSPS \
+                    --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \
+                    --out $TEMP/blastx-clade-alignments.csv
+            RC=$?
+            if [ $RC -ne 0 ]; then manage_error diamond-blastx $RC; fi
+            conda deactivate
+            echo "Alignment is done."
+        else
+            manage_error aligner_parameter_wrong 0
+        fi
+    elif [[ "$FASTA_TYPE" == "PROTEINS" ]]; then
+        touch $TEMP/blastx-clade-alignments.csv
+        echo "This step is not run with a proteins file."
     fi
 
 }
 
 #-------------------------------------------------------------------------------
 
-function align_trancriptome_2_blastplus_lncrna_db
+function align_transcriptome_2_blastplus_lncrna_db
 {
     echo "$SEP"
-    echo "Aligning trancriptome to BLAST+ lncRNA database ..."
+    echo "Aligning transcriptome to the aligner lncRNA database ..."
     cd $ANNOTATION_DIR
-    source activate blast
-    export BLASTDB=$DBS_DIR/gymnoTOA-db/lncRNA-blastplus-db
-    /usr/bin/time \
-        blastn \
-            -num_threads 4 \
-            -db lncRNA-blastplus-db \
-            -query $TRANSCRIPTS \
-            -evalue 1E-3 \
-            -max_target_seqs 1 \
-            -max_hsps 1 \
-            -qcov_hsp_perc 0.0 \
-            -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \
-            -out $TEMP/blastn-lncrna-alignments.csv
-    RC=$?
-    if [ $RC -ne 0 ]; then manage_error blastn $RC; fi
-    conda deactivate
-    echo "Alignment is done."
+    if [[ "$FASTA_TYPE" == "TRANSCRIPTS" ]]; then
+        source activate gymnotoa-blast
+        export BLASTDB=$GYMNOTOA_DB_DIR/lncRNA-blastplus-db
+        /usr/bin/time \
+            blastn \
+                -num_threads 4 \
+                -db lncRNA-blastplus-db \
+                -query $FASTA_FILE \
+                -evalue 1E-3 \
+                -max_target_seqs 1 \
+                -max_hsps 1 \
+                -qcov_hsp_perc 0.0 \
+                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \
+                -out $TEMP/blastn-lncrna-alignments.csv
+        RC=$?
+        if [ $RC -ne 0 ]; then manage_error blastn $RC; fi
+        conda deactivate
+        echo "Alignment is done."
+    elif [[ "$FASTA_TYPE" == "PROTEINS" ]]; then
+        touch $TEMP/blastn-lncrna-alignments.csv
+        echo "This step is not run with a proteins file."
+    fi
 }
 
 #-------------------------------------------------------------------------------
@@ -245,9 +252,10 @@ function concat_functional_annotations
     echo "$SEP"
     echo "Concatenating functional annotation to alignment file ..."
     cd $ANNOTATION_DIR
+    source activate gymnotoa
     /usr/bin/time \
         $GYMNOTOA_APP_DIR/concat-functional-annotations.py \
-            --db=$DBS_DIR/gymnoTOA-db/gymnoTOA-db.db \
+            --db=$GYMNOTOA_DB_DIR/gymnoTOA-db.db \
             --blastp-alignments=$TEMP/blastp-clade-alignments.csv \
             --blastx-alignments=$TEMP/blastx-clade-alignments.csv \
             --blastn-alignments=$TEMP/blastn-lncrna-alignments.csv \
@@ -255,9 +263,10 @@ function concat_functional_annotations
             --besthit_annotations=$ANNOTATION_DIR/functional-annotations-besthit.csv \
             --verbose=N \
             --trace=N
-        RC=$?
-        if [ $RC -ne 0 ]; then manage_error concat-functional-annotations.py $RC; fi
-        echo "Data are loaded."
+    RC=$?
+    if [ $RC -ne 0 ]; then manage_error concat-functional-annotations.py $RC; fi
+    conda deactivate
+    echo "Data are concated."
 }
 
 #-------------------------------------------------------------------------------
@@ -314,15 +323,17 @@ function calculate_functional_annotation_stats
     echo "$SEP"
     echo "Calculating functional annotation statistics ..."
     cd $ANNOTATION_DIR
+    source activate gymnotoa
     /usr/bin/time \
         $GYMNOTOA_APP_DIR/calculate-functional-annotation-stats.py \
-            --db=$DBS_DIR/gymnoTOA-db/gymnoTOA-db.db \
+            --db=$GYMNOTOA_DB_DIR/gymnoTOA-db.db \
             --annotations=$ANNOTATION_DIR/functional-annotations-complete.csv \
             --outdir=$ANNOTATION_DIR \
             --verbose=N \
             --trace=N
     RC=$?
     if [ $RC -ne 0 ]; then manage_error calculate-functional-annotation-stats.py $RC; fi
+    conda deactivate
     echo "Statistics are calculated."
 }
 
@@ -333,6 +344,7 @@ function build_external_inputs
     echo "$SEP"
     echo "Building inputs to external applications ..."
     cd $ANNOTATION_DIR
+    source activate gymnotoa
     /usr/bin/time \
         $GYMNOTOA_APP_DIR/build-external-inputs.py \
             --annotations=./functional-annotations-complete.csv \
@@ -385,11 +397,10 @@ function calculate_duration
 #-------------------------------------------------------------------------------
 
 init
-activate_env_base
 predict_orfs
 align_peptides_2_alignment_tool_acrogymnospermae_db
 align_transcriptome_2_alignment_tool_acrogymnospermae_db
-align_trancriptome_2_blastplus_lncrna_db
+align_transcriptome_2_blastplus_lncrna_db
 concat_functional_annotations
 sort_functional_annotations
 add_heads

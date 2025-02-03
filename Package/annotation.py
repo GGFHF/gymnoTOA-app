@@ -14,7 +14,7 @@ This file contains the classes related to the functional annotation of gymnoTOA
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -130,19 +130,29 @@ class FormRunAnnotationPipeline(QWidget):
         self.lineedit_threads.setFixedWidth(fontmetrics.width('9'*6))
         self.lineedit_threads.editingFinished.connect(self.check_inputs)
 
-        # create and configure "label_transcript_file"
-        label_transcript_file = QLabel()
-        label_transcript_file.setText('Transcript file')
+        # create and configure "label_fasta_type"
+        label_fasta_type = QLabel()
+        label_fasta_type.setText('FASTA type')
+        label_fasta_type.setFixedWidth(fontmetrics.width('9'*10))
 
-        # create and configure "lineedit_transcript_file"
-        self.lineedit_transcript_file = QLineEdit()
-        self.lineedit_transcript_file.editingFinished.connect(self.check_inputs)
+        # create and configure "combobox_fasta_type"
+        self.combobox_fasta_type = QComboBox()
+        self.combobox_fasta_type.currentIndexChanged.connect(self.check_inputs)
+        self.combobox_fasta_type.setFixedWidth(fontmetrics.width('9'*22))
 
-        # create and configure "pushbutton_search_transcript_file"
-        pushbutton_search_transcript_file = QPushButton('Search ...')
-        pushbutton_search_transcript_file.setToolTip('Search and select the transcript file.')
-        pushbutton_search_transcript_file.setCursor(QCursor(Qt.PointingHandCursor))
-        pushbutton_search_transcript_file.clicked.connect(self.pushbutton_search_transcript_file_clicked)
+        # create and configure "label_fasta_file"
+        label_fasta_file = QLabel()
+        label_fasta_file.setText('FASTA file')
+
+        # create and configure "lineedit_fasta_file"
+        self.lineedit_fasta_file = QLineEdit()
+        self.lineedit_fasta_file.editingFinished.connect(self.check_inputs)
+
+        # create and configure "pushbutton_search_fasta_file"
+        pushbutton_search_fasta_file = QPushButton('Search ...')
+        pushbutton_search_fasta_file.setToolTip('Search and select the FASTA file.')
+        pushbutton_search_fasta_file.setCursor(QCursor(Qt.PointingHandCursor))
+        pushbutton_search_fasta_file.clicked.connect(self.pushbutton_search_fasta_file_clicked)
 
         # create and configure "label_codan_model"
         label_codan_model = QLabel()
@@ -265,9 +275,12 @@ class FormRunAnnotationPipeline(QWidget):
         gridlayout_data.setColumnStretch(5,1)
         gridlayout_data.addWidget(label_threads, 0, 0, 1, 1)
         gridlayout_data.addWidget(self.lineedit_threads, 0, 1, 1, 1, alignment=Qt.AlignLeft)
-        gridlayout_data.addWidget(label_transcript_file, 1, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 4)
-        gridlayout_data.addWidget(pushbutton_search_transcript_file, 1, 5, 1, 1)
+        gridlayout_data.addWidget(label_empty, 0, 2, 1, 1)
+        gridlayout_data.addWidget(label_fasta_type, 0, 3, 1, 1)
+        gridlayout_data.addWidget(self.combobox_fasta_type, 0, 4, 1, 1, alignment=Qt.AlignLeft)
+        gridlayout_data.addWidget(label_fasta_file, 1, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_fasta_file, 1, 1, 1, 4)
+        gridlayout_data.addWidget(pushbutton_search_fasta_file, 1, 5, 1, 1)
         gridlayout_data.addWidget(label_codan_model, 2, 0, 1, 1)
         gridlayout_data.addWidget(self.combobox_codan_model, 2, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(label_empty, 2, 2, 1, 1)
@@ -341,8 +354,11 @@ class FormRunAnnotationPipeline(QWidget):
         # set initial value in "lineedit_threads"
         self.lineedit_threads.setText('4')
 
-        # set initial value in "lineedit_transcript_file"
-        self.lineedit_transcript_file.setText('')
+        # set initial value in "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
+
+        # populate data in "combobox_fasta_type"
+        self.combobox_fasta_type_populate()
 
         # populate data in "combobox_codan_model"
         self.combobox_codan_model_populate()
@@ -379,8 +395,8 @@ class FormRunAnnotationPipeline(QWidget):
         if not self.lineedit_threads_editing_finished():
             OK = False
 
-        # check "lineedit_transcript_file" when the editing finished
-        if not self.lineedit_transcript_file_editing_finished():
+        # check "lineedit_fasta_file" when the editing finished
+        if not self.lineedit_fasta_file_editing_finished():
             OK = False
 
         # check "lineedit_evalue" when the editing finished
@@ -410,7 +426,7 @@ class FormRunAnnotationPipeline(QWidget):
             self.parent.statusBar().showMessage('WARNING: One or more input values are wrong or empty.')
 
         # enable "pushbutton_execute"
-        if OK and self.lineedit_threads.text() != '' and self.lineedit_transcript_file.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
+        if OK and self.lineedit_threads.text() != '' and self.lineedit_fasta_file.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -448,43 +464,66 @@ class FormRunAnnotationPipeline(QWidget):
 
     #---------------
 
-    def lineedit_transcript_file_editing_finished(self):
+    def combobox_fasta_type_populate(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_transcript_file"
+        Populate data in "combobox_fasta_type".
+        '''
+
+        # populate data in "combobox_fasta_type"
+        self.combobox_fasta_type.addItems([genlib.get_fasta_type_transcripts(), genlib.get_fasta_type_proteins()])
+
+        # simultate "combobox_fasta_type" index has changed
+        self.combobox_fasta_type_currentIndexChanged()
+
+    #---------------
+
+    def combobox_fasta_type_currentIndexChanged(self):
+        '''
+        Process the event when an item of "combobox_fasta_type" has been selected.
+        '''
+
+        # check the content of inputs
+        self.check_inputs()
+
+    #---------------
+
+    def lineedit_fasta_file_editing_finished(self):
+        '''
+        Perform necessary actions after finishing editing "lineedit_fasta_file"
         '''
 
         # initialize the control variable
         OK = True
 
-        # chek if "lineedit_transcript_file" is empty
-        if self.lineedit_transcript_file.text() == '':
-            self.lineedit_transcript_file.setStyleSheet('background-color: white')
+        # chek if "lineedit_fasta_file" is empty
+        if self.lineedit_fasta_file.text() == '':
+            self.lineedit_fasta_file.setStyleSheet('background-color: white')
             OK = False
 
-        # chek if "lineedit_transcript_file" exists
-        elif not os.path.isfile(self.lineedit_transcript_file.text()):
-            self.lineedit_transcript_file.setStyleSheet('background-color: red')
+        # chek if "lineedit_fasta_file" exists
+        elif not os.path.isfile(self.lineedit_fasta_file.text()):
+            self.lineedit_fasta_file.setStyleSheet('background-color: red')
             OK = False
 
         else:
-            self.lineedit_transcript_file.setStyleSheet('background-color: white')
+            self.lineedit_fasta_file.setStyleSheet('background-color: white')
 
         # return the control variable
         return OK
 
     #---------------
 
-    def pushbutton_search_transcript_file_clicked(self):
+    def pushbutton_search_fasta_file_clicked(self):
         '''
-        Search and select the transcript file.
+        Search and select the FASTA file.
         '''
 
         # search the FASTA file
-        (fasta_file, _) = QFileDialog.getOpenFileName(self, f'{self.head} - Selection of transcriptome file', os.path.expanduser('~'), "FASTA files (*.fasta *.FASTA *.fas *.FAS *.fa *.FA *.fsa *.FSA);;all (*.*)")
+        (fasta_file, _) = QFileDialog.getOpenFileName(self, f'{self.head} - Selection of FASTA file', os.path.expanduser('~'), "FASTA files (*.fasta *.FASTA *.fas *.FAS *.fa *.FA *.fsa *.FSA);;all (*.*)")
 
-        # set "lineedit_transcript_file" with the FASTA file selected
+        # set "lineedit_fasta_file" with the FASTA file selected
         if fasta_file != '':
-            self.lineedit_transcript_file.setText(fasta_file)
+            self.lineedit_fasta_file.setText(fasta_file)
 
         # check the content of inputs
         self.check_inputs()
@@ -710,10 +749,13 @@ class FormRunAnnotationPipeline(QWidget):
             # get the threads number
             threads = self.lineedit_threads.text()
 
-            # get the transcript file
-            transcript_file = self.lineedit_transcript_file.text()
+            # get the FASTA file
+            fasta_file = self.lineedit_fasta_file.text()
             if sys.platform.startswith('win32'):
-                transcript_file = genlib.windows_path_2_wsl_path(transcript_file)
+                fasta_file = genlib.windows_path_2_wsl_path(fasta_file)
+
+            # get the FASTA type
+            fasta_type = self.combobox_fasta_type.currentText()
 
             # get the CONDA model
             codan_model = self.combobox_codan_model.currentText()
@@ -737,7 +779,7 @@ class FormRunAnnotationPipeline(QWidget):
             other_parameters = self.lineedit_other_parameters.text()
 
             # create and execute "DialogProcess"
-            process = dialogs.DialogProcess(self, self.head, self.run_annotation_pipeline, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters)
+            process = dialogs.DialogProcess(self, self.head, self.run_annotation_pipeline, threads, fasta_type, fasta_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters)
             process.exec()
 
         # close the windows
@@ -757,7 +799,7 @@ class FormRunAnnotationPipeline(QWidget):
 
    #---------------
 
-    def run_annotation_pipeline(self, process, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, parameters_blast):
+    def run_annotation_pipeline(self, process, threads, fasta_type, fasta_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters):
         '''
         Run a functional annotation pipeline.
         '''
@@ -815,7 +857,7 @@ class FormRunAnnotationPipeline(QWidget):
             process.write(f'{genlib.get_separator()}\n')
             script_name = f'{genlib.get_process_run_annotation_pipeline_code()}-process.sh'
             process.write(f'Building the process script {script_name} ...\n')
-            (OK, _) = self.build_run_annotation_pipeline_script(temp_dir, script_name, current_run_dir, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, parameters_blast)
+            (OK, _) = self.build_run_annotation_pipeline_script(temp_dir, script_name, current_run_dir, threads, fasta_type, fasta_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters)
             if OK:
                 process.write('The file is built.\n')
             else:
@@ -899,7 +941,7 @@ class FormRunAnnotationPipeline(QWidget):
 
     #---------------
 
-    def build_run_annotation_pipeline_script(self, directory, script_name, current_run_dir, threads, transcript_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters):
+    def build_run_annotation_pipeline_script(self, directory, script_name, current_run_dir, threads, fasta_type, fasta_file, codan_model, alignment_tool, evalue, max_target_seqs, max_hsps, qcov_hsp_perc, other_parameters):
         '''
         Build the script to run a functional annotation pipeline.
         '''
@@ -908,9 +950,16 @@ class FormRunAnnotationPipeline(QWidget):
         OK = True
         error_list = []
 
+        # get the Miniforge3 directory and its bin subdirectory
+        miniforge3_dir = ''
+        if sys.platform.startswith('win32'):
+            miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
+        elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+            miniforge3_dir = genlib.get_miniforge3_current_dir()
+        miniforge3_bin_dir = f'{miniforge3_dir}/bin'
+
         # get items from dictionary of application configuration
         app_dir = self.app_config_dict['Environment parameters']['app_dir']
-        miniconda3_bin_dir = self.app_config_dict['Environment parameters']['miniconda3_bin_dir']
         app_db_path = self.app_config_dict[f'{genlib.get_app_short_name()} database']['app_db_path']
         acrogymnospermae_blastplus_db_name = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_blastplus_db_name']
         acrogymnospermae_blastplus_db_dir = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_blastplus_db_dir']
@@ -918,7 +967,6 @@ class FormRunAnnotationPipeline(QWidget):
         acrogymnospermae_diamond_db_dir = self.app_config_dict[f'{genlib.get_app_short_name()} database']['acrogymnospermae_diamond_db_dir']
         lncrna_blastplus_db_name = self.app_config_dict[f'{genlib.get_app_short_name()} database']['lncrna_blastplus_db_name']
         lncrna_blastplus_db_dir = self.app_config_dict[f'{genlib.get_app_short_name()} database']['lncrna_blastplus_db_dir']
-        codan_model_dir = self.app_config_dict['CodAn models']['codan_model_dir']
 
         # set the CodAn output directory
         codan_output_dir = f'{current_run_dir}/codan_output'
@@ -950,7 +998,7 @@ class FormRunAnnotationPipeline(QWidget):
             with open(script_path, mode='w', encoding='iso-8859-1', newline='\n') as file_id:
                 file_id.write( '#!/bin/bash\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write(f'export PATH={miniconda3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
+                file_id.write(f'export PATH={miniforge3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
                 file_id.write( 'SEP="#########################################"\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write(f'STATUS_DIR={genlib.get_status_dir(current_run_dir)}\n')
@@ -969,27 +1017,18 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function activate_env_base\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Activating environment base ..."\n')
-                file_id.write(f'    source {miniconda3_bin_dir}/activate\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "Environment is activated."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function save_params\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Saving parameters ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/save-parms.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Saving parameters ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
                 file_id.write(f'        echo "[Annotation parameters]" > {params_file}\n')
-                file_id.write(f'        echo "transcript_file = {transcript_file}" >> {params_file}\n')
+                file_id.write(f'        echo "fasta_type = {fasta_type}" >> {params_file}\n')
+                file_id.write(f'        echo "fasta_file = {fasta_file}" >> {params_file}\n')
                 file_id.write(f'        echo "codan_model = {codan_model}" >> {params_file}\n')
                 file_id.write(f'        echo "alignment_tool = {alignment_tool}" >> {params_file}\n')
                 file_id.write(f'        echo "evalue = {evalue}" >> {params_file}\n')
@@ -1006,52 +1045,60 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function predict_orfs\n')
                 file_id.write( '{\n')
-                file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/predict-orfs.ok\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write( '    echo "Predicting ORFs and getting peptide sequences ..."\n')
+                file_id.write(f'    cd {current_run_dir}\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/predict-orfs.ok\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniconda3_bin_dir}/activate codan\n')
-                file_id.write( '        /usr/bin/time \\\n')
-                file_id.write( '            codan.py \\\n')
-                file_id.write(f'                --cpu={threads} \\\n')
-                file_id.write(f'                --model={codan_model_dir}/{codan_model} \\\n')
-                file_id.write(f'                --transcripts={transcript_file} \\\n')
-                file_id.write(f'                --output={codan_output_dir}\n')
-                file_id.write( '        RC=$?\n')
-                file_id.write( '        if [ $RC -ne 0 ]; then manage_error codan.py $RC; fi\n')
-                if codan_model.endswith('_partial'):
+                if fasta_type ==  genlib.get_fasta_type_transcripts():
+                    file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
+                    file_id.write( '        MODELS_DIR=`echo $CONDA_PREFIX`/models\n')
                     file_id.write( '        /usr/bin/time \\\n')
-                    file_id.write( '            TranslatePartial.py \\\n')
-                    file_id.write(f'                {codan_output_dir}/ORF_sequences.fasta \\\n')
-                    file_id.write(f'                {codan_output_dir}/PEP_sequences.fa\n')
+                    file_id.write( '            codan.py \\\n')
+                    file_id.write(f'                --cpu={threads} \\\n')
+                    file_id.write(f'                --model=$MODELS_DIR/{codan_model} \\\n')
+                    file_id.write(f'                --transcripts={fasta_file} \\\n')
+                    file_id.write(f'                --output={codan_output_dir}\n')
                     file_id.write( '        RC=$?\n')
-                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error TranslatePartial.py $RC; fi\n')
-                file_id.write( '        conda deactivate\n')
-                file_id.write( '        echo "ORFs are predicted and peptide sequences are gotten."\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error codan.py $RC; fi\n')
+                    if codan_model.endswith('_partial'):
+                        file_id.write( '        /usr/bin/time \\\n')
+                        file_id.write( '            TranslatePartial.py \\\n')
+                        file_id.write(f'                {codan_output_dir}/ORF_sequences.fasta \\\n')
+                        file_id.write(f'                {codan_output_dir}/PEP_sequences.fa\n')
+                        file_id.write( '        RC=$?\n')
+                        file_id.write( '        if [ $RC -ne 0 ]; then manage_error TranslatePartial.py $RC; fi\n')
+                    file_id.write( '        conda deactivate\n')
+                    file_id.write( '        echo "ORFs are predicted and peptide sequences are gotten."\n')
+                elif fasta_type ==  genlib.get_fasta_type_proteins():
+                    file_id.write( '        echo "This step is not run with a proteins file."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function align_peptides_2_alignment_tool_acrogymnospermae_db\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write(f'    echo "Aligning peptides to the {alignment_tool} Acrogymnospermae database ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/align-peptides-2-alignment-tool-acrogymnospermae-db.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Aligning peptides to {alignment_tool} Acrogymnospermae database ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
+                if fasta_type ==  genlib.get_fasta_type_transcripts():
+                    file_id.write(f'        PEPTIDE_FILE={codan_output_dir}/PEP_sequences.fa\n')
+                elif fasta_type ==  genlib.get_fasta_type_proteins():
+                    file_id.write(f'        PEPTIDE_FILE={fasta_file}\n')
                 if alignment_tool == genlib.get_blastplus_name():
-                    file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
+                    file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_blastplus_environment()}\n')
                     file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
                     file_id.write( '        /usr/bin/time \\\n')
                     file_id.write( '            blastp \\\n')
                     file_id.write(f'                -num_threads {threads} \\\n')
                     file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
-                    file_id.write(f'                -query {codan_output_dir}/PEP_sequences.fa \\\n')
+                    file_id.write( '                -query $PEPTIDE_FILE \\\n')
                     file_id.write(f'                -evalue {evalue} \\\n')
                     file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
                     file_id.write(f'                -max_hsps {max_hsps} \\\n')
@@ -1076,12 +1123,12 @@ class FormRunAnnotationPipeline(QWidget):
                     file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastp $RC; fi\n')
                     file_id.write( '        conda deactivate\n')
                 elif alignment_tool == genlib.get_diamond_name():
-                    file_id.write(f'        source {miniconda3_bin_dir}/activate diamond\n')
+                    file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_diamond_environment()}\n')
                     file_id.write( '        /usr/bin/time \\\n')
                     file_id.write( '            diamond blastp \\\n')
                     file_id.write(f'                --threads {threads} \\\n')
                     file_id.write(f'                --db {acrogymnospermae_diamond_db_dir}/{acrogymnospermae_diamond_db_name} \\\n')
-                    file_id.write(f'                --query {codan_output_dir}/PEP_sequences.fa \\\n')
+                    file_id.write( '                --query $PEPTIDE_FILE \\\n')
                     file_id.write(f'                --evalue {evalue} \\\n')
                     file_id.write(f'                --max-target-seqs {max_target_seqs} \\\n')
                     file_id.write(f'                --max-hsps {max_hsps} \\\n')
@@ -1111,117 +1158,126 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function align_transcriptome_2_alignment_tool_acrogymnospermae_db\n')
                 file_id.write( '{\n')
-                file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-alignment-tool-acrogymnospermae-db.ok\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write(f'    echo "Aligning transcriptome to {alignment_tool} Acrogymnospermae database ..."\n')
+                file_id.write(f'    cd {current_run_dir}\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-alignment-tool-acrogymnospermae-db.ok\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                if alignment_tool == genlib.get_blastplus_name():
-                    file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
-                    file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
-                    file_id.write( '        /usr/bin/time \\\n')
-                    file_id.write( '            blastx \\\n')
-                    file_id.write(f'                -num_threads {threads} \\\n')
-                    file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
-                    file_id.write(f'                -query {transcript_file} \\\n')
-                    file_id.write(f'                -evalue {evalue} \\\n')
-                    file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
-                    file_id.write(f'                -max_hsps {max_hsps} \\\n')
-                    file_id.write(f'                -qcov_hsp_perc {qcov_hsp_perc} \\\n')
-                    file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
-                    if other_parameters.upper() != 'NONE':
-                        parameter_list = [x.strip() for x in other_parameters.split(';')]
-                        for parameter in parameter_list:
-                            if parameter.find('=') > 0:
-                                pattern = r'^--(.+)=(.+)$'
-                                mo = re.search(pattern, parameter)
-                                parameter_name = mo.group(1).strip()
-                                parameter_value = mo.group(2).strip()
-                                file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
-                            else:
-                                pattern = r'^--(.+)$'
-                                mo = re.search(pattern, parameter)
-                                parameter_name = mo.group(1).strip()
-                                file_id.write(f'                -{parameter_name} \\\n')
-                    file_id.write(f'                -out {blastx_clade_alignment_file}\n')
-                    file_id.write( '        RC=$?\n')
-                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastx $RC; fi\n')
-                    file_id.write( '        conda deactivate\n')
-                elif alignment_tool == genlib.get_diamond_name():
-                    file_id.write(f'        source {miniconda3_bin_dir}/activate diamond\n')
-                    file_id.write( '        /usr/bin/time \\\n')
-                    file_id.write( '            diamond blastx \\\n')
-                    file_id.write(f'                --threads {threads} \\\n')
-                    file_id.write(f'                --db {acrogymnospermae_diamond_db_dir}/{acrogymnospermae_diamond_db_name} \\\n')
-                    file_id.write(f'                --query {transcript_file} \\\n')
-                    file_id.write(f'                --evalue {evalue} \\\n')
-                    file_id.write(f'                --max-target-seqs {max_target_seqs} \\\n')
-                    file_id.write(f'                --max-hsps {max_hsps} \\\n')
-                    file_id.write( '                --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \\\n')
-                    if other_parameters.upper() != 'NONE':
-                        parameter_list = [x.strip() for x in other_parameters.split(';')]
-                        for parameter in parameter_list:
-                            if parameter.find('=') > 0:
-                                pattern = r'^--(.+)=(.+)$'
-                                mo = re.search(pattern, parameter)
-                                parameter_name = mo.group(1).strip()
-                                parameter_value = mo.group(2).strip()
-                                file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
-                            else:
-                                pattern = r'^--(.+)$'
-                                mo = re.search(pattern, parameter)
-                                parameter_name = mo.group(1).strip()
-                                file_id.write(f'                -{parameter_name} \\\n')
-                    file_id.write(f'                --out {blastx_clade_alignment_file}\n')
-                    file_id.write( '        RC=$?\n')
-                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error diamond-blastx $RC; fi\n')
-                    file_id.write( '        conda deactivate\n')
-                file_id.write( '        echo "Alignment is done."\n')
+                if fasta_type ==  genlib.get_fasta_type_transcripts():
+                    if alignment_tool == genlib.get_blastplus_name():
+                        file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_blastplus_environment()}\n')
+                        file_id.write(f'        export BLASTDB={acrogymnospermae_blastplus_db_dir}\n')
+                        file_id.write( '        /usr/bin/time \\\n')
+                        file_id.write( '            blastx \\\n')
+                        file_id.write(f'                -num_threads {threads} \\\n')
+                        file_id.write(f'                -db {acrogymnospermae_blastplus_db_name} \\\n')
+                        file_id.write(f'                -query {fasta_file} \\\n')
+                        file_id.write(f'                -evalue {evalue} \\\n')
+                        file_id.write(f'                -max_target_seqs {max_target_seqs} \\\n')
+                        file_id.write(f'                -max_hsps {max_hsps} \\\n')
+                        file_id.write(f'                -qcov_hsp_perc {qcov_hsp_perc} \\\n')
+                        file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
+                        if other_parameters.upper() != 'NONE':
+                            parameter_list = [x.strip() for x in other_parameters.split(';')]
+                            for parameter in parameter_list:
+                                if parameter.find('=') > 0:
+                                    pattern = r'^--(.+)=(.+)$'
+                                    mo = re.search(pattern, parameter)
+                                    parameter_name = mo.group(1).strip()
+                                    parameter_value = mo.group(2).strip()
+                                    file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                                else:
+                                    pattern = r'^--(.+)$'
+                                    mo = re.search(pattern, parameter)
+                                    parameter_name = mo.group(1).strip()
+                                    file_id.write(f'                -{parameter_name} \\\n')
+                        file_id.write(f'                -out {blastx_clade_alignment_file}\n')
+                        file_id.write( '        RC=$?\n')
+                        file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastx $RC; fi\n')
+                        file_id.write( '        conda deactivate\n')
+                    elif alignment_tool == genlib.get_diamond_name():
+                        file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_diamond_environment()}\n')
+                        file_id.write( '        /usr/bin/time \\\n')
+                        file_id.write( '            diamond blastx \\\n')
+                        file_id.write(f'                --threads {threads} \\\n')
+                        file_id.write(f'                --db {acrogymnospermae_diamond_db_dir}/{acrogymnospermae_diamond_db_name} \\\n')
+                        file_id.write(f'                --query {fasta_file} \\\n')
+                        file_id.write(f'                --evalue {evalue} \\\n')
+                        file_id.write(f'                --max-target-seqs {max_target_seqs} \\\n')
+                        file_id.write(f'                --max-hsps {max_hsps} \\\n')
+                        file_id.write( '                --outfmt 6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore \\\n')
+                        if other_parameters.upper() != 'NONE':
+                            parameter_list = [x.strip() for x in other_parameters.split(';')]
+                            for parameter in parameter_list:
+                                if parameter.find('=') > 0:
+                                    pattern = r'^--(.+)=(.+)$'
+                                    mo = re.search(pattern, parameter)
+                                    parameter_name = mo.group(1).strip()
+                                    parameter_value = mo.group(2).strip()
+                                    file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                                else:
+                                    pattern = r'^--(.+)$'
+                                    mo = re.search(pattern, parameter)
+                                    parameter_name = mo.group(1).strip()
+                                    file_id.write(f'                -{parameter_name} \\\n')
+                        file_id.write(f'                --out {blastx_clade_alignment_file}\n')
+                        file_id.write( '        RC=$?\n')
+                        file_id.write( '        if [ $RC -ne 0 ]; then manage_error diamond-blastx $RC; fi\n')
+                        file_id.write( '        conda deactivate\n')
+                    file_id.write( '        echo "Alignment is done."\n')
+                elif fasta_type ==  genlib.get_fasta_type_proteins():
+                    file_id.write(f'        touch {blastx_clade_alignment_file}\n')
+                    file_id.write( '        echo "This step is not run with a proteins file."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function align_trancriptome_2_blastplus_lncrna_db\n')
+                file_id.write( 'function align_transcriptome_2_blastplus_lncrna_db\n')
                 file_id.write( '{\n')
-                file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-trancriptome-2-blastplus-lncRNA-db.ok\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-blastplus-lncRNA-db.ok\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Aligning trancriptome to BLAST+ lncRNA database ..."\n')
+                file_id.write(f'    cd {current_run_dir}\n')
+                file_id.write( '    echo "Aligning transcriptome to BLAST+ lncRNA database ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniconda3_bin_dir}/activate blast\n')
-                file_id.write(f'        export BLASTDB={lncrna_blastplus_db_dir}\n')
-                file_id.write( '        /usr/bin/time \\\n')
-                file_id.write( '            blastn \\\n')
-                file_id.write(f'                -num_threads {threads} \\\n')
-                file_id.write(f'                -db {lncrna_blastplus_db_name} \\\n')
-                file_id.write(f'                -query {transcript_file} \\\n')
-                file_id.write( '                -evalue 1E-3 \\\n')
-                file_id.write( '                -max_target_seqs 1 \\\n')
-                file_id.write( '                -max_hsps 1 \\\n')
-                file_id.write( '                -qcov_hsp_perc 0.0 \\\n')
-                file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
-                file_id.write(f'                -out {blastn_lncrna_alignment_file}\n')
-                file_id.write( '        RC=$?\n')
-                file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastn $RC; fi\n')
-                file_id.write( '        conda deactivate\n')
-                file_id.write( '        echo "Alignment is done."\n')
+                if fasta_type ==  genlib.get_fasta_type_transcripts():
+                    file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_blastplus_environment()}\n')
+                    file_id.write(f'        export BLASTDB={lncrna_blastplus_db_dir}\n')
+                    file_id.write( '        /usr/bin/time \\\n')
+                    file_id.write( '            blastn \\\n')
+                    file_id.write(f'                -num_threads {threads} \\\n')
+                    file_id.write(f'                -db {lncrna_blastplus_db_name} \\\n')
+                    file_id.write(f'                -query {fasta_file} \\\n')
+                    file_id.write( '                -evalue 1E-3 \\\n')
+                    file_id.write( '                -max_target_seqs 1 \\\n')
+                    file_id.write( '                -max_hsps 1 \\\n')
+                    file_id.write( '                -qcov_hsp_perc 0.0 \\\n')
+                    file_id.write( '                -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \\\n')
+                    file_id.write(f'                -out {blastn_lncrna_alignment_file}\n')
+                    file_id.write( '        RC=$?\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error blastn $RC; fi\n')
+                    file_id.write( '        conda deactivate\n')
+                    file_id.write( '        echo "Alignment is done."\n')
+                elif fasta_type ==  genlib.get_fasta_type_proteins():
+                    file_id.write(f'        touch {blastn_lncrna_alignment_file}\n')
+                    file_id.write( '        echo "This step is not run with a proteins file."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function concat_functional_annotations\n')
                 file_id.write( '{\n')
-                file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/concat-functional-annotations.ok\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write( '    echo "Concatenating functional annotation to alignment file ..."\n')
+                file_id.write(f'    cd {current_run_dir}\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/concat-functional-annotations.ok\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/concat-functional-annotations.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -1234,6 +1290,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '                --trace=N\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error concat-functional-annotations.py $RC; fi\n')
+                file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Data are loaded."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
@@ -1241,10 +1298,10 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function sort_functional_annotations\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Sorting functional annotations files ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/sort-annotations.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Sorting functional annotations files ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
@@ -1267,10 +1324,10 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function add_heads\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Adding head to annotations files ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/add-head.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Adding head to annotations files ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
@@ -1295,13 +1352,14 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function calculate_functional_annotation_stats\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Calculating functional annotation statistics ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/calculate-functional-annotation-stats.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Calculating functional annotation statistics ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/calculate-functional-annotation-stats.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -1311,6 +1369,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '                --trace=N\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error calculate-functional-annotation-stats.py $RC; fi\n')
+                file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Statistics are calculated."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
@@ -1318,13 +1377,14 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function build_external_inputs\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Building inputs to external applications ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/build-external-inputs.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Building inputs to external applications ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/build-external-inputs.py \\\n')
                 file_id.write(f'                --annotations={complete_functional_annotation_file} \\\n')
@@ -1333,6 +1393,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '                --trace=N\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error build-external-inputs.py $RC; fi\n')
+                file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Inputs are built."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
@@ -1373,12 +1434,11 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                file_id.write( 'activate_env_base\n')
                 file_id.write( 'save_params\n')
                 file_id.write( 'predict_orfs\n')
                 file_id.write( 'align_peptides_2_alignment_tool_acrogymnospermae_db\n')
                 file_id.write( 'align_transcriptome_2_alignment_tool_acrogymnospermae_db\n')
-                file_id.write( 'align_trancriptome_2_blastplus_lncrna_db\n')
+                file_id.write( 'align_transcriptome_2_blastplus_lncrna_db\n')
                 file_id.write( 'concat_functional_annotations\n')
                 file_id.write( 'sort_functional_annotations\n')
                 file_id.write( 'add_heads\n')
@@ -1480,14 +1540,14 @@ class FormRestartAnnotationPipeline(QWidget):
         self.tablewidget.cellClicked.connect(self.tablewidget_cellClicked)
         self.tablewidget.cellDoubleClicked.connect(self.tablewidget_cellDoubleClicked)
 
-        # create and configure "label_transcript_file"
-        label_transcript_file = QLabel()
-        label_transcript_file.setText('Transcript file')
+        # create and configure "label_fasta_file"
+        label_fasta_file = QLabel()
+        label_fasta_file.setText('FASTA file')
 
-        # create and configure "lineedit_transcript_file"
-        self.lineedit_transcript_file = QLineEdit()
-        self.lineedit_transcript_file.editingFinished.connect(self.check_inputs)
-        self.lineedit_transcript_file.setDisabled(True)
+        # create and configure "lineedit_fasta_file"
+        self.lineedit_fasta_file = QLineEdit()
+        self.lineedit_fasta_file.editingFinished.connect(self.check_inputs)
+        self.lineedit_fasta_file.setDisabled(True)
 
         # create and configure "label_codan_model"
         label_codan_model = QLabel()
@@ -1584,8 +1644,8 @@ class FormRestartAnnotationPipeline(QWidget):
         gridlayout_data.setColumnStretch(9, 1)
         gridlayout_data.setColumnStretch(10, 1)
         gridlayout_data.addWidget(self.tablewidget, 0, 0, 1, 11)
-        gridlayout_data.addWidget(label_transcript_file, 1, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 7)
+        gridlayout_data.addWidget(label_fasta_file, 1, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_fasta_file, 1, 1, 1, 7)
         gridlayout_data.addWidget(label_empty, 1, 8, 1, 1)
         gridlayout_data.addWidget(label_codan_model, 1, 9, 1, 1)
         gridlayout_data.addWidget(self.lineedit_codan_model, 1, 10, 1, 1)
@@ -1676,8 +1736,8 @@ class FormRestartAnnotationPipeline(QWidget):
         # load data in "tablewidget"
         self.load_tablewidget()
 
-        # initialize "lineedit_transcript_file"
-        self.lineedit_transcript_file.setText('')
+        # initialize "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
 
         # initialize "lineedit_codan_model"
         self.lineedit_codan_model.setText('')
@@ -1716,8 +1776,8 @@ class FormRestartAnnotationPipeline(QWidget):
             row_list.append(idx.row())
         row_list = list(set(row_list))
 
-        # check "lineedit_transcript_file" when the editing finished
-        if not self.lineedit_transcript_file_editing_finished():
+        # check "lineedit_fasta_file" when the editing finished
+        if not self.lineedit_fasta_file_editing_finished():
             OK = False
 
         # check "lineedit_codan_model" when the editing finished
@@ -1755,7 +1815,7 @@ class FormRestartAnnotationPipeline(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_codan_model.text() != ''  and self.lineedit_alignment_tool.text() != ''and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
+        if OK and len(row_list) == 1 and self.lineedit_fasta_file.text() != '' and self.lineedit_codan_model.text() != '' and self.lineedit_alignment_tool.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -1788,31 +1848,31 @@ class FormRestartAnnotationPipeline(QWidget):
             # get the dictionary of parameters
             params_dict = genlib.get_config_dict(params_file)
 
-            # set the transcript file path in "lineedit_transcript_file"
-            transcript_file = params_dict['Annotation parameters']['transcript_file']
+            # set the FASTA file path in "lineedit_fasta_file"
+            fasta_file = params_dict['Annotation parameters']['fasta_file']
             if sys.platform.startswith('win32'):
-                transcript_file = genlib.wsl_path_2_windows_path(transcript_file)
-            self.lineedit_transcript_file.setText(transcript_file)
+                fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
+            self.lineedit_fasta_file.setText(fasta_file)
 
-            # set the transcript file path in "lineedit_codan_model"
+            # set the FASTA file path in "lineedit_codan_model"
             self.lineedit_codan_model.setText(params_dict['Annotation parameters']['codan_model'])
 
-            # set the transcript file path in "lineedit_alignment_tool"
+            # set the FASTA file path in "lineedit_alignment_tool"
             self.lineedit_alignment_tool.setText(params_dict['Annotation parameters']['alignment_tool'])
 
-            # set the transcript file path in "lineedit_evalue"
+            # set the FASTA file path in "lineedit_evalue"
             self.lineedit_evalue.setText(params_dict['Annotation parameters']['evalue'])
 
-            # set the transcript file path in "lineedit_max_target_seqs"
+            # set the FASTA file path in "lineedit_max_target_seqs"
             self.lineedit_max_target_seqs.setText(params_dict['Annotation parameters']['max_target_seqs'])
 
-            # set the transcript file path in "lineedit_max_hsps"
+            # set the FASTA file path in "lineedit_max_hsps"
             self.lineedit_max_hsps.setText(params_dict['Annotation parameters']['max_hsps'])
 
-            # set the transcript file path in "lineedit_qcov_hsp_perc"
+            # set the FASTA file path in "lineedit_qcov_hsp_perc"
             self.lineedit_qcov_hsp_perc.setText(params_dict['Annotation parameters']['qcov_hsp_perc'])
 
-            # set the transcript file path in "lineedit_other_parameters"
+            # set the FASTA file path in "lineedit_other_parameters"
             self.lineedit_other_parameters.setText(params_dict['Annotation parameters']['other_parameters'])
 
         # check the content of inputs
@@ -1844,9 +1904,9 @@ class FormRestartAnnotationPipeline(QWidget):
 
     #---------------
 
-    def lineedit_transcript_file_editing_finished(self):
+    def lineedit_fasta_file_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_transcript_file"
+        Perform necessary actions after finishing editing "lineedit_fasta_file"
         '''
 
         # initialize the control variable
@@ -2038,6 +2098,7 @@ class FormRestartAnnotationPipeline(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -2080,6 +2141,7 @@ class FormRestartAnnotationPipeline(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -2274,15 +2336,15 @@ class FormBrowseAnnotationResults(QWidget):
         self.tablewidget.cellClicked.connect(self.tablewidget_cellClicked)
         self.tablewidget.cellDoubleClicked.connect(self.tablewidget_cellDoubleClicked)
 
-        # create and configure "label_transcript_file"
-        label_transcript_file = QLabel()
-        label_transcript_file.setText('Transcript file')
-        label_transcript_file.setFixedWidth(fontmetrics.width('9'*18))
+        # create and configure "label_fasta_file"
+        label_fasta_file = QLabel()
+        label_fasta_file.setText('FASTA file')
+        label_fasta_file.setFixedWidth(fontmetrics.width('9'*18))
 
-        # create and configure "lineedit_transcript_file"
-        self.lineedit_transcript_file = QLineEdit()
-        self.lineedit_transcript_file.editingFinished.connect(self.check_inputs)
-        self.lineedit_transcript_file.setDisabled(True)
+        # create and configure "lineedit_fasta_file"
+        self.lineedit_fasta_file = QLineEdit()
+        self.lineedit_fasta_file.editingFinished.connect(self.check_inputs)
+        self.lineedit_fasta_file.setDisabled(True)
 
         # create and configure "label_codan_model"
         label_codan_model = QLabel()
@@ -2381,8 +2443,8 @@ class FormBrowseAnnotationResults(QWidget):
         gridlayout_data.addWidget(label_annotation_result_type, 0, 0, 1, 1)
         gridlayout_data.addWidget(self.combobox_annotation_result_type, 0, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(self.tablewidget, 1, 0, 1, 11)
-        gridlayout_data.addWidget(label_transcript_file, 2, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 2, 1, 1, 7)
+        gridlayout_data.addWidget(label_fasta_file, 2, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_fasta_file, 2, 1, 1, 7)
         gridlayout_data.addWidget(label_empty, 2, 8, 1, 1)
         gridlayout_data.addWidget(label_codan_model, 2, 9, 1, 1)
         gridlayout_data.addWidget(self.lineedit_codan_model, 2, 10, 1, 1)
@@ -2473,8 +2535,8 @@ class FormBrowseAnnotationResults(QWidget):
         # load data in "tablewidget"
         self.load_tablewidget()
 
-        # initialize "lineedit_transcript_file"
-        self.lineedit_transcript_file.setText('')
+        # initialize "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
 
         # initialize "lineedit_codan_model"
         self.lineedit_codan_model.setText('')
@@ -2513,8 +2575,8 @@ class FormBrowseAnnotationResults(QWidget):
             row_list.append(idx.row())
         row_list = list(set(row_list))
 
-        # check "lineedit_transcript_file" when the editing finished
-        if not self.lineedit_transcript_file_editing_finished():
+        # check "lineedit_fasta_file" when the editing finished
+        if not self.lineedit_fasta_file_editing_finished():
             OK = False
 
         # check "lineedit_codan_model" when the editing finished
@@ -2552,7 +2614,7 @@ class FormBrowseAnnotationResults(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and self.combobox_annotation_result_type.currentText() != '' and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_codan_model.text() != '' and self.lineedit_alignment_tool.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
+        if OK and self.combobox_annotation_result_type.currentText() != '' and len(row_list) == 1 and self.lineedit_fasta_file.text() != '' and self.lineedit_codan_model.text() != '' and self.lineedit_alignment_tool.text() != '' and self.lineedit_evalue.text() != '' and self.lineedit_max_target_seqs.text() != '' and self.lineedit_max_hsps.text() != '' and self.lineedit_qcov_hsp_perc.text() != '' and self.lineedit_other_parameters.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -2611,31 +2673,31 @@ class FormBrowseAnnotationResults(QWidget):
             # get the dictionary of parameters
             params_dict = genlib.get_config_dict(params_file)
 
-            # set the transcript file path in "lineedit_transcript_file"
-            transcript_file = params_dict['Annotation parameters']['transcript_file']
+            # set the FASTA file path in "lineedit_fasta_file"
+            fasta_file = params_dict['Annotation parameters']['fasta_file']
             if sys.platform.startswith('win32'):
-                transcript_file = genlib.wsl_path_2_windows_path(transcript_file)
-            self.lineedit_transcript_file.setText(transcript_file)
+                fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
+            self.lineedit_fasta_file.setText(fasta_file)
 
-            # set the transcript file path in "lineedit_codan_model"
+            # set the FASTA file path in "lineedit_codan_model"
             self.lineedit_codan_model.setText(params_dict['Annotation parameters']['codan_model'])
 
-            # set the transcript file path in "lineedit_alignment_tool"
+            # set the FASTA file path in "lineedit_alignment_tool"
             self.lineedit_alignment_tool.setText(params_dict['Annotation parameters']['alignment_tool'])
 
-            # set the transcript file path in "lineedit_evalue"
+            # set the FASTA file path in "lineedit_evalue"
             self.lineedit_evalue.setText(params_dict['Annotation parameters']['evalue'])
 
-            # set the transcript file path in "lineedit_max_target_seqs"
+            # set the FASTA file path in "lineedit_max_target_seqs"
             self.lineedit_max_target_seqs.setText(params_dict['Annotation parameters']['max_target_seqs'])
 
-            # set the transcript file path in "lineedit_max_hsps"
+            # set the FASTA file path in "lineedit_max_hsps"
             self.lineedit_max_hsps.setText(params_dict['Annotation parameters']['max_hsps'])
 
-            # set the transcript file path in "lineedit_qcov_hsp_perc"
+            # set the FASTA file path in "lineedit_qcov_hsp_perc"
             self.lineedit_qcov_hsp_perc.setText(params_dict['Annotation parameters']['qcov_hsp_perc'])
 
-            # set the transcript file path in "lineedit_other_parameters"
+            # set the FASTA file path in "lineedit_other_parameters"
             self.lineedit_other_parameters.setText(params_dict['Annotation parameters']['other_parameters'])
 
         # check the content of inputs
@@ -2667,9 +2729,9 @@ class FormBrowseAnnotationResults(QWidget):
 
     #---------------
 
-    def lineedit_transcript_file_editing_finished(self):
+    def lineedit_fasta_file_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_transcript_file"
+        Perform necessary actions after finishing editing "lineedit_fasta_file"
         '''
 
         # initialize the control variable
@@ -2884,6 +2946,7 @@ class FormBrowseAnnotationResults(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -2926,6 +2989,7 @@ class FormBrowseAnnotationResults(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -3053,7 +3117,7 @@ class FormBrowseAnnotationResults(QWidget):
 
         # build the data dictionary
         data_dict = {}
-        data_dict['qseqid'] = {'text': 'Transcript id', 'width': 180, 'alignment': 'left'}
+        data_dict['qseqid'] = {'text': 'Sequence id', 'width': 180, 'alignment': 'left'}
         data_dict['sseqid'] = {'text': 'Cluster id', 'width': 120, 'alignment': 'left'}
         data_dict['pident'] = {'text': 'Ident (%)', 'width': 80, 'alignment': 'right'}
         # -- data_dict['length'] = {'text': 'length', 'width': 80, 'alignment': 'right'}

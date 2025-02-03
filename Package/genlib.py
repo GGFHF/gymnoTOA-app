@@ -14,7 +14,7 @@ This source defines the general functions and classes used in gymnoTOA
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -67,7 +67,7 @@ def get_app_version():
     Get the application version.
     '''
 
-    return '0.19'
+    return '0.20'
 
 #-------------------------------------------------------------------------------
 
@@ -133,6 +133,7 @@ def get_default_font_size():
     '''
 
     # set the default font and its size
+    default_font_and_size = 0
     if sys.platform.startswith('linux'):
         default_font_and_size = ('Verdana', 10)
     elif sys.platform.startswith('darwin'):
@@ -217,6 +218,24 @@ def get_result_run_subdir():
 
 #-------------------------------------------------------------------------------
 
+def get_yml_dir():
+    '''
+    Get the yml directory where gymnoTOA environment installation is.
+    '''
+
+    return 'yml'
+
+#-------------------------------------------------------------------------------
+
+def get_gymnotoa_yml_file():
+    '''
+    Get the yml file of the gymnoTOA environment installation.
+    '''
+
+    return 'gymnotoa.yml'
+
+#-------------------------------------------------------------------------------
+
 def get_log_dir():
     '''
     Get the log file directory.
@@ -241,6 +260,24 @@ def get_temp_dir():
     '''
 
     return './temp'
+
+#-------------------------------------------------------------------------------
+
+def get_fasta_type_proteins():
+    '''
+    Get the FASTA type for proteins.
+    '''
+
+    return 'PROTEINS'
+
+#-------------------------------------------------------------------------------
+
+def get_fasta_type_transcripts():
+    '''
+    Get the FASTA type for transcripts.
+    '''
+
+    return 'TRANSCRIPTS'
 
 #-------------------------------------------------------------------------------
 
@@ -704,55 +741,87 @@ def get_submission_log_file(function_name):
 
 #-------------------------------------------------------------------------------
 
-def get_miniconda3_code():
+def get_miniforge3_code():
     '''
-    Get the Miniconda3 code used to identify its processes.
+    Get the Miniforge3 code used to identify its processes.
     '''
 
-    return 'miniconda3'
+    return 'miniforge3'
 
 #-------------------------------------------------------------------------------
 
-def get_miniconda3_name():
+def get_miniforge3_name():
     '''
-    Get the Miniconda3 name used to title.
+    Get the Miniforge3 name used to title.
     '''
 
-    return 'Miniconda3'
+    return 'Miniforge3'
 
 #-------------------------------------------------------------------------------
 
-def get_miniconda3_url():
+def get_miniforge3_url():
     '''
-    Get the Miniconda3 URL.
+    Get the Minicforge3 URL.
     '''
 
-    # assign the Miniconda3 URL
+    # assign the Miniforge3 URL
+    miniforge3_url = ''
     if sys.platform.startswith('linux') or sys.platform.startswith('win32'):
-        miniconda3_url = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh'
+        miniforge3_url = 'https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh'
     elif sys.platform.startswith('darwin'):
-        miniconda3_url = 'https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh'
+        miniforge3_url = 'https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-MacOSX-x86_64.sh'
 
-    # return the Miniconda3 URL
-    return miniconda3_url
-
-#-------------------------------------------------------------------------------
-
-def get_miniconda_dir():
-    '''
-    Get the directory where Miniconda3 is installed.
-    '''
-
-    return f'{get_app_short_name()}-Miniconda3'
+    # return the Miniforge3 URL
+    return miniforge3_url
 
 #-------------------------------------------------------------------------------
 
-def get_miniconda_dir_in_wsl():
+def get_miniforge3_dir():
     '''
-    Get the directory where Miniconda3 is installed in WSL environment.
+    Get the directory where Miniforge3 is installed.
     '''
 
-    return f'$HOME/{get_app_short_name()}-Miniconda3'
+    return 'Miniforge3'
+
+#-------------------------------------------------------------------------------
+
+def get_miniforge3_dir_in_wsl():
+    '''
+    Get the directory where Miniforge3 is installed in WSL environment.
+    '''
+
+    return '$HOME/Miniforge3'
+
+#-------------------------------------------------------------------------------
+
+def get_miniforge3_current_dir():
+    '''
+    Get the current directory where Miniforge3 is installed.
+    '''
+
+    # get the path of the directory path of the current conda environment
+    environment_path = os.getenv('CONDA_PREFIX')
+    envs_pos = environment_path.find('/envs')
+
+    # get the miniforge current directory
+    miniforge3_current_dir = ''
+    if envs_pos == -1:
+        miniforge3_current_dir = environment_path
+    else:
+        miniforge3_current_dir = environment_path[:envs_pos]
+
+    # return the miniforge current directory
+    return miniforge3_current_dir
+
+#-------------------------------------------------------------------------------
+
+def get_gymnotoa_environment():
+    '''
+    Get the Miniforge3 environment where the Python packages used by gymnoTOA are
+    installed.
+    '''
+
+    return 'gymnotoa'
 
 #-------------------------------------------------------------------------------
 
@@ -801,6 +870,16 @@ def get_blastplus_conda_code():
 
 #-------------------------------------------------------------------------------
 
+def get_blastplus_environment():
+    '''
+    Get the Miniforge3 environment where the BLAST+ software used by gymnoTOA is
+    installed.
+    '''
+
+    return 'gymnotoa-blast'
+
+#-------------------------------------------------------------------------------
+
 def get_codan_code():
     '''
     Get the CodAn code used to identify its processes.
@@ -828,6 +907,16 @@ def get_codan_conda_code():
 
 #-------------------------------------------------------------------------------
 
+def get_codan_environment():
+    '''
+    Get the Miniforge3 environment where the CodAn software used by gymnoTOA is
+    installed.
+    '''
+
+    return 'gymnotoa-codan'
+
+#-------------------------------------------------------------------------------
+
 def get_diamond_code():
     '''
     Get the DIAMOND code used to identify its processes.
@@ -852,6 +941,16 @@ def get_diamond_conda_code():
     '''
 
     return 'diamond'
+
+#-------------------------------------------------------------------------------
+
+def get_diamond_environment():
+    '''
+    Get the Miniforge3 environment where the DIAMOND software used by gymnoTOA is
+    installed.
+    '''
+
+    return 'gymnotoa-diamond'
 
 #-------------------------------------------------------------------------------
 
@@ -1017,7 +1116,7 @@ def get_submitting_dict():
     # build the submitting process dictionary
     submitting_dict = {}
     submitting_dict['download_gymnotoa_db']= {'text': get_process_download_gymnotoa_db_name()}
-    submitting_dict['install_miniconda3']= {'text': f'{get_miniconda3_name()} installation'}
+    submitting_dict['install_miniforge3']= {'text': f'{get_miniforge3_name()} installation'}
     submitting_dict['install_bioconda_package_list']= {'text': 'Bioconda package list installation'}
     submitting_dict['run_annotation_pipeline']= {'text': get_process_run_annotation_pipeline_name()}
     submitting_dict['restart_annotation_pipeline']= {'text': get_process_restart_annotation_pipeline_name()}
@@ -1059,7 +1158,7 @@ def get_process_dict():
     # build the process dictionary
     process_dict = {}
     process_dict[get_process_download_gymnotoa_db_code()]= {'name': get_process_download_gymnotoa_db_name(), 'process_type': get_result_database_subdir()}
-    process_dict[get_miniconda3_code()]= {'name': get_miniconda3_name(), 'process_type': get_result_installation_subdir()}
+    process_dict[get_miniforge3_code()]= {'name': get_miniforge3_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_blastplus_code()]= {'name': get_blastplus_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_codan_code()]= {'name': get_codan_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_diamond_code()]= {'name': get_diamond_name(), 'process_type': get_result_installation_subdir()}
@@ -1372,7 +1471,7 @@ def read_functional_annotation_record(file_name, file_id, record_counter):
     if record != '':
 
         # extract data
-        # record format (old):  qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <field_sep> algorithm <field_sep> ncbi_description <field_sep> ncbi_species <field_sep> tair10_ortholog_seq_id <field_sep> interpro_goterms <field_sep> panther_goterms <field_sep> metacyc_pathways <field_sep> reactome_pathways <field_sep> eggnog_ortholog_seq_id <field_sep> eggnog_ortholog_species <field_sep> eggnog_ogs <field_sep> cog_category <field_sep> eggnog_description <field_sep> eggnog_goterms <field_sep> ec <field_sep> kegg_kos <field_sep> kegg_pathways <field_sep> kegg_modules <field_sep> kegg_reactions <field_sep> kegg_rclasses <field_sep> brite <field_sep> kegg_tc <field_sep> cazy <field_sep> pfams 
+        # record format (old):  qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <field_sep> algorithm <field_sep> ncbi_description <field_sep> ncbi_species <field_sep> tair10_ortholog_seq_id <field_sep> interpro_goterms <field_sep> panther_goterms <field_sep> metacyc_pathways <field_sep> reactome_pathways <field_sep> eggnog_ortholog_seq_id <field_sep> eggnog_ortholog_species <field_sep> eggnog_ogs <field_sep> cog_category <field_sep> eggnog_description <field_sep> eggnog_goterms <field_sep> ec <field_sep> kegg_kos <field_sep> kegg_pathways <field_sep> kegg_modules <field_sep> kegg_reactions <field_sep> kegg_rclasses <field_sep> brite <field_sep> kegg_tc <field_sep> cazy <field_sep> pfams
         # record format: qseqid <field_sep> sseqid <field_sep> pident <field_sep> length <field_sep> mismatch <field_sep> gapopen <field_sep> qstart <field_sep> qend <field_sep> sstart <field_sep> send <field_sep> evalue <field_sep> bitscore <field_sep> algorithm <field_sep> ncbi_description <field_sep> ncbi_species <field_sep> tair10_ortholog_seq_id <field_sep> interpro_goterms <field_sep> panther_goterms <field_sep> metacyc_pathways <field_sep> eggnog_ortholog_seq_id <field_sep> eggnog_ortholog_species <field_sep> eggnog_ogs <field_sep> cog_category <field_sep> eggnog_description <field_sep> eggnog_goterms <field_sep> ec <field_sep> kegg_kos <field_sep> kegg_pathways <field_sep> kegg_modules <field_sep> kegg_reactions <field_sep> kegg_rclasses <field_sep> brite <field_sep> kegg_tc <field_sep> cazy <field_sep> pfams
         field_sep = ';'
         record_sep = '\n'
@@ -1553,7 +1652,7 @@ class ProgramException(Exception):
         elif code_exception == 'S001':
             Message.print('error', f'*** ERROR {code_exception}: The {param1} OS is not supported.')
         elif code_exception == 'S002':
-            Message.print('error', f'*** ERROR {code_exception}: The library {param1} is not installed. Please, review how to install {param1} in the manual.')
+            Message.print('error', f'*** ERROR {code_exception}: The library {param1} is not installed. Please, review how to install {get_app_short_name()} in the manual.')
         else:
             Message.print('error', f'*** ERROR {code_exception}: The exception is not managed.')
 

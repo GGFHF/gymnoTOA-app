@@ -14,7 +14,7 @@ and starts the application.
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -49,19 +49,29 @@ except Exception as e:
     raise genlib.ProgramException('', 'S002', 'PyQt5')
 
 try:
-    import pandas
-except Exception as e:
-    raise genlib.ProgramException('', 'S002', 'Pandas')
-
-try:
-    import matplotlib
+    import matplotlib    # pylint: disable=unused-import
 except Exception as e:
     raise genlib.ProgramException('', 'S002', 'Matplotlib')
 
 try:
-    import plotnine
+    import numpy    # pylint: disable=unused-import
+except Exception as e:
+    raise genlib.ProgramException('', 'S002', 'Numpy')
+
+try:
+    import pandas    # pylint: disable=unused-import
+except Exception as e:
+    raise genlib.ProgramException('', 'S002', 'Pandas')
+
+try:
+    import plotnine    # pylint: disable=unused-import
 except Exception as e:
     raise genlib.ProgramException('', 'S002', 'Plotnine')
+
+try:
+    import scipy    # pylint: disable=unused-import
+except Exception as e:
+    raise genlib.ProgramException('', 'S002', 'SciPy')
 
 import annotation
 import bioinfosw
@@ -143,10 +153,10 @@ class MainWindow(QMainWindow):
         action_browse_config_file.setStatusTip(f'Browse the {genlib.get_app_short_name()} config file.')
         action_browse_config_file.triggered.connect(self.action_browse_config_file_clicked)
 
-        # create and configure "action_install_miniconda3"
-        action_install_miniconda3 = QAction('Miniconda3 and additional infrastructure software', self)
-        action_install_miniconda3.setStatusTip('Install Miniconda3 and additional infrastructure software.')
-        action_install_miniconda3.triggered.connect(self.action_install_miniconda3_clicked)
+        # create and configure "action_install_miniforge3"
+        action_install_miniforge3 = QAction('Miniforge3 and infrastructure packages in WSL', self)
+        action_install_miniforge3.setStatusTip('Install Miniforge3 and additional infrastructure packages in WSL.')
+        action_install_miniforge3.triggered.connect(self.action_install_miniforge3_clicked)
 
         # create and configure "action_install_blastplus"
         action_install_blastplus = QAction(genlib.get_blastplus_name(), self)
@@ -300,7 +310,10 @@ class MainWindow(QMainWindow):
         menu_configuration.addAction(action_browse_config_file)
         menu_configuration.addSeparator()
         submenu_bioinfo = menu_configuration.addMenu('Bioinfo software installation')
-        submenu_bioinfo.addAction(action_install_miniconda3)
+        if sys.platform.startswith('win32'):
+            submenu_bioinfo.addAction(action_install_miniforge3)
+        elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+            pass
         submenu_bioinfo.addSeparator()
         submenu_bioinfo.addAction(action_install_blastplus)
         submenu_bioinfo.addAction(action_install_codan)
@@ -444,101 +457,58 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = configuration.FormBrowseConfigFile(self)
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # close the existing subwindow
+            if self.current_subwindow is not None:
+                self.current_subwindow.close()
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create a new subwindow to perform the action
+            subwindow = configuration.FormBrowseConfigFile(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
-    def action_download_gymno_db_clicked(self):
+    def action_install_miniforge3_clicked(self):
         '''
-        Rebuild the database of gymnoTOA from the UPMdrive.
+        Install Miniforge3 software (Conda infrastructure).
         '''
 
         # close the existing subwindow
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = database.FormDownloadGymnoTOAdb(self)
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_miniforge3_code(), genlib.get_miniforge3_name())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
 
-    #---------------
-
-    def action_view_gymno_db_stats_clicked(self):
-        '''
-        View gymnoTOA database statistics.
-        '''
-
-        # close the existing subwindow
-        if self.current_subwindow is not None:
-            self.current_subwindow.close()
-
-        # create a new subwindow to perform the action
-        subwindow = database.FormViewGymnoTOAdbStats(self)
-
-        # create "widget_central"
-        widget_central = QWidget(self)
-
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
-
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
-
-        # save the current subwindow
-        self.current_subwindow = subwindow
-    #---------------
-
-    def action_install_miniconda3_clicked(self):
-        '''
-        Install Miniconda3 software (Conda infrastructure).
-        '''
-
-        # close the existing subwindow
-        if self.current_subwindow is not None:
-            self.current_subwindow.close()
-
-        # create a new subwindow to perform the action
-        subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_miniconda3_code(), genlib.get_miniconda3_name())
-
-        # create "widget_central"
-        widget_central = QWidget(self)
-
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
-
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
-
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -551,21 +521,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_blastplus_code(), genlib.get_blastplus_name())
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_blastplus_code(), genlib.get_blastplus_name())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -578,21 +551,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_codan_code(), genlib.get_codan_name())
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_codan_code(), genlib.get_codan_name())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -605,21 +581,84 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_diamond_code(), genlib.get_diamond_name())
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_diamond_code(), genlib.get_diamond_name())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
+
+    #---------------
+
+    def action_download_gymno_db_clicked(self):
+        '''
+        Download the database of gymnoTOA from the UPMdrive.
+        '''
+
+        # close the existing subwindow
+        if self.current_subwindow is not None:
+            self.current_subwindow.close()
+
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3():
+
+            # create a new subwindow to perform the action
+            subwindow = database.FormDownloadGymnoTOAdb(self)
+
+            # create "widget_central"
+            widget_central = QWidget(self)
+
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
+
+    #---------------
+
+    def action_view_gymno_db_stats_clicked(self):
+        '''
+        View gymnoTOA database statistics.
+        '''
+
+        # close the existing subwindow
+        if self.current_subwindow is not None:
+            self.current_subwindow.close()
+
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
+
+            # create a new subwindow to perform the action
+            subwindow = database.FormViewGymnoTOAdbStats(self)
+
+            # create "widget_central"
+            widget_central = QWidget(self)
+
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -632,21 +671,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = annotation.FormRunAnnotationPipeline(self)
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = annotation.FormRunAnnotationPipeline(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -659,21 +701,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = annotation.FormRestartAnnotationPipeline(self)
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = annotation.FormRestartAnnotationPipeline(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -686,21 +731,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = annotation.FormBrowseAnnotationResults(self)
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = annotation.FormBrowseAnnotationResults(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -713,21 +761,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormViewSummaryReport(self)
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormViewSummaryReport(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -740,21 +791,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormBrowseStats(self, stats_code='species')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormBrowseStats(self, stats_code='species')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -767,21 +821,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormPlotStats(self, stats_code='species')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormPlotStats(self, stats_code='species')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -794,21 +851,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormBrowseStats(self, stats_code='go')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormBrowseStats(self, stats_code='go')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -821,21 +881,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormPlotStats(self, stats_code='go')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormPlotStats(self, stats_code='go')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -848,21 +911,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormBrowseStats(self, stats_code='namespace')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormBrowseStats(self, stats_code='namespace')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -875,21 +941,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormPlotStats(self, stats_code='namespace')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormPlotStats(self, stats_code='namespace')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -902,21 +971,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormBrowseStats(self, stats_code='seq_per_goterm')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormBrowseStats(self, stats_code='seq_per_goterm')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -929,21 +1001,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = stats.FormPlotStats(self, stats_code='seq_per_goterm')
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = stats.FormPlotStats(self, stats_code='seq_per_goterm')
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -956,21 +1031,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormRunEnrichmentAnalysis(self)
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormRunEnrichmentAnalysis(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -983,21 +1061,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormRestartEnrichmentAnalysis(self)
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormRestartEnrichmentAnalysis(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1010,21 +1091,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_goea_code())
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_goea_code())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1037,21 +1121,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_mpea_code())
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_mpea_code())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1064,21 +1151,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_koea_code())
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_koea_code())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1091,21 +1181,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_kpea_code())
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_kpea_code())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1118,21 +1211,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_mpea_code())
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = enrichment.FormBrowseEnrichmentAnalysis(self, code=genlib.get_mpea_code())
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1172,21 +1268,24 @@ class MainWindow(QMainWindow):
         if self.current_subwindow is not None:
             self.current_subwindow.close()
 
-        # create a new subwindow to perform the action
-        subwindow = logs.FormBrowseResultLogs(self)
+        # if dependencies are OK
+        if self.check_config_file():
 
-        # create "widget_central"
-        widget_central = QWidget(self)
+            # create a new subwindow to perform the action
+            subwindow = logs.FormBrowseResultLogs(self)
 
-        # create and configure "v_box_layout"
-        v_box_layout = QVBoxLayout(widget_central)
-        v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+            # create "widget_central"
+            widget_central = QWidget(self)
 
-        # set the central widget in "MainWindow"
-        self.setCentralWidget(widget_central)
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
 
-        # save the current subwindow
-        self.current_subwindow = subwindow
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
 
     #---------------
 
@@ -1240,6 +1339,118 @@ class MainWindow(QMainWindow):
 
     #---------------
 
+    def check_config_file(self):
+        '''
+        Check if the config file exists.
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # check if config file exists
+        if not os.path.isfile(genlib.get_app_config_file()):
+
+            # set control variable
+            OK = False
+
+            # set None in the current subwindow
+            self.current_subwindow = None
+
+            # set the bakcground image in "MainWindow"
+            self.set_background_image()
+
+            # show message
+            title = f'{genlib.get_app_short_name()} - Warning'
+            text = f'The config file does not exist.\n\nRecreate it using the menu item:\nMain menu > Configuration > Recreate {genlib.get_app_short_name()} config file'
+            QMessageBox.warning(self, title, text, buttons=QMessageBox.Ok)
+
+        # return the contro variable
+        return OK
+
+    #---------------
+
+    def check_miniforge3(self):
+        '''
+        Check if Miniforge3 is installed in WSL.
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # check if Miniforge3 is installed in WSL
+        if OK and sys.platform.startswith('win32'):
+
+            # get the Miniforge3 bin directory
+            miniforge3_bin_dir = ''
+            if sys.platform.startswith('win32'):
+                user = genlib.get_wsl_envvar('USER')
+                wsl_distro_name = genlib.get_wsl_envvar('WSL_DISTRO_NAME')
+                if user == genlib.get_na() or wsl_distro_name == genlib.get_na():
+                    OK = False
+                else:
+                    miniforge3_bin_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniforge3_dir()}'
+
+            # check if the Miniforge3 bin directory exits
+            if OK:
+                if not os.path.isdir(miniforge3_bin_dir):
+
+                    # set control variable
+                    OK = False
+
+                    # set None in the current subwindow
+                    self.current_subwindow = None
+
+                    # set the bakcground image in "MainWindow"
+                    self.set_background_image()
+
+                    # show message
+                    title = f'{genlib.get_app_short_name()} - Warning'
+                    text = 'Miniforge3 is not installed.\n\nInstall it using the menu item:\nMain menu > Configuration > Bioinfo software installation > Miniforge3 and additional infrastructure software'
+                    QMessageBox.warning(self, title, text, buttons=QMessageBox.Ok)
+
+        # return the contro variable
+        return OK
+
+    #---------------
+
+    def check_gymno_db(self):
+        '''
+        Check if the gymnoTOA database exists.
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # get the dictionary of application configuration
+        app_config_dict = genlib.get_config_dict(genlib.get_app_config_file())
+
+        # get the database directory
+        database_dir = app_config_dict['Environment parameters']['database_dir']
+        if sys.platform.startswith('win32'):
+            database_dir = genlib.wsl_path_2_windows_path(database_dir)
+
+        # check if the gymnoTOA database exists
+        if not os.path.isdir(database_dir):
+
+            # set control variable
+            OK = False
+
+            # set None in the current subwindow
+            self.current_subwindow = None
+
+            # set the bakcground image in "MainWindow"
+            self.set_background_image()
+
+            # show message
+            title = f'{genlib.get_app_short_name()} - Warning'
+            text = f'The {genlib.get_db_name()} is not downloaded.\n\nDownload it using the menu item:\nMain menu > Database > Download {genlib.get_db_name()}'
+            QMessageBox.warning(self, title, text, buttons=QMessageBox.Ok)
+
+        # return the contro variable
+        return OK
+
+    #---------------
+
     def warn_unavailable_process(self):
         '''
         Show a message warning the process is unavailable.
@@ -1271,11 +1482,20 @@ if __name__ == '__main__':
         sys.exit(1)
 
     # check the Python version
-    if sys.version_info[0] == 3 and sys.version_info[1] >= 10:
+    if sys.version_info[0] == 3 and sys.version_info[1] >= 12:
         pass
     else:
-        print('*** ERROR: Python 3.10 or greater is required.')
+        print('*** ERROR: Python 3.12 or greater is required.')
         sys.exit(1)
+
+    # check conda accessibility
+    if sys.platform.startswith('win32'):
+        pass
+    elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+        environment_path = os.getenv('CONDA_PREFIX')
+        if environment_path is None:
+            print('*** ERROR: Conda software is not accessible.')
+            sys.exit(1)
 
     # check if the current directory is gymnoTOA home directory
     current_dir = os.getcwd()

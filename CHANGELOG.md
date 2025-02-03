@@ -1,4 +1,20 @@
-CURRENT VERSION: 0.19
+CURRENT VERSION: 0.20
+
+********************************************************************************
+
+v0.20 (February 2025)
+
+* Files with protein sequences are supported as input files in the functional annotation process.
+
+* Improved installation processes on Ubuntu, macOS, and Windows,
+
+* Code improvement in dependencies control.
+
+* Replacement of Miniconda3 by Miniforge3.
+
+* Updated manual to to show how to run functional annotation and enrichment analysis processes on Linux servers.
+
+* Updated manual to review installation on Ubuntu, macOS, and Windows.
 
 ********************************************************************************
 

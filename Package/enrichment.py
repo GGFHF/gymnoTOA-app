@@ -14,7 +14,7 @@ This file contains the classes related to the enrichment analysis of gymnoTOA
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -149,15 +149,15 @@ class FormRunEnrichmentAnalysis(QWidget):
         self.tablewidget.cellClicked.connect(self.tablewidget_cellClicked)
         self.tablewidget.cellDoubleClicked.connect(self.tablewidget_cellDoubleClicked)
 
-        # create and configure "label_transcript_file"
-        label_transcript_file = QLabel()
-        label_transcript_file.setText('Transcript file')
-        label_transcript_file.setFixedWidth(fontmetrics.width('9'*10))
+        # create and configure "label_fasta_file"
+        label_fasta_file = QLabel()
+        label_fasta_file.setText('FASTA file')
+        label_fasta_file.setFixedWidth(fontmetrics.width('9'*10))
 
-        # create and configure "lineedit_transcript_file"
-        self.lineedit_transcript_file = QLineEdit()
-        self.lineedit_transcript_file.editingFinished.connect(self.check_inputs)
-        self.lineedit_transcript_file.setDisabled(True)
+        # create and configure "lineedit_fasta_file"
+        self.lineedit_fasta_file = QLineEdit()
+        self.lineedit_fasta_file.editingFinished.connect(self.check_inputs)
+        self.lineedit_fasta_file.setDisabled(True)
 
         # create and configure "label_species_mame"
         label_species_name = QLabel()
@@ -206,8 +206,8 @@ class FormRunEnrichmentAnalysis(QWidget):
         # create and configure "gridlayout_data"
         gridlayout_data = QGridLayout()
         gridlayout_data.addWidget(self.tablewidget, 0, 0, 1, 5)
-        gridlayout_data.addWidget(label_transcript_file, 1, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 4)
+        gridlayout_data.addWidget(label_fasta_file, 1, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_fasta_file, 1, 1, 1, 4)
         gridlayout_data.addWidget(label_species_name, 2, 0, 1, 1)
         gridlayout_data.addWidget(self.combobox_species_name, 2, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(label_empty, 2, 2, 1, 1)
@@ -317,8 +317,8 @@ class FormRunEnrichmentAnalysis(QWidget):
             row_list.append(idx.row())
         row_list = list(set(row_list))
 
-        # check "lineedit_transcript_file" when the editing finished
-        if not self.lineedit_transcript_file_editing_finished():
+        # check "lineedit_fasta_file" when the editing finished
+        if not self.lineedit_fasta_file_editing_finished():
             OK = False
 
         # check "lineedit_min_seqnum_annotations" when the editing finished
@@ -336,7 +336,7 @@ class FormRunEnrichmentAnalysis(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.combobox_species_name.currentText() != '' and self.combobox_fdr_method.currentText() != '' and self.lineedit_min_seqnum_annotations.text() != '' and self.lineedit_min_seqnum_species.text() != '':
+        if OK and len(row_list) == 1 and self.lineedit_fasta_file.text() != '' and self.combobox_species_name.currentText() != '' and self.combobox_fdr_method.currentText() != '' and self.lineedit_min_seqnum_annotations.text() != '' and self.lineedit_min_seqnum_species.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -369,11 +369,11 @@ class FormRunEnrichmentAnalysis(QWidget):
             # get the dictionary of parameters
             params_dict = genlib.get_config_dict(params_file)
 
-            # set the transcript file path in "lineedit_transcript_file"
-            transcript_file = params_dict['Annotation parameters']['transcript_file']
+            # set the FASTA file path in "lineedit_fasta_file"
+            fasta_file = params_dict['Annotation parameters']['fasta_file']
             if sys.platform.startswith('win32'):
-                transcript_file = genlib.wsl_path_2_windows_path(transcript_file)
-            self.lineedit_transcript_file.setText(transcript_file)
+                fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
+            self.lineedit_fasta_file.setText(fasta_file)
 
         # check the content of inputs
         self.check_inputs()
@@ -404,9 +404,9 @@ class FormRunEnrichmentAnalysis(QWidget):
 
     #---------------
 
-    def lineedit_transcript_file_editing_finished(self):
+    def lineedit_fasta_file_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_transcript_file"
+        Perform necessary actions after finishing editing "lineedit_fasta_file"
         '''
 
         # initialize the control variable
@@ -612,8 +612,8 @@ class FormRunEnrichmentAnalysis(QWidget):
         # get the result directory
         result_dir = self.app_config_dict['Environment parameters']['result_dir']
 
-        # initialize "lineedit_transcript_file"
-        self.lineedit_transcript_file.setText('')
+        # initialize "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
 
         # set the type, name and code of the annotation pipeline datasets
         process_type = genlib.get_result_run_subdir()
@@ -629,6 +629,7 @@ class FormRunEnrichmentAnalysis(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -670,6 +671,7 @@ class FormRunEnrichmentAnalysis(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -857,9 +859,16 @@ class FormRunEnrichmentAnalysis(QWidget):
         OK = True
         error_list = []
 
+        # get the Miniforge3 directory and its bin subdirectory
+        miniforge3_dir = ''
+        if sys.platform.startswith('win32'):
+            miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
+        elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+            miniforge3_dir = genlib.get_miniforge3_current_dir()
+        miniforge3_bin_dir = f'{miniforge3_dir}/bin'
+
         # get items from dictionary of application configuration
         app_dir = self.app_config_dict['Environment parameters']['app_dir']
-        miniconda3_bin_dir = self.app_config_dict['Environment parameters']['miniconda3_bin_dir']
         app_db_path = self.app_config_dict[f'{genlib.get_app_short_name()} database']['app_db_path']
         result_dir = self.app_config_dict['Environment parameters']['result_dir']
 
@@ -897,7 +906,7 @@ class FormRunEnrichmentAnalysis(QWidget):
             with open(script_path, mode='w', encoding='iso-8859-1', newline='\n') as file_id:
                 file_id.write( '#!/bin/bash\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write(f'export PATH={miniconda3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
+                file_id.write(f'export PATH={miniforge3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
                 file_id.write( 'SEP="#########################################"\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write(f'STATUS_DIR={genlib.get_status_dir(current_run_dir)}\n')
@@ -915,22 +924,12 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function activate_env_base\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Activating environment base ..."\n')
-                file_id.write(f'    source {miniconda3_bin_dir}/activate\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "Environment is activated."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function copy_annotation_params\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Copying functional annotation parameters ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/copy-annotation-params.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Copying functional annotation parameters ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
@@ -944,10 +943,10 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function append_enrichment_params\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Appending enrichment analysis parameters ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/append-enrichment-params.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Appending enrichment analysis parameters ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
@@ -966,13 +965,14 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function calculate_besthit_enrichment_analysis\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Calculation the enrichment analysis (best hit per sequence) ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/calculate_besthit_enrichment_analysis.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Calculation the enrichment analysis (best hit per sequence) ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/calculate-enrichment-analysis.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -989,6 +989,7 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '                --trace=N\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error load-blast-data.py $RC; fi\n')
+                file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Analysis is calculated."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
@@ -996,13 +997,14 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write('function calculate_complete_enrichment_analysis\n')
                 file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write('     echo "Calculation the enrichment analysis (all hits per sequence) ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/calculate_complete_enrichment_analysis.ok\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write('    echo "Calculation the enrichment analysis (all hits per sequence) ..."\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/calculate-enrichment-analysis.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -1019,6 +1021,7 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '                --trace=N\n')
                 file_id.write( '        RC=$?\n')
                 file_id.write( '        if [ $RC -ne 0 ]; then manage_error load-blast-data.py $RC; fi\n')
+                file_id.write( '        conda deactivate\n')
                 file_id.write( '        echo "Analysis is calculated."\n')
                 file_id.write( '        touch $STEP_STATUS\n')
                 file_id.write( '    fi\n')
@@ -1059,7 +1062,6 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                file_id.write( 'activate_env_base\n')
                 file_id.write( 'copy_annotation_params\n')
                 file_id.write( 'append_enrichment_params\n')
                 file_id.write( 'calculate_besthit_enrichment_analysis\n')
@@ -1164,15 +1166,15 @@ class FormRestartEnrichmentAnalysis(QWidget):
         self.tablewidget.cellClicked.connect(self.tablewidget_cellClicked)
         self.tablewidget.cellDoubleClicked.connect(self.tablewidget_cellDoubleClicked)
 
-        # create and configure "label_transcript_file"
-        label_transcript_file = QLabel()
-        label_transcript_file.setText('Transcript file')
-        label_transcript_file.setFixedWidth(fontmetrics.width('9'*10))
+        # create and configure "label_fasta_file"
+        label_fasta_file = QLabel()
+        label_fasta_file.setText('FASTA file')
+        label_fasta_file.setFixedWidth(fontmetrics.width('9'*10))
 
-        # create and configure "lineedit_transcript_file"
-        self.lineedit_transcript_file = QLineEdit()
-        self.lineedit_transcript_file.editingFinished.connect(self.check_inputs)
-        self.lineedit_transcript_file.setDisabled(True)
+        # create and configure "lineedit_fasta_file"
+        self.lineedit_fasta_file = QLineEdit()
+        self.lineedit_fasta_file.editingFinished.connect(self.check_inputs)
+        self.lineedit_fasta_file.setDisabled(True)
 
         # create and configure "label_species_name"
         label_species_name = QLabel()
@@ -1223,8 +1225,8 @@ class FormRestartEnrichmentAnalysis(QWidget):
         # create and configure "gridlayout_data"
         gridlayout_data = QGridLayout()
         gridlayout_data.addWidget(self.tablewidget, 0, 0, 1, 16)
-        gridlayout_data.addWidget(label_transcript_file, 1, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 1, 1, 1, 15)
+        gridlayout_data.addWidget(label_fasta_file, 1, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_fasta_file, 1, 1, 1, 15)
         gridlayout_data.addWidget(label_species_name, 2, 0, 1, 1)
         gridlayout_data.addWidget(self.lineedit_species_name, 2, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(label_empty, 2, 2, 1, 1)
@@ -1306,8 +1308,8 @@ class FormRestartEnrichmentAnalysis(QWidget):
         # load data in "tablewidget"
         self.load_tablewidget()
 
-        # set initial value in "lineedit_transcript_file"
-        self.lineedit_transcript_file.setText('')
+        # set initial value in "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
 
         # initialize "lineedit_species_name"
         self.lineedit_species_name.setText('')
@@ -1334,8 +1336,8 @@ class FormRestartEnrichmentAnalysis(QWidget):
             row_list.append(idx.row())
         row_list = list(set(row_list))
 
-        # check "lineedit_transcript_file" when the editing finished
-        if not self.lineedit_transcript_file_editing_finished():
+        # check "lineedit_fasta_file" when the editing finished
+        if not self.lineedit_fasta_file_editing_finished():
             OK = False
 
         # check "lineedit_species_name" when the editing finished
@@ -1361,7 +1363,7 @@ class FormRestartEnrichmentAnalysis(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_species_name.text() != '' and self.lineedit_fdr_method.text() != '' and self.lineedit_min_seqnum_annotations.text() != '' and self.lineedit_min_seqnum_species.text() != '':
+        if OK and len(row_list) == 1 and self.lineedit_fasta_file.text() != '' and self.lineedit_species_name.text() != '' and self.lineedit_fdr_method.text() != '' and self.lineedit_min_seqnum_annotations.text() != '' and self.lineedit_min_seqnum_species.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -1394,11 +1396,11 @@ class FormRestartEnrichmentAnalysis(QWidget):
             # get the dictionary of parameters
             params_dict = genlib.get_config_dict(params_file)
 
-            # set the transcript file path in "lineedit_transcript_file"
-            transcript_file = params_dict['Annotation parameters']['transcript_file']
+            # set the FASTA file path in "lineedit_fasta_file"
+            fasta_file = params_dict['Annotation parameters']['fasta_file']
             if sys.platform.startswith('win32'):
-                transcript_file = genlib.wsl_path_2_windows_path(transcript_file)
-            self.lineedit_transcript_file.setText(transcript_file)
+                fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
+            self.lineedit_fasta_file.setText(fasta_file)
 
             # set the species in "lineedit_species_name"
             species_name = params_dict['Enrichment parameters']['species_name']
@@ -1448,9 +1450,9 @@ class FormRestartEnrichmentAnalysis(QWidget):
 
     #---------------
 
-    def lineedit_transcript_file_editing_finished(self):
+    def lineedit_fasta_file_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_transcript_file"
+        Perform necessary actions after finishing editing "lineedit_fasta_file"
         '''
 
         # initialize the control variable
@@ -1603,6 +1605,7 @@ class FormRestartEnrichmentAnalysis(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of enrichment analysis in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -1644,6 +1647,7 @@ class FormRestartEnrichmentAnalysis(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -1850,15 +1854,15 @@ class FormBrowseEnrichmentAnalysis(QWidget):
         self.tablewidget.cellClicked.connect(self.tablewidget_cellClicked)
         self.tablewidget.cellDoubleClicked.connect(self.tablewidget_cellDoubleClicked)
 
-        # create and configure "label_transcript_file"
-        label_transcript_file = QLabel()
-        label_transcript_file.setText('Transcript file')
-        label_transcript_file.setFixedWidth(fontmetrics.width('9'*10))
+        # create and configure "label_fasta_file"
+        label_fasta_file = QLabel()
+        label_fasta_file.setText('FASTA file')
+        label_fasta_file.setFixedWidth(fontmetrics.width('9'*10))
 
-        # create and configure "lineedit_transcript_file"
-        self.lineedit_transcript_file = QLineEdit()
-        self.lineedit_transcript_file.editingFinished.connect(self.check_inputs)
-        self.lineedit_transcript_file.setDisabled(True)
+        # create and configure "lineedit_fasta_file"
+        self.lineedit_fasta_file = QLineEdit()
+        self.lineedit_fasta_file.editingFinished.connect(self.check_inputs)
+        self.lineedit_fasta_file.setDisabled(True)
 
         # create and configure "label_species_name"
         label_species_name = QLabel()
@@ -1911,8 +1915,8 @@ class FormBrowseEnrichmentAnalysis(QWidget):
         gridlayout_data.addWidget(label_annotation_result_type, 0, 0, 1, 1)
         gridlayout_data.addWidget(self.combobox_annotation_result_type, 0, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(self.tablewidget, 1, 0, 1, 16)
-        gridlayout_data.addWidget(label_transcript_file, 2, 0, 1, 1)
-        gridlayout_data.addWidget(self.lineedit_transcript_file, 2, 1, 1, 15)
+        gridlayout_data.addWidget(label_fasta_file, 2, 0, 1, 1)
+        gridlayout_data.addWidget(self.lineedit_fasta_file, 2, 1, 1, 15)
         gridlayout_data.addWidget(label_species_name, 3, 0, 1, 1)
         gridlayout_data.addWidget(self.lineedit_species_name, 3, 1, 1, 1, alignment=Qt.AlignLeft)
         gridlayout_data.addWidget(label_empty, 3, 2, 1, 1)
@@ -1995,8 +1999,8 @@ class FormBrowseEnrichmentAnalysis(QWidget):
         # load data in "tablewidget"
         self.load_tablewidget()
 
-        # set initial value in "lineedit_transcript_file"
-        self.lineedit_transcript_file.setText('')
+        # set initial value in "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
 
         # initialize "lineedit_species_name"
         self.lineedit_species_name.setText('')
@@ -2026,8 +2030,8 @@ class FormBrowseEnrichmentAnalysis(QWidget):
             row_list.append(idx.row())
         row_list = list(set(row_list))
 
-        # check "lineedit_transcript_file" when the editing finished
-        if not self.lineedit_transcript_file_editing_finished():
+        # check "lineedit_fasta_file" when the editing finished
+        if not self.lineedit_fasta_file_editing_finished():
             OK = False
 
         # check "lineedit_species_name" when the editing finished
@@ -2053,7 +2057,7 @@ class FormBrowseEnrichmentAnalysis(QWidget):
             self.parent.statusBar().showMessage('There are one or more inputs without data or with wrong value.')
 
         # enable "pushbutton_execute"
-        if OK and self.combobox_annotation_result_type.currentText() != '' and len(row_list) == 1 and self.lineedit_transcript_file.text() != '' and self.lineedit_species_name.text() != '' and self.lineedit_fdr_method.text() != '' and self.lineedit_min_seqnum_annotations.text() != '' and self.lineedit_min_seqnum_species.text() != '':
+        if OK and self.combobox_annotation_result_type.currentText() != '' and len(row_list) == 1 and self.lineedit_fasta_file.text() != '' and self.lineedit_species_name.text() != '' and self.lineedit_fdr_method.text() != '' and self.lineedit_min_seqnum_annotations.text() != '' and self.lineedit_min_seqnum_species.text() != '':
             self.pushbutton_execute.setEnabled(True)
         else:
             self.pushbutton_execute.setEnabled(False)
@@ -2112,11 +2116,11 @@ class FormBrowseEnrichmentAnalysis(QWidget):
             # get the dictionary of parameters
             params_dict = genlib.get_config_dict(params_file)
 
-            # set the transcript file path in "lineedit_transcript_file"
-            transcript_file = params_dict['Annotation parameters']['transcript_file']
+            # set the FASTA file path in "lineedit_fasta_file"
+            fasta_file = params_dict['Annotation parameters']['fasta_file']
             if sys.platform.startswith('win32'):
-                transcript_file = genlib.wsl_path_2_windows_path(transcript_file)
-            self.lineedit_transcript_file.setText(transcript_file)
+                fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
+            self.lineedit_fasta_file.setText(fasta_file)
 
             # set the species in "lineedit_species_name"
             species_name = params_dict['Enrichment parameters']['species_name']
@@ -2166,9 +2170,9 @@ class FormBrowseEnrichmentAnalysis(QWidget):
 
     #---------------
 
-    def lineedit_transcript_file_editing_finished(self):
+    def lineedit_fasta_file_editing_finished(self):
         '''
-        Perform necessary actions after finishing editing "lineedit_transcript_file"
+        Perform necessary actions after finishing editing "lineedit_fasta_file"
         '''
 
         # initialize the control variable
@@ -2313,6 +2317,12 @@ class FormBrowseEnrichmentAnalysis(QWidget):
 
             # get enrichment analysis data
             QApplication.setOverrideCursor(Qt.WaitCursor)
+            enrichment_analysis_dict = {}
+            data_list = []
+            data_dict = {}
+            window_height = 0
+            window_width = 0
+            explanatory_text = ''
             if self.code == genlib.get_goea_code():
                 (enrichment_analysis_dict, data_list, data_dict, window_height, window_width, explanatory_text) = self.get_goterm_enrichment_analysis_data(enrichment_analysis_file_path)
             elif self.code == genlib.get_mpea_code():
@@ -2367,6 +2377,7 @@ class FormBrowseEnrichmentAnalysis(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of enrichment analysis in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -2408,6 +2419,7 @@ class FormBrowseEnrichmentAnalysis(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:

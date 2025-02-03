@@ -1,0 +1,10 @@
+name: gymnotoa
+channels:
+  - conda-forge
+dependencies:
+  - matplotlib
+  - numpy
+  - pandas
+  - plotnine
+  - pyqt
+  - scipy

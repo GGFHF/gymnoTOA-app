@@ -15,7 +15,7 @@ This file contains the classes related to the database of gymnoTOA
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -359,9 +359,16 @@ class FormDownloadGymnoTOAdb(QWidget):
         OK = True
         error_list = []
 
+        # get the Miniforge3 directory and its bin subdirectory
+        miniforge3_dir = ''
+        if sys.platform.startswith('win32'):
+            miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
+        elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+            miniforge3_dir = genlib.get_miniforge3_current_dir()
+        miniforge3_bin_dir = f'{miniforge3_dir}/bin'
+
         # get items from dictionary of application configuration
         app_dir = self.app_config_dict['Environment parameters']['app_dir']
-        miniconda3_bin_dir = self.app_config_dict['Environment parameters']['miniconda3_bin_dir']
         database_dir = self.app_config_dict['Environment parameters']['database_dir']
         compressed_db_url = self.app_config_dict[f'{genlib.get_app_short_name()} database']['compressed_db_url']
         app_db_path = self.app_config_dict[f'{genlib.get_app_short_name()} database']['app_db_path']
@@ -380,7 +387,7 @@ class FormDownloadGymnoTOAdb(QWidget):
             with open(script_path, mode='w', encoding='iso-8859-1', newline='\n') as file_id:
                 file_id.write( '#!/bin/bash\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write(f'export PATH={miniconda3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
+                file_id.write(f'export PATH={miniforge3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
                 file_id.write( 'SEP="#########################################"\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write(f'STATUS_DIR={genlib.get_status_dir(current_run_dir)}\n')
@@ -396,16 +403,6 @@ class FormDownloadGymnoTOAdb(QWidget):
                 file_id.write( '    FORMATTED_INIT_DATETIME=`date "+%Y-%m-%d %H:%M:%S"`\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function activate_env_base\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Activating environment base ..."\n')
-                file_id.write(f'    source {miniconda3_bin_dir}/activate\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "Environment is activated."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function create_gymnotoa_db_dir\n')
@@ -444,7 +441,7 @@ class FormDownloadGymnoTOAdb(QWidget):
                 file_id.write(f'    cd {temp_dir}\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write(f'    echo "Decompressing {genlib.get_db_name()} ..."\n')
-                file_id.write(f'    cd {temp_dir}\n')
+                file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                 file_id.write( '    /usr/bin/time \\\n')
                 file_id.write( '        unzip \\\n')
                 file_id.write( '            -o \\\n')
@@ -458,6 +455,7 @@ class FormDownloadGymnoTOAdb(QWidget):
                 file_id.write(f'            -d {database_dir}\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
+                file_id.write( '    conda deactivate\n')
                 file_id.write( '    echo "Database is decompressed."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
@@ -509,7 +507,6 @@ class FormDownloadGymnoTOAdb(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                file_id.write( 'activate_env_base\n')
                 file_id.write( 'create_gymnotoa_db_dir\n')
                 file_id.write( 'download_gymnotoa_db\n')
                 file_id.write( 'decompress_gymnotoa_db\n')

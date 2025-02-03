@@ -14,7 +14,7 @@ This source contains the classes related to dialogs of gymnoTOA
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -533,7 +533,7 @@ class DialogDataTable(QDialog):
         self.tablewidget.cellClicked.connect(self.tablewidget_cellClicked)
         self.tablewidget.cellDoubleClicked.connect(self.tablewidget_cellDoubleClicked)
 
-        # create and configure "label_transcript_file"
+        # create and configure "label_explanatory_text"
         label_explanatory_text = QLabel()
         label_explanatory_text.setText(self.explanatory_text)
 
@@ -810,7 +810,7 @@ class DialogAbout(QDialog):
 
         # create and configure "label_research_group"
         label_research_group = QLabel()
-        label_research_group.setText('GI en Especies Leñosas (WooSp)')
+        label_research_group.setText('GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)')
 
         # create and configure "label_department"
         label_department = QLabel()

@@ -14,7 +14,7 @@ gymnoTOA (Gymnosperms Taxonomy-oriented Annotation).
 
 This software has been developed by:
 
-    GI en Especies Leñosas (WooSp)
+    GI en Desarrollo de Especies y Comunidades Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politecnica de Madrid
@@ -236,7 +236,7 @@ class FormInstallBioinfoSoftware(QWidget):
 
         # load the version type list in "combobox_version_type"
         self.combobox_version_type.addItems(version_type_list)
-        if self.software_code == genlib.get_miniconda3_code():
+        if self.software_code == genlib.get_miniforge3_code():
             self.combobox_version_type.setEnabled(False)
 
         # simultate "combobox_version_type" index has changed
@@ -252,8 +252,8 @@ class FormInstallBioinfoSoftware(QWidget):
         # initialize "lineedit_version_id"
         self.lineedit_version_id.setText('')
 
-        # disable "lineedit_version_id" when the item is Miniconda3
-        if self.software_code == genlib.get_miniconda3_code():
+        # disable "lineedit_version_id" when the item is Miniforge3
+        if self.software_code == genlib.get_miniforge3_code():
             self.lineedit_version_id.setEnabled(False)
 
         # check the content of inputs
@@ -283,8 +283,8 @@ class FormInstallBioinfoSoftware(QWidget):
         OK = True
 
         # confirm the process is executed
-        if self.software_code == genlib.get_miniconda3_code():
-            text = f'{self.software_name} (Conda infrastructure) is going to be installed. All Conda packages previously installed will be lost and they have to be reinstalled.\n\nAre you sure to continue?'
+        if self.software_code == genlib.get_miniforge3_code():
+            text = f'{self.software_name} (Conda infrastructure) is going to be installed. All bioinformatics software previously installed will be lost and they have to be reinstalled.\n\nAre you sure to continue?'
         else:
             text = f'The {self.software_name} Conda package is going to be installed. The previous version will be lost, if it exists.\n\nAre you sure to continue?'
         botton = QMessageBox.question(self, self.title, text, buttons=QMessageBox.Yes|QMessageBox.No, defaultButton=QMessageBox.No)
@@ -295,25 +295,26 @@ class FormInstallBioinfoSoftware(QWidget):
         if OK:
 
             # get the version
+            version = ''
             if self.combobox_version_type.currentText() == 'last':
                 version = 'last'
             elif self.combobox_version_type.currentText() == 'specific':
                 version = self.lineedit_version_id.text()
 
             # create and execute "DialogProcess" depending on the software code
-            if self.software_code == genlib.get_miniconda3_code():
-                process = dialogs.DialogProcess(self, self.head, self.install_miniconda3)
+            if self.software_code == genlib.get_miniforge3_code():
+                process = dialogs.DialogProcess(self, self.head, self.install_miniforge3)
                 process.exec()
             elif self.software_code == genlib.get_blastplus_code():
-                package_list = [(genlib.get_blastplus_conda_code(), version)]
+                package_list = [(genlib.get_blastplus_conda_code(), genlib.get_blastplus_environment(), version)]
                 process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
                 process.exec()
             elif self.software_code == genlib.get_codan_code():
-                package_list = [(genlib.get_codan_conda_code(), version)]
+                package_list = [(genlib.get_codan_conda_code(), genlib.get_codan_environment(), version)]
                 process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
                 process.exec()
             elif self.software_code == genlib.get_diamond_code():
-                package_list = [(genlib.get_diamond_conda_code(), version)]
+                package_list = [(genlib.get_diamond_conda_code(), genlib.get_diamond_environment(), version)]
                 process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
                 process.exec()
 
@@ -334,9 +335,9 @@ class FormInstallBioinfoSoftware(QWidget):
 
    #---------------
 
-    def install_miniconda3(self, process):
+    def install_miniforge3(self, process):
         '''
-        Install the Miniconda3.
+        Install the Miniforge3 in WSL.
         '''
 
         # initialize the control variable
@@ -365,7 +366,7 @@ class FormInstallBioinfoSoftware(QWidget):
         if OK:
             process.write(f'{genlib.get_separator()}\n')
             process.write('Determining the run directory ...\n')
-            current_run_dir = genlib.get_current_run_dir(result_dir, genlib.get_result_installation_subdir(), genlib.get_miniconda3_code())
+            current_run_dir = genlib.get_current_run_dir(result_dir, genlib.get_result_installation_subdir(), genlib.get_miniforge3_code())
             command = f'mkdir -p {current_run_dir}'
             rc = genlib.run_command(command, process, is_script=False)
             if rc == 0:
@@ -377,9 +378,9 @@ class FormInstallBioinfoSoftware(QWidget):
         # build the installation script in the temporal directory
         if OK:
             process.write(f'{genlib.get_separator()}\n')
-            script_name = f'{genlib.get_miniconda3_code()}-installation.sh'
+            script_name = f'{genlib.get_miniforge3_code()}-installation.sh'
             process.write(f'Building the installation script {script_name} ...\n')
-            (OK, _) = self.build_miniconda3_installation_script(temp_dir, script_name, current_run_dir)
+            (OK, _) = self.build_miniforge3_installation_script(temp_dir, script_name, current_run_dir)
             if OK:
                 process.write('The file is built.\n')
             else:
@@ -411,7 +412,7 @@ class FormInstallBioinfoSoftware(QWidget):
         # build the starter script in the temporal directory
         if OK:
             process.write(f'{genlib.get_separator()}\n')
-            starter_name = f'{genlib.get_miniconda3_code()}-installation-starter.sh'
+            starter_name = f'{genlib.get_miniforge3_code()}-installation-starter.sh'
             process.write(f'Building the process starter {starter_name} ...\n')
             (OK, _) = genlib.build_starter(temp_dir, starter_name, script_name, current_run_dir)
             if OK:
@@ -463,50 +464,57 @@ class FormInstallBioinfoSoftware(QWidget):
 
    #---------------
 
-    def is_installed_miniconda3(self):
+    def is_installed_miniforge3(self):
         '''
-        Check if Miniconda3 is installed.
+        Check if Miniforge3 is installed in WSL.
         '''
 
         # initialize the control variable and error list
         OK = True
         error_list = []
 
-        # get the Miniconda bin directory
-        if sys.platform.startswith('win32'):
+        # check if Miniforge3 is installed in WSL
+        if OK and sys.platform.startswith('win32'):
+
+            # get the Miniforge3 bin directory in WSL
             user = genlib.get_wsl_envvar('USER')
             wsl_distro_name = genlib.get_wsl_envvar('WSL_DISTRO_NAME')
+            miniforge3_bin_dir = ''
             if user == genlib.get_na() or wsl_distro_name == genlib.get_na():
-                error_list.append('*** ERROR: Miniconda3 is not installed.\n')
+                error_list.append('*** ERROR: Miniforge3 is not installed.\n')
                 OK = False
             else:
-                miniconda3_bin_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniconda_dir()}'
-        else:
-            miniconda3_bin_dir = self.app_config_dict['Environment parameters']['miniconda3_bin_dir']
+                miniforge3_bin_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniforge3_dir()}'
 
-        # check exists the Miniconda bin directory
-        if OK:
-            if not os.path.isdir(miniconda3_bin_dir):
-                error_list.append('*** ERROR: Miniconda3 is not installed.\n')
-                OK = False
+            # check exists the Miniforge3 bin directory
+            if OK:
+                if not os.path.isdir(miniforge3_bin_dir):
+                    error_list.append('*** ERROR: Miniforge3 is not installed.\n')
+                    OK = False
 
         # return the control variable and error list
         return (OK, error_list)
 
    #---------------
 
-    def build_miniconda3_installation_script(self, directory, script_name, current_run_dir):
+    def build_miniforge3_installation_script(self, directory, script_name, current_run_dir):
         '''
-        Build the Miniconda3 installation script.
+        Build the Miniforge3 installation script in WSL.
         '''
 
         # initialize the control variable and error list
         OK = True
         error_list = []
 
-        # get the Miniconda3 directory and Miniconda3 bin directory of the dictionary of gymnoTOA configuration
-        miniconda3_dir = self.app_config_dict['Environment parameters']['miniconda3_dir']
-        miniconda3_bin_dir = self.app_config_dict['Environment parameters']['miniconda3_bin_dir']
+        # get items from dictionary of application configuration
+        app_dir = self.app_config_dict['Environment parameters']['app_dir']
+
+        # get the Miniforge3 directory and its bin and condabin subdirectories
+        miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
+        miniforge3_condabin_dir = f'{miniforge3_dir}/condabin'
+
+        # get the Miniforge3 directory and its bin and condabin subdirectories
+        gymnotoa_yml_file = f'{app_dir}/{genlib.get_yml_dir()}/{genlib.get_gymnotoa_yml_file()}'
 
         # set the script path
         script_path = f'{directory}/{script_name}'
@@ -534,185 +542,79 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function remove_miniconda3_directory\n')
+                file_id.write( 'function remove_miniforge3_directory\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Removing {genlib.get_miniconda3_name()} directory ..."\n')
-                file_id.write(f'    if [ -d {miniconda3_dir} ]; then\n')
-                file_id.write(f'        rm -rf {miniconda3_dir}\n')
+                file_id.write(f'    echo "Removing {genlib.get_miniforge3_name()} directory ..."\n')
+                file_id.write(f'    if [ -d {miniforge3_dir} ]; then\n')
+                file_id.write(f'        rm -rf {miniforge3_dir}\n')
                 file_id.write( '        echo "The directory is removed."\n')
                 file_id.write( '    else\n')
                 file_id.write( '        echo "The directory is not found."\n')
                 file_id.write( '    fi\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function download_miniconda3_installation_file\n')
+                file_id.write( 'function download_miniforge3_installation_file\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Downloading the {genlib.get_miniconda3_name()} installation file ..."\n')
+                file_id.write(f'    echo "Downloading the {genlib.get_miniforge3_name()} installation file ..."\n')
                 file_id.write( '    cd ~\n')
-                file_id.write(f'    wget --quiet --output-document {genlib.get_miniconda3_name()}.sh {genlib.get_miniconda3_url()}\n')
+                file_id.write(f'    wget --quiet --output-document {genlib.get_miniforge3_name()}.sh {genlib.get_miniforge3_url()}\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
                 file_id.write( '    echo\n')
                 file_id.write( '    echo "The file is downloaded."\n')
-                file_id.write(f'    chmod u+x {genlib.get_miniconda3_name()}.sh\n')
+                file_id.write(f'    chmod u+x {genlib.get_miniforge3_name()}.sh\n')
                 file_id.write( '    echo "The run permision is set on."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_miniconda3\n')
+                file_id.write( 'function install_miniforge3\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Installing {genlib.get_miniconda3_name()} to create Python 3 environment ..."\n')
+                file_id.write(f'    echo "Installing {genlib.get_miniforge3_name()} to create environment base ..."\n')
                 file_id.write( '    cd ~\n')
-                file_id.write(f'    ./{genlib.get_miniconda3_name()}.sh -b -u -p {miniconda3_dir}\n')
+                file_id.write(f'    ./{genlib.get_miniforge3_name()}.sh -b -u -p {miniforge3_dir}\n')
                 file_id.write( '    RC=$?\n')
-                file_id.write(f'    if [ $RC -ne 0 ]; then manage_error {genlib.get_miniconda3_name()} $RC; fi\n')
-                file_id.write( '    echo "Python 3 environment is created."\n')
+                file_id.write(f'    if [ $RC -ne 0 ]; then manage_error {genlib.get_miniforge3_name()} $RC; fi\n')
+                file_id.write( '    echo "Environment is created."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function remove_miniconda3_installation_file\n')
+                file_id.write( 'function remove_miniforge3_installation_file\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Removing the {genlib.get_miniconda3_name()} installation file ..."\n')
+                file_id.write(f'    echo "Removing the {genlib.get_miniforge3_name()} installation file ..."\n')
                 file_id.write( '    cd ~\n')
-                file_id.write(f'    rm -f {genlib.get_miniconda3_name()}.sh\n')
+                file_id.write(f'    rm -f {genlib.get_miniforge3_name()}.sh\n')
                 file_id.write( '    echo "The file is removed."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function add_channels\n')
                 file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Adding the channel defaults ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/conda config --add channels defaults\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "The channel is added."\n')
                 file_id.write( '    echo "Adding the channel bioconda ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/conda config --add channels bioconda\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda config --add channels bioconda\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
                 file_id.write( '    echo "The channel is added."\n')
                 file_id.write( '    echo "Adding the channel conda-forge ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/conda config --add channels conda-forge\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda config --add channels conda-forge\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
                 file_id.write( '    echo "The channel is added."\n')
                 file_id.write( '    echo "Setting priority strict ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/conda config --set channel_priority strict\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda config --set channel_priority strict\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
                 file_id.write( '    echo "The priority is set."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function activate_env_base\n')
+                file_id.write( 'function create_gymnotoa_environment\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Activating environment base ..."\n')
-                file_id.write(f'    source {miniconda3_bin_dir}/activate\n')
+                file_id.write(f'    echo "Creating the {genlib.get_app_short_name()} environment ..."\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda env create --yes --quiet --name {genlib.get_gymnotoa_environment()} --file {gymnotoa_yml_file}\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "Environment is activated."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_mamba\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing mamba package ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/conda install --quiet --yes --channel conda-forge mamba\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_numpy\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package numpy in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes numpy\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_scipy\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package scipy in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes scipy\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_sympy\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package sympy in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes sympy\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_pandas\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package pandas in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes sympy\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_matplotlib\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package matplotlib in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes matplotlib\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_biopython\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package biopython in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes biopython\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_requests\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing package requests in Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/mamba install --quiet --yes requests\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function install_minisom\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Installing MiniSom ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/pip3 install MiniSom\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error pip3 $RC; fi\n')
-                file_id.write( '    echo "The package is installed."\n')
-                file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function update_miniconda3\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Updating Python 3 environment ..."\n')
-                file_id.write(f'    {miniconda3_bin_dir}/conda update --quiet --yes --name base --all\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write(f'    if [ $RC -ne 0 ]; then manage_error {genlib.get_miniconda3_name()} $RC; fi\n')
-                file_id.write( '    echo "Python 3 environment is updated."\n')
+                file_id.write( '    echo "The environment is installed."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function end\n')
@@ -750,22 +652,12 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                file_id.write( 'remove_miniconda3_directory\n')
-                file_id.write( 'download_miniconda3_installation_file\n')
-                file_id.write( 'install_miniconda3\n')
-                file_id.write( 'remove_miniconda3_installation_file\n')
+                file_id.write( 'remove_miniforge3_directory\n')
+                file_id.write( 'download_miniforge3_installation_file\n')
+                file_id.write( 'install_miniforge3\n')
+                file_id.write( 'remove_miniforge3_installation_file\n')
                 file_id.write( 'add_channels\n')
-                file_id.write( 'activate_env_base\n')
-                file_id.write( 'install_mamba\n')
-                file_id.write( 'install_numpy\n')
-                file_id.write( 'install_scipy\n')
-                file_id.write( 'install_sympy\n')
-                file_id.write( 'install_pandas\n')
-                file_id.write( 'install_matplotlib\n')
-                file_id.write( 'install_biopython\n')
-                file_id.write( 'install_requests\n')
-                file_id.write( 'install_minisom\n')
-                file_id.write( 'update_miniconda3\n')
+                file_id.write( 'create_gymnotoa_environment\n')
                 file_id.write( 'end\n')
         except Exception as e:
             error_list.append(f'*** EXCEPTION: "{e}".')
@@ -794,11 +686,10 @@ class FormInstallBioinfoSoftware(QWidget):
             package_list_text = str(package_list).strip('[]').replace('\'', '')
             process.write(f'Checking the Conda package list ({package_list_text}) installation requirements ...\n')
 
-        # check if Miniconda3 is installed
-        if OK:
-            (OK, _) = self.is_installed_miniconda3()
-            if not OK:
-                process.write(f'*** ERROR: {genlib.get_miniconda3_name()} is not installed.\n')
+        # check if Miniforge3 is installed in WSL
+        (OK, _) = self.is_installed_miniforge3()
+        if not OK:
+            process.write(f'*** ERROR: {genlib.get_miniforge3_name()} is not installed.\n')
 
         if OK:
             process.write('Installation requirements are OK.\n')
@@ -926,13 +817,20 @@ class FormInstallBioinfoSoftware(QWidget):
         OK = True
         error_list = []
 
-        miniconda3_bin_dir = self.app_config_dict['Environment parameters']['miniconda3_bin_dir']
-        codan_model_dir = self.app_config_dict['CodAn models']['codan_model_dir']
+        # get the Miniforge3 directory and its bin and condabin subdirectories
+        miniforge3_dir = ''
+        if sys.platform.startswith('win32'):
+            miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
+        elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
+            miniforge3_dir = genlib.get_miniforge3_current_dir()
+        miniforge3_bin_dir = f'{miniforge3_dir}/bin'
+        miniforge3_condabin_dir = f'{miniforge3_dir}/condabin'
+
+        # get items from dictionary of application configuration
         codan_full_plants_model_ftp = self.app_config_dict['CodAn models']['codan_full_plants_model_ftp']
         codan_full_plants_model_file = self.app_config_dict['CodAn models']['codan_full_plants_model_file']
         codan_partial_plants_model_ftp = self.app_config_dict['CodAn models']['codan_partial_plants_model_ftp']
         codan_partial_plants_model_file = self.app_config_dict['CodAn models']['codan_partial_plants_model_file']
-        codan_bin_dir = self.app_config_dict['CodAn models']['codan_bin_dir']
         codan_script_ftp = self.app_config_dict['CodAn models']['codan_script_ftp']
         codan_script_1 = self.app_config_dict['CodAn models']['codan_script_1']
         codan_script_2 = self.app_config_dict['CodAn models']['codan_script_2']
@@ -946,7 +844,7 @@ class FormInstallBioinfoSoftware(QWidget):
             with open(script_path, mode='w', encoding='iso-8859-1', newline='\n') as file_id:
                 file_id.write( '#!/bin/bash\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write(f'export PATH={miniconda3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
+                file_id.write(f'export PATH={miniforge3_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
                 file_id.write( 'SEP="#########################################"\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write(f'STATUS_DIR={genlib.get_status_dir(current_run_dir)}\n')
@@ -963,24 +861,13 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
                 file_id.write( '}\n')
-                file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function activate_env_base\n')
-                file_id.write( '{\n')
-                file_id.write( '    echo "$SEP"\n')
-                file_id.write( '    echo "Activating environment base ..."\n')
-                file_id.write(f'    source {miniconda3_bin_dir}/activate\n')
-                file_id.write( '    RC=$?\n')
-                file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "Environment is activated."\n')
-                file_id.write( '}\n')
                 for package in package_list:
                     file_id.write( '#-------------------------------------------------------------------------------\n')
                     file_id.write(f'function remove_bioconda_package_{package[0]}\n')
                     file_id.write( '{\n')
                     file_id.write( '    echo "$SEP"\n')
                     file_id.write(f'    echo "Removing {genlib.get_bioconda_name()} package {package[0]} ..."\n')
-                    file_id.write(f'    cd {miniconda3_bin_dir}\n')
-                    file_id.write(f'    ./conda env remove --yes --quiet --name {package[0]}\n')
+                    file_id.write(f'    {miniforge3_condabin_dir}/conda env remove --yes --quiet --name {package[1]}\n')
                     file_id.write( '    RC=$?\n')
                     file_id.write( '    if [ $RC -eq 0 ]; then\n')
                     file_id.write( '      echo "The old package is removed."\n')
@@ -992,22 +879,19 @@ class FormInstallBioinfoSoftware(QWidget):
                     file_id.write(f'function install_bioconda_package_{package[0]}\n')
                     file_id.write( '{\n')
                     file_id.write( '    echo "$SEP"\n')
-                    if package[1] == 'last':
+                    if package[2] == 'last':
                         file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} package {package[0]} - last version ..."\n')
-                        file_id.write(f'    cd {miniconda3_bin_dir}\n')
-                        file_id.write(f'    ./mamba create --yes --quiet --name {package[0]} {package[0]}\n')
+                        file_id.write(f'    {miniforge3_condabin_dir}/conda create --yes --quiet --name {package[1]} {package[0]}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
                         file_id.write( '    echo "The package is installed."\n')
                     else:
-                        file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} package {package[0]} - version {package[1]} ..."\n')
-                        file_id.write(f'    cd {miniconda3_bin_dir}\n')
-                        file_id.write(f'    ./mamba create --yes --quiet --name {package[0]} {package[0]}={package[1]}\n')
+                        file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} package {package[0]} - version {package[2]} ..."\n')
+                        file_id.write(f'    {miniforge3_condabin_dir}/conda create --yes --quiet --name {package[1]} {package[0]}={package[2]}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then\n')
                         file_id.write(f'        echo "Installing {genlib.get_bioconda_name()} package {package[0]} - last version ..."\n')
-                        file_id.write(f'        cd {miniconda3_bin_dir}\n')
-                        file_id.write(f'        ./mamba create --yes --quiet --name {package[0]} {package[0]}\n')
+                        file_id.write(f'        {miniforge3_condabin_dir}/conda create --yes --quiet --name {package[1]} {package[0]}\n')
                         file_id.write( '        RC=$?\n')
                         file_id.write( '        if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
                         file_id.write( '    fi\n')
@@ -1018,60 +902,69 @@ class FormInstallBioinfoSoftware(QWidget):
                         file_id.write(f'function download_{genlib.get_codan_code()}_models\n')
                         file_id.write( '{\n')
                         file_id.write( '    echo "$SEP"\n')
-                        file_id.write(f'    echo "Creating the model directory in {genlib.get_codan_conda_code()} environment ..."\n')
+                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
+                        file_id.write( '    MODELS_DIR=`echo $CONDA_PREFIX`/models\n')
+                        file_id.write(f'    echo "Creating the model directory in {genlib.get_codan_environment()} environment ..."\n')
                         file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write(f'        mkdir -p {codan_model_dir}\n')
+                        file_id.write( '        mkdir --parents $MODELS_DIR\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error mkdir $RC; fi\n')
+                        file_id.write( '    conda deactivate\n')
                         file_id.write( '    echo "Directory is created."\n')
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write(f'    echo "Downloading the full plants model for {genlib.get_codan_name()} ..."\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        wget \\\n')
                         file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document {codan_full_plants_model_file} \\\n')
+                        file_id.write(f'            --output-document $MODELS_DIR/{codan_full_plants_model_file} \\\n')
                         file_id.write(f'            {codan_full_plants_model_ftp}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
                         file_id.write( '    echo "File is downloaded."\n')
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write( '    echo "Decompressing the full plants model ..."\n')
+                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        unzip -o \\\n')
-                        file_id.write(f'              -d {os.path.dirname(codan_full_plants_model_file)} \\\n')
-                        file_id.write(f'              {codan_full_plants_model_file}\n')
+                        file_id.write( '              -d $MODELS_DIR \\\n')
+                        file_id.write(f'              $MODELS_DIR/{codan_full_plants_model_file}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
+                        file_id.write( '    conda deactivate\n')
                         file_id.write( '    echo "File is decompressed."\n')
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write(f'    echo "Downloading the partial plants model for {genlib.get_codan_name()} ..."\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        wget \\\n')
                         file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document {codan_partial_plants_model_file} \\\n')
+                        file_id.write(f'            --output-document $MODELS_DIR/{codan_partial_plants_model_file} \\\n')
                         file_id.write(f'            {codan_partial_plants_model_ftp}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
                         file_id.write( '    echo "File is downloaded."\n')
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write( '    echo "Decompressing partial plants model ..."\n')
+                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        unzip -o \\\n')
-                        file_id.write(f'              -d {os.path.dirname(codan_partial_plants_model_file)} \\\n')
-                        file_id.write(f'              {codan_partial_plants_model_file}\n')
+                        file_id.write( '              -d $MODELS_DIR \\\n')
+                        file_id.write(f'              $MODELS_DIR/{codan_partial_plants_model_file}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
+                        file_id.write( '    conda deactivate\n')
                         file_id.write( '    echo "File is decompressed."\n')
                         file_id.write( '}\n')
                         file_id.write( '#-------------------------------------------------------------------------------\n')
                         file_id.write(f'function download_{genlib.get_codan_code()}_additional_scripts\n')
                         file_id.write( '{\n')
                         file_id.write( '    echo "$SEP"\n')
+                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
+                        file_id.write( '    BIN_DIR=`echo $CONDA_PREFIX`/bin\n')
                         file_id.write(f'    echo "Downloading additional script {codan_script_1} ..."\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        wget \\\n')
                         file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document {codan_bin_dir}/{codan_script_1} \\\n')
+                        file_id.write(f'            --output-document $BIN_DIR/{codan_script_1} \\\n')
                         file_id.write(f'            {codan_script_ftp}/{codan_script_1}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
@@ -1080,7 +973,7 @@ class FormInstallBioinfoSoftware(QWidget):
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        wget \\\n')
                         file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document {codan_bin_dir}/{codan_script_2} \\\n')
+                        file_id.write(f'            --output-document $BIN_DIR/{codan_script_2} \\\n')
                         file_id.write(f'            {codan_script_ftp}/{codan_script_2}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
@@ -1089,7 +982,7 @@ class FormInstallBioinfoSoftware(QWidget):
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        wget \\\n')
                         file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document {codan_bin_dir}/{codan_script_3} \\\n')
+                        file_id.write(f'            --output-document $BIN_DIR/{codan_script_3} \\\n')
                         file_id.write(f'            {codan_script_ftp}/{codan_script_3}\n')
                         file_id.write( '    RC=$?\n')
                         file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
@@ -1097,10 +990,11 @@ class FormInstallBioinfoSoftware(QWidget):
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write(f'    echo "Setting additional script permissions of {genlib.get_codan_name()} ..."\n')
                         file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write(f'        chmod 775 {codan_bin_dir}/*.py\n')
+                        file_id.write( '        chmod 775 $BIN_DIR/*.py\n')
                         file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
+                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error chmod $RC; fi\n')
                         file_id.write( '    echo "Permissions are set."\n')
+                        file_id.write( '    conda deactivate\n')
                         file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function end\n')
@@ -1138,7 +1032,6 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                file_id.write( 'activate_env_base\n')
                 for package in package_list:
                     file_id.write(f'remove_bioconda_package_{package[0]}\n')
                     file_id.write(f'install_bioconda_package_{package[0]}\n')
