@@ -1216,12 +1216,12 @@ class FormRunAnnotationPipeline(QWidget):
                                     mo = re.search(pattern, parameter)
                                     parameter_name = mo.group(1).strip()
                                     parameter_value = mo.group(2).strip()
-                                    file_id.write(f'                -{parameter_name} {parameter_value} \\\n')
+                                    file_id.write(f'                --{parameter_name} {parameter_value} \\\n')
                                 else:
                                     pattern = r'^--(.+)$'
                                     mo = re.search(pattern, parameter)
                                     parameter_name = mo.group(1).strip()
-                                    file_id.write(f'                -{parameter_name} \\\n')
+                                    file_id.write(f'                --{parameter_name} \\\n')
                         file_id.write(f'                --out {blastx_clade_alignment_file}\n')
                         file_id.write( '        RC=$?\n')
                         file_id.write( '        if [ $RC -ne 0 ]; then manage_error diamond-blastx $RC; fi\n')
