@@ -390,13 +390,12 @@ function download_ncbi_protein_sequences
     echo "$SEP"
     echo "Downloading $CLADE protein sequences from NCBI taxonomy database ..."
     if [ "$ENVIRONMENT" = "$ENV_AWS" ]; then
-        # --- source activate entrez-direct
-        # --- /usr/bin/time \
-        # ---     esearch -db protein -query "$CLADE [Organism]" | efetch -format fasta >$FASTA_PATH
-        # --- RC=$?
-        # --- if [ $RC -ne 0 ]; then manage_error esearch $RC; fi
-        # --- conda deactivate
-        cp /ngscloud2/gymnotoa/test-data/$FASTA_FILE $TEMP_DIR
+        source activate entrez-direct
+        /usr/bin/time \
+            esearch -db protein -query "$CLADE [Organism]" | efetch -format fasta >$FASTA_PATH
+        RC=$?
+        if [ $RC -ne 0 ]; then manage_error esearch $RC; fi
+        conda deactivate
     elif [ "$ENVIRONMENT" = "$ENV_LOCAL" ]; then
         cp /home/fmm/Documents/Trabajo/ProyectosVScode/gymnoTOA/data/$FASTA_FILE $TEMP_DIR
     else
