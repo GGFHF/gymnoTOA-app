@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=broad-except
 # pylint: disable=invalid-name
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
 # pylint: disable=unnecessary-pass
-# pylint: disable=wrong-import-position
 
 #-------------------------------------------------------------------------------
 
@@ -441,7 +441,7 @@ class FormDownloadGymnoTOAdb(QWidget):
                 file_id.write(f'    cd {temp_dir}\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write(f'    echo "Decompressing {genlib.get_db_name()} ..."\n')
-                file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                 file_id.write( '    /usr/bin/time \\\n')
                 file_id.write( '        unzip \\\n')
                 file_id.write( '            -o \\\n')

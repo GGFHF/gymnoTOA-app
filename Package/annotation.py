@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -354,11 +355,11 @@ class FormRunAnnotationPipeline(QWidget):
         # set initial value in "lineedit_threads"
         self.lineedit_threads.setText('4')
 
-        # set initial value in "lineedit_fasta_file"
-        self.lineedit_fasta_file.setText('')
-
         # populate data in "combobox_fasta_type"
         self.combobox_fasta_type_populate()
+
+        # set initial value in "lineedit_fasta_file"
+        self.lineedit_fasta_file.setText('')
 
         # populate data in "combobox_codan_model"
         self.combobox_codan_model_populate()
@@ -749,13 +750,13 @@ class FormRunAnnotationPipeline(QWidget):
             # get the threads number
             threads = self.lineedit_threads.text()
 
+            # get the FASTA type
+            fasta_type = self.combobox_fasta_type.currentText()
+
             # get the FASTA file
             fasta_file = self.lineedit_fasta_file.text()
             if sys.platform.startswith('win32'):
                 fasta_file = genlib.windows_path_2_wsl_path(fasta_file)
-
-            # get the FASTA type
-            fasta_type = self.combobox_fasta_type.currentText()
 
             # get the CONDA model
             codan_model = self.combobox_codan_model.currentText()
@@ -1159,7 +1160,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( 'function align_transcriptome_2_alignment_tool_acrogymnospermae_db\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write(f'    echo "Aligning transcriptome to {alignment_tool} Acrogymnospermae database ..."\n')
+                file_id.write(f'    echo "Aligning transcriptome to the {alignment_tool} Acrogymnospermae database ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-alignment-tool-acrogymnospermae-db.ok\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
@@ -1236,10 +1237,10 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function align_transcriptome_2_blastplus_lncrna_db\n')
                 file_id.write( '{\n')
-                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-blastplus-lncRNA-db.ok\n')
                 file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Aligning transcriptome to the BLAST+ lncRNA database ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
-                file_id.write( '    echo "Aligning transcriptome to BLAST+ lncRNA database ..."\n')
+                file_id.write( '    STEP_STATUS=$STATUS_DIR/align-transcriptome-2-blastplus-lncRNA-db.ok\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
@@ -1277,7 +1278,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/concat-functional-annotations.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -1359,7 +1360,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/calculate-functional-annotation-stats.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -1384,7 +1385,7 @@ class FormRunAnnotationPipeline(QWidget):
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/build-external-inputs.py \\\n')
                 file_id.write(f'                --annotations={complete_functional_annotation_file} \\\n')
@@ -1854,25 +1855,25 @@ class FormRestartAnnotationPipeline(QWidget):
                 fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
             self.lineedit_fasta_file.setText(fasta_file)
 
-            # set the FASTA file path in "lineedit_codan_model"
+            # set the CodAn model in "lineedit_codan_model"
             self.lineedit_codan_model.setText(params_dict['Annotation parameters']['codan_model'])
 
-            # set the FASTA file path in "lineedit_alignment_tool"
+            # set the alignment tool in "lineedit_alignment_tool"
             self.lineedit_alignment_tool.setText(params_dict['Annotation parameters']['alignment_tool'])
 
-            # set the FASTA file path in "lineedit_evalue"
+            # set the evalue in "lineedit_evalue"
             self.lineedit_evalue.setText(params_dict['Annotation parameters']['evalue'])
 
-            # set the FASTA file path in "lineedit_max_target_seqs"
+            # set the max_target_seqs in "lineedit_max_target_seqs"
             self.lineedit_max_target_seqs.setText(params_dict['Annotation parameters']['max_target_seqs'])
 
-            # set the FASTA file path in "lineedit_max_hsps"
+            # set the max_hsps in "lineedit_max_hsps"
             self.lineedit_max_hsps.setText(params_dict['Annotation parameters']['max_hsps'])
 
-            # set the FASTA file path in "lineedit_qcov_hsp_perc"
+            # set the qcov_hsp_perc in "lineedit_qcov_hsp_perc"
             self.lineedit_qcov_hsp_perc.setText(params_dict['Annotation parameters']['qcov_hsp_perc'])
 
-            # set the FASTA file path in "lineedit_other_parameters"
+            # set other parameters in "lineedit_other_parameters"
             self.lineedit_other_parameters.setText(params_dict['Annotation parameters']['other_parameters'])
 
         # check the content of inputs
@@ -2679,25 +2680,25 @@ class FormBrowseAnnotationResults(QWidget):
                 fasta_file = genlib.wsl_path_2_windows_path(fasta_file)
             self.lineedit_fasta_file.setText(fasta_file)
 
-            # set the FASTA file path in "lineedit_codan_model"
+            # set the CodAn model in "lineedit_codan_model"
             self.lineedit_codan_model.setText(params_dict['Annotation parameters']['codan_model'])
 
-            # set the FASTA file path in "lineedit_alignment_tool"
+            # set the alignment tool in "lineedit_alignment_tool"
             self.lineedit_alignment_tool.setText(params_dict['Annotation parameters']['alignment_tool'])
 
-            # set the FASTA file path in "lineedit_evalue"
+            # set the evalue in "lineedit_evalue"
             self.lineedit_evalue.setText(params_dict['Annotation parameters']['evalue'])
 
-            # set the FASTA file path in "lineedit_max_target_seqs"
+            # set the max_target_seqs in "lineedit_max_target_seqs"
             self.lineedit_max_target_seqs.setText(params_dict['Annotation parameters']['max_target_seqs'])
 
-            # set the FASTA file path in "lineedit_max_hsps"
+            # set the max_hsps in "lineedit_max_hsps"
             self.lineedit_max_hsps.setText(params_dict['Annotation parameters']['max_hsps'])
 
-            # set the FASTA file path in "lineedit_qcov_hsp_perc"
+            # set the qcov_hsp_perc in "lineedit_qcov_hsp_perc"
             self.lineedit_qcov_hsp_perc.setText(params_dict['Annotation parameters']['qcov_hsp_perc'])
 
-            # set the FASTA file path in "lineedit_other_parameters"
+            # set other parameters in "lineedit_other_parameters"
             self.lineedit_other_parameters.setText(params_dict['Annotation parameters']['other_parameters'])
 
         # check the content of inputs

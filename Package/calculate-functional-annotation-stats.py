@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=broad-except
 # pylint: disable=invalid-name
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
-# pylint: disable=wrong-import-position
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -169,6 +170,10 @@ def calculate_functional_stats(conn, functional_annotation_file, output_dir):
         # initialize the best evalue and pident
         best_evalue = 1.
         best_pident = 0.
+
+        # initialize the species and list of GO term identification with the best evalue and pident
+        best_species = ''
+        best_goterm_id_list = []
 
         # initialize the lists of GO term identifications per sequence
         goterm_ids_per_seq_list = []

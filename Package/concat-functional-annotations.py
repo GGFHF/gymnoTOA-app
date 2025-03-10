@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# pylint: disable=broad-except
 # pylint: disable=invalid-name
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
-# pylint: disable=wrong-import-position
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -224,6 +225,9 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
         best_evalue = 1.
         best_pident = 0.
 
+        # initialize the functional annotation record with the best evalue and pident
+        best_functional_annotation_record = ''
+
         # while there are records and the same sequence identification
         while blastp_clade_alignment_record != '' and blastp_clade_alignment_data_dict['qseqid'] == old_qseqid:
 
@@ -338,6 +342,9 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
         # initialize the best evalue and pident
         best_evalue = 1.
         best_pident = 0.
+
+        # initialize the functional annotation record with the best evalue and pident
+        best_functional_annotation_record = ''
 
         # while there are records and the same sequence identification
         while blastx_clade_alignment_record != '' and blastx_clade_alignment_data_dict['qseqid'] == old_qseqid:

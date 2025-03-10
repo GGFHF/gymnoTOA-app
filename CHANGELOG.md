@@ -1,4 +1,16 @@
-CURRENT VERSION: 0.20
+# gymnoTOA-app changelog
+
+CURRENT VERSION: 0.21
+
+********************************************************************************
+
+v0.21 (March 2025)
+
+* Splitting of the installation of Miniforge3 and gymnoTOA environment in two processes.
+
+* Correction of double quotation marks by single quotation marks in some SQL statements.
+
+* Reference to the published paper.
 
 ********************************************************************************
 

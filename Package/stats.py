@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -345,6 +346,7 @@ class FormBrowseStats(QWidget):
             result_dataset_id = self.tablewidget.item(row_list[0], 1).text()
 
             # set the name of statistics file
+            stats_file_name = ''
             if self.stats_code == 'species':
                 stats_file_name = 'stats-species.csv'
             elif self.stats_code == 'go':
@@ -361,10 +363,15 @@ class FormBrowseStats(QWidget):
 
             # get statistics data
             QApplication.setOverrideCursor(Qt.WaitCursor)
+            distribution_dict = {}
+            data_list = []
+            data_dict = {}
+            window_height = 0
+            window_width = 0
             if self.stats_code == 'species':
                 (distribution_dict, data_list, data_dict, window_height, window_width) = self.get_frecuency_data(self.stats_code, stats_file_path)
             elif self.stats_code == 'go':
-                (distribution_dict, data_list, data_dict, window_height, window_width) = self.get_goterm_data(self.stats_code, stats_file_path)
+                (distribution_dict, data_list, data_dict, window_height, window_width) = self.get_goterm_data(stats_file_path)
             elif self.stats_code == 'namespace':
                 (distribution_dict, data_list, data_dict, window_height, window_width) = self.get_frecuency_data(self.stats_code, stats_file_path)
             elif self.stats_code == 'seq_per_goterm':
@@ -411,6 +418,7 @@ class FormBrowseStats(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -452,6 +460,7 @@ class FormBrowseStats(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -540,14 +549,14 @@ class FormBrowseStats(QWidget):
                     begin = end + 1
                 data_list.append(record[begin:].strip('\n').strip('"'))
                 try:
-                    id = data_list[0]
+                    ident = data_list[0]
                     best_hit = data_list[1]
                     all_hits = data_list[2]
                 except Exception as e:
                     raise genlib.ProgramException(e, 'F006', os.path.basename(stats_file_path), record_counter)
 
                 # add data to the dictionary
-                distribution_dict[id] = {'id': id, 'best_hit': best_hit, 'all_hits': all_hits}
+                distribution_dict[ident] = {'id': ident, 'best_hit': best_hit, 'all_hits': all_hits}
 
             # read the next record
             record = stats_file_id.readline()
@@ -571,7 +580,7 @@ class FormBrowseStats(QWidget):
     #---------------
 
     @staticmethod
-    def get_goterm_data(stats_code, stats_file_path):
+    def get_goterm_data(stats_file_path):
         '''
         Get GO terms data.
         '''
@@ -622,7 +631,7 @@ class FormBrowseStats(QWidget):
                     begin = end + 1
                 data_list.append(record[begin:].strip('\n').strip('"'))
                 try:
-                    id = data_list[0]
+                    ident = data_list[0]
                     desc = data_list[1]
                     namespace = data_list[2]
                     best_hit = data_list[3]
@@ -631,7 +640,7 @@ class FormBrowseStats(QWidget):
                     raise genlib.ProgramException(e, 'F006', os.path.basename(stats_file_path), record_counter)
 
                 # add dato to the dictionary
-                distribution_dict[id] = {'id': id, 'desc': desc, 'namespace': namespace, 'best_hit': best_hit, 'all_hits': all_hits}
+                distribution_dict[ident] = {'id': ident, 'desc': desc, 'namespace': namespace, 'best_hit': best_hit, 'all_hits': all_hits}
 
             # read the next record
             record = stats_file_path_id.readline()
@@ -1213,6 +1222,7 @@ class FormPlotStats(QWidget):
             result_dataset_id = self.tablewidget.item(row_list[0], 1).text()
 
             # set the name of statistics file
+            stats_file_name = ''
             if self.stats_code == 'species':
                 stats_file_name = 'stats-species.csv'
             elif self.stats_code == 'go':
@@ -1290,6 +1300,7 @@ class FormPlotStats(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -1331,6 +1342,7 @@ class FormPlotStats(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -1422,6 +1434,7 @@ class FormPlotStats(QWidget):
                     if stats_code in ['species', 'namespace']:
                         # format: "id";"best_hit";"all_hits"
                         key = data_list[0]
+                        value = 0
                         if annotation_result_type == 'best':
                             value = int(data_list[1])
                         elif annotation_result_type == 'complete':
@@ -1480,13 +1493,14 @@ class FormPlotStats(QWidget):
         # build the "plot"
         if stats_code == 'namespace':
             # pie chart
+            title = ''
             if annotation_result_type == 'best':
                 title = f'{name}\n(best hit per sequence)'
             elif annotation_result_type == 'complete':
                 title = f'{name}\n(all hits per sequence)'
             explode = [0.01] * len(value_list)
-            (fig1, ax1) = plt.subplots()
-            (patches, texts, autotexts) = ax1.pie(value_list, explode=explode, labels=text_list, autopct='%1.1f%%', shadow=False, startangle=270)
+            (_, ax1) = plt.subplots()
+            (_, texts, _) = ax1.pie(value_list, explode=explode, labels=text_list, autopct='%1.1f%%', shadow=False, startangle=270)
             ax1.axis('equal')
             for text in texts:
                 text.set_color('grey')
@@ -1495,6 +1509,7 @@ class FormPlotStats(QWidget):
         else:
             # bar plot
             title = name
+            caption = ''
             if annotation_result_type == 'best':
                 caption = 'Best hit per sequence'
             elif annotation_result_type == 'complete':
@@ -1585,6 +1600,8 @@ class FormPlotStats(QWidget):
         # set the title, caption and labels
         title = name
         caption = ''
+        label_x = ''
+        label_y = ''
         if stats_code == 'seq_per_goterm':
             label_x = 'GO terms #'
             label_y = 'Sequences #'
@@ -1937,7 +1954,7 @@ class FormViewSummaryReport(QWidget):
             y = 0
 
             # paint every plot
-            for i, image_path in enumerate(images_path_list):
+            for _, image_path in enumerate(images_path_list):
 
                 # load the plot
                 pixmap = QPixmap(image_path)
@@ -1994,6 +2011,7 @@ class FormViewSummaryReport(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -2031,6 +2049,7 @@ class FormViewSummaryReport(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:

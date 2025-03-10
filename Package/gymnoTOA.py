@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -154,9 +155,14 @@ class MainWindow(QMainWindow):
         action_browse_config_file.triggered.connect(self.action_browse_config_file_clicked)
 
         # create and configure "action_install_miniforge3"
-        action_install_miniforge3 = QAction('Miniforge3 and infrastructure packages in WSL', self)
-        action_install_miniforge3.setStatusTip('Install Miniforge3 and additional infrastructure packages in WSL.')
+        action_install_miniforge3 = QAction('Miniforge3 (Conda infrastructure) on WSL', self)
+        action_install_miniforge3.setStatusTip('Install Miniforge3 (Conda infrastructure) on WSL.')
         action_install_miniforge3.triggered.connect(self.action_install_miniforge3_clicked)
+
+        # create and configure "action_install_gymnotoa_env"
+        action_install_gymnotoa_env = QAction(f'{genlib.get_gymnotoa_env_name()} on WSL', self)
+        action_install_gymnotoa_env.setStatusTip(f'Install {genlib.get_gymnotoa_env_name()} on WSL.')
+        action_install_gymnotoa_env.triggered.connect(self.action_install_gymnotoa_env_clicked)
 
         # create and configure "action_install_blastplus"
         action_install_blastplus = QAction(genlib.get_blastplus_name(), self)
@@ -312,9 +318,10 @@ class MainWindow(QMainWindow):
         submenu_bioinfo = menu_configuration.addMenu('Bioinfo software installation')
         if sys.platform.startswith('win32'):
             submenu_bioinfo.addAction(action_install_miniforge3)
+            submenu_bioinfo.addAction(action_install_gymnotoa_env)
+            submenu_bioinfo.addSeparator()
         elif sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             pass
-        submenu_bioinfo.addSeparator()
         submenu_bioinfo.addAction(action_install_blastplus)
         submenu_bioinfo.addAction(action_install_codan)
         submenu_bioinfo.addAction(action_install_diamond)
@@ -450,7 +457,7 @@ class MainWindow(QMainWindow):
 
     def action_browse_config_file_clicked(self):
         '''
-        Browse the config file of gtImputation.
+        Browse the config file of gymnoTOA.
         '''
 
         # close the existing subwindow
@@ -484,7 +491,7 @@ class MainWindow(QMainWindow):
 
     def action_install_miniforge3_clicked(self):
         '''
-        Install Miniforge3 software (Conda infrastructure).
+        Install the Miniforge3 software (Conda infrastructure).
         '''
 
         # close the existing subwindow
@@ -512,9 +519,39 @@ class MainWindow(QMainWindow):
 
     #---------------
 
+    def action_install_gymnotoa_env_clicked(self):
+        '''
+        Install the gymnoTOA environment on WSL.
+        '''
+
+        # close the existing subwindow
+        if self.current_subwindow is not None:
+            self.current_subwindow.close()
+
+        # if dependencies are OK
+        if self.check_config_file() and self.check_miniforge3():
+
+            # create a new subwindow to perform the action
+            subwindow = bioinfosw.FormInstallBioinfoSoftware(self, genlib.get_gymnotoa_env_code(), genlib.get_gymnotoa_env_name())
+
+            # create "widget_central"
+            widget_central = QWidget(self)
+
+            # create and configure "v_box_layout"
+            v_box_layout = QVBoxLayout(widget_central)
+            v_box_layout.addWidget(subwindow, alignment=Qt.AlignCenter)
+
+            # set the central widget in "MainWindow"
+            self.setCentralWidget(widget_central)
+
+            # save the current subwindow
+            self.current_subwindow = subwindow
+
+    #---------------
+
     def action_install_blastplus_clicked(self):
         '''
-        Install BLAST+ software.
+        Install the BLAST+ software.
         '''
 
         # close the existing subwindow
@@ -544,7 +581,7 @@ class MainWindow(QMainWindow):
 
     def action_install_codan_clicked(self):
         '''
-        Install CodAn software.
+        Install the CodAn software.
         '''
 
         # close the existing subwindow
@@ -574,7 +611,7 @@ class MainWindow(QMainWindow):
 
     def action_install_diamond_clicked(self):
         '''
-        Install DIAMOND software.
+        Install the DIAMOND software.
         '''
 
         # close the existing subwindow
@@ -612,7 +649,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # if dependencies are OK
-        if self.check_config_file() and self.check_miniforge3():
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymnotoa_env():
 
             # create a new subwindow to perform the action
             subwindow = database.FormDownloadGymnoTOAdb(self)
@@ -634,7 +671,7 @@ class MainWindow(QMainWindow):
 
     def action_view_gymno_db_stats_clicked(self):
         '''
-        View gymnoTOA database statistics.
+        View the gymnoTOA database statistics.
         '''
 
         # close the existing subwindow
@@ -642,7 +679,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # if dependencies are OK
-        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymnotoa_env() and self.check_gymnotoa_db():
 
             # create a new subwindow to perform the action
             subwindow = database.FormViewGymnoTOAdbStats(self)
@@ -672,7 +709,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # if dependencies are OK
-        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymnotoa_env() and self.check_gymnotoa_db():
 
             # create a new subwindow to perform the action
             subwindow = annotation.FormRunAnnotationPipeline(self)
@@ -702,7 +739,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # if dependencies are OK
-        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymnotoa_env() and self.check_gymnotoa_db():
 
             # create a new subwindow to perform the action
             subwindow = annotation.FormRestartAnnotationPipeline(self)
@@ -1032,7 +1069,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # if dependencies are OK
-        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymnotoa_env() and self.check_gymnotoa_db():
 
             # create a new subwindow to perform the action
             subwindow = enrichment.FormRunEnrichmentAnalysis(self)
@@ -1062,7 +1099,7 @@ class MainWindow(QMainWindow):
             self.current_subwindow.close()
 
         # if dependencies are OK
-        if self.check_config_file() and self.check_miniforge3() and self.check_gymno_db():
+        if self.check_config_file() and self.check_miniforge3() and self.check_gymnotoa_env() and self.check_gymnotoa_db():
 
             # create a new subwindow to perform the action
             subwindow = enrichment.FormRestartEnrichmentAnalysis(self)
@@ -1371,24 +1408,24 @@ class MainWindow(QMainWindow):
 
     def check_miniforge3(self):
         '''
-        Check if Miniforge3 is installed in WSL.
+        Check if Miniforge3 is installed on WSL.
         '''
+
 
         # initialize the control variable
         OK = True
 
-        # check if Miniforge3 is installed in WSL
+        # check if Miniforge3 is installed on WSL
         if OK and sys.platform.startswith('win32'):
 
             # get the Miniforge3 bin directory
             miniforge3_bin_dir = ''
-            if sys.platform.startswith('win32'):
-                user = genlib.get_wsl_envvar('USER')
-                wsl_distro_name = genlib.get_wsl_envvar('WSL_DISTRO_NAME')
-                if user == genlib.get_na() or wsl_distro_name == genlib.get_na():
-                    OK = False
-                else:
-                    miniforge3_bin_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniforge3_dir()}'
+            user = genlib.get_wsl_envvar('USER')
+            wsl_distro_name = genlib.get_wsl_envvar('WSL_DISTRO_NAME')
+            if user == genlib.get_na() or wsl_distro_name == genlib.get_na():
+                OK = False
+            else:
+                miniforge3_bin_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniforge3_dir()}'
 
             # check if the Miniforge3 bin directory exits
             if OK:
@@ -1405,7 +1442,50 @@ class MainWindow(QMainWindow):
 
                     # show message
                     title = f'{genlib.get_app_short_name()} - Warning'
-                    text = 'Miniforge3 is not installed.\n\nInstall it using the menu item:\nMain menu > Configuration > Bioinfo software installation > Miniforge3 and additional infrastructure software'
+                    text = 'Miniforge3 is not installed.\n\nInstall it using the menu item:\nMain menu > Configuration > Bioinfo software installation > Miniforge3 (Conda infrastructure) on WSL'
+                    QMessageBox.warning(self, title, text, buttons=QMessageBox.Ok)
+        # return the contro variable
+        return OK
+
+    #---------------
+
+    def check_gymnotoa_env(self):
+        '''
+        Check if the gymnoTOA environment is installed on WSL.
+        '''
+
+
+        # initialize the control variable
+        OK = True
+
+        # check if gymnoTOA environment is installed on WSL
+        if OK and sys.platform.startswith('win32'):
+
+            # get the gtImputatrion environment directory
+            gymnotoa_env_dir = ''
+            user = genlib.get_wsl_envvar('USER')
+            wsl_distro_name = genlib.get_wsl_envvar('WSL_DISTRO_NAME')
+            if user == genlib.get_na() or wsl_distro_name == genlib.get_na():
+                OK = False
+            else:
+                gymnotoa_env_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniforge3_dir()}\\envs\\{genlib.get_gymnotoa_env_code()}'
+
+            # check if the gymnoTOA environment is installed directory exits
+            if OK:
+                if not os.path.isdir(gymnotoa_env_dir):
+
+                    # set control variable
+                    OK = False
+
+                    # set None in the current subwindow
+                    self.current_subwindow = None
+
+                    # set the bakcground image in "MainWindow"
+                    self.set_background_image()
+
+                    # show message
+                    title = f'{genlib.get_app_short_name()} - Warning'
+                    text = f'{genlib.get_gymnotoa_env_name()} is not installed.\n\nInstall it using the menu item:\nMain menu > Configuration > Bioinfo software installation > {genlib.get_gymnotoa_env_name()} on WSL'
                     QMessageBox.warning(self, title, text, buttons=QMessageBox.Ok)
 
         # return the contro variable
@@ -1413,7 +1493,7 @@ class MainWindow(QMainWindow):
 
     #---------------
 
-    def check_gymno_db(self):
+    def check_gymnotoa_db(self):
         '''
         Check if the gymnoTOA database exists.
         '''

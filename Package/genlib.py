@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -67,7 +68,7 @@ def get_app_version():
     Get the application version.
     '''
 
-    return '0.20'
+    return '0.21'
 
 #-------------------------------------------------------------------------------
 
@@ -787,7 +788,7 @@ def get_miniforge3_dir():
 
 def get_miniforge3_dir_in_wsl():
     '''
-    Get the directory where Miniforge3 is installed in WSL environment.
+    Get the directory where Miniforge3 is installed on WSL environment.
     '''
 
     return '$HOME/Miniforge3'
@@ -815,13 +816,23 @@ def get_miniforge3_current_dir():
 
 #-------------------------------------------------------------------------------
 
-def get_gymnotoa_environment():
+def get_gymnotoa_env_code():
     '''
-    Get the Miniforge3 environment where the Python packages used by gymnoTOA are
+    Get the Miniforge3 environment code where the Python packages used by gymnoTOA are
     installed.
     '''
 
     return 'gymnotoa'
+
+#-------------------------------------------------------------------------------
+
+def get_gymnotoa_env_name():
+    '''
+    Get the Miniforge3 environment name where the Python packages used by gymnoTOA are
+    installed.
+    '''
+
+    return 'gymnoTOA environment'
 
 #-------------------------------------------------------------------------------
 
@@ -956,7 +967,7 @@ def get_diamond_environment():
 
 def check_code(literal, code_list, case_sensitive=False):
     '''
-    Check if a literal is in a code list.
+    Check if a text literal is in a code list.
     '''
 
     # initialize the working list
@@ -985,7 +996,7 @@ def check_code(literal, code_list, case_sensitive=False):
 
 def check_int(literal, minimum=(-sys.maxsize - 1), maximum=sys.maxsize):
     '''
-    Check if a numeric or string literal is an integer number.
+    Check if a numeric or text literal is an integer number.
     '''
 
     # initialize the control variable
@@ -1009,7 +1020,7 @@ def check_int(literal, minimum=(-sys.maxsize - 1), maximum=sys.maxsize):
 
 def check_float(literal, minimum=float(-sys.maxsize - 1), maximum=float(sys.maxsize), mne=0.0, mxe=0.0):
     '''
-    Check if a numeric or string literal is a float number.
+    Check if a numeric or text literal is a float number.
     '''
 
     # initialize the control variable
@@ -1033,17 +1044,17 @@ def check_float(literal, minimum=float(-sys.maxsize - 1), maximum=float(sys.maxs
 
 #-------------------------------------------------------------------------------
 
-def join_string_list_to_string(string_list):
+def join_text_list_to_literal(text_list):
     '''
-    Join a string value list in a literal (strings with simple quote and separated by comma).
+    Join a text list in a literal (texts with simple quote and separated by comma).
     '''
 
     # initialize the literal
     literal = ''
 
-    # concat the string items of string_list
-    for string in string_list:
-        literal = f"'{string}'" if literal == '' else f"{literal},'{string}'"
+    # concat the items of text list
+    for text in text_list:
+        literal = f"'{text}'" if literal == '' else f"{literal},'{text}'"
 
     # return the literal
     return literal
@@ -1117,6 +1128,7 @@ def get_submitting_dict():
     submitting_dict = {}
     submitting_dict['download_gymnotoa_db']= {'text': get_process_download_gymnotoa_db_name()}
     submitting_dict['install_miniforge3']= {'text': f'{get_miniforge3_name()} installation'}
+    submitting_dict['install_gymnotoa_env']= {'text': f'{get_gymnotoa_env_name()} installation'}
     submitting_dict['install_bioconda_package_list']= {'text': 'Bioconda package list installation'}
     submitting_dict['run_annotation_pipeline']= {'text': get_process_run_annotation_pipeline_name()}
     submitting_dict['restart_annotation_pipeline']= {'text': get_process_restart_annotation_pipeline_name()}
@@ -1159,6 +1171,7 @@ def get_process_dict():
     process_dict = {}
     process_dict[get_process_download_gymnotoa_db_code()]= {'name': get_process_download_gymnotoa_db_name(), 'process_type': get_result_database_subdir()}
     process_dict[get_miniforge3_code()]= {'name': get_miniforge3_name(), 'process_type': get_result_installation_subdir()}
+    process_dict[get_gymnotoa_env_code()]= {'name': get_gymnotoa_env_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_blastplus_code()]= {'name': get_blastplus_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_codan_code()]= {'name': get_codan_name(), 'process_type': get_result_installation_subdir()}
     process_dict[get_diamond_code()]= {'name': get_diamond_name(), 'process_type': get_result_installation_subdir()}
@@ -1346,7 +1359,7 @@ def run_command(command, log, is_script):
     Run a Bash shell command and redirect stdout and stderr to log.
     '''
 
-    # prepare the command to be execuete in WSL if necessary
+    # prepare the command to be execuete on WSL if necessary
     if sys.platform.startswith('win32'):
         if is_script:
             command = command.replace('&', '')

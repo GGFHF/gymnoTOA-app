@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ def get_interproscan_annotation_dict(conn, cluster_id):
     sentence = f'''
                 SELECT cluster_id, interpro_goterms, panther_goterms, x_goterms, metacyc_pathways, reactome_pathways, x_pathways
                     FROM interproscan_annotations
-                    WHERE cluster_id = "{cluster_id}";
+                    WHERE cluster_id = '{cluster_id}';
                 '''
     try:
         rows = conn.execute(sentence)
@@ -100,7 +101,7 @@ def get_metacyc_pathways_per_cluster_dict(conn, species_name):
                         FROM interproscan_annotations
                         WHERE cluster_id in (SELECT DISTINCT cluster_id
                                                 FROM mmseqs2_relationships
-                                                where species like "%{species_name}%");
+                                                where species like '%{species_name}%');
                     '''
     try:
         rows = conn.execute(sentence)
@@ -131,7 +132,7 @@ def get_emapper_annotation_dict(conn, cluster_id):
     sentence = f'''
                 SELECT cluster_id, ortholog_seq_id, ortholog_species, eggnog_ogs, cog_category, description, goterms, ec, kegg_kos, kegg_pathways, kegg_modules, kegg_reactions, kegg_rclasses, brite, kegg_tc, cazy, pfams
                     FROM emapper_annotations
-                    WHERE cluster_id = "{cluster_id}";
+                    WHERE cluster_id = '{cluster_id}';
                 '''
     try:
         rows = conn.execute(sentence)
@@ -168,7 +169,7 @@ def get_kegg_kos_per_cluster_dict(conn, species_name):
                         FROM emapper_annotations
                         WHERE cluster_id in (SELECT DISTINCT cluster_id
                                                 FROM mmseqs2_relationships
-                                                where species like "%{species_name}%");
+                                                where species like '%{species_name}%');
                     '''
     try:
         rows = conn.execute(sentence)
@@ -204,7 +205,7 @@ def get_kegg_pathways_per_cluster_dict(conn, species_name):
                         FROM emapper_annotations
                         WHERE cluster_id in (SELECT DISTINCT cluster_id
                                                 FROM mmseqs2_relationships
-                                                where species like "%{species_name}%");
+                                                where species like '%{species_name}%');
                     '''
     try:
         rows = conn.execute(sentence)
@@ -235,7 +236,7 @@ def get_mmseqs2_relationship_dict(conn, cluster_id):
     sentence = f'''
                 SELECT cluster_id, seq_id, description, species
                     FROM mmseqs2_relationships
-                    WHERE cluster_id = "{cluster_id}";
+                    WHERE cluster_id = '{cluster_id}';
                 '''
     try:
         rows = conn.execute(sentence)
@@ -268,7 +269,7 @@ def get_mmseqs2_seq_mf_data(conn, cluster_id):
     sentence = f'''
                 SELECT description, species
                     FROM mmseqs2_relationships
-                    WHERE cluster_id = "{cluster_id}";
+                    WHERE cluster_id = '{cluster_id}';
                 '''
     try:
         rows = conn.execute(sentence)
@@ -361,7 +362,7 @@ def get_goterms_per_cluster_dict(conn, species_name):
                     WITH cluster_identifications AS (
                         SELECT DISTINCT cluster_id
                         FROM mmseqs2_relationships
-                        WHERE species LIKE "%{species_name}%"
+                        WHERE species LIKE '%{species_name}%'
                     )
                     SELECT a.cluster_id, COALESCE(b.interpro_goterms, '-'), COALESCE(b.panther_goterms, '-'), COALESCE(c.goterms, '-')
                     FROM cluster_identifications a
@@ -434,7 +435,7 @@ def get_go_ontology_dict(conn, goterm_id_list):
         sentence = f'''
                     SELECT DISTINCT go_id, go_name, namespace
                         FROM go_ontology
-                        WHERE go_id in ({genlib.join_string_list_to_string(goterm_id_list)});
+                        WHERE go_id in ({genlib.join_text_list_to_literal(goterm_id_list)});
                     '''
     try:
         rows = conn.execute(sentence)

@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -25,7 +26,6 @@ Licence: GNU General Public Licence Version 3.
 
 #-------------------------------------------------------------------------------
 
-import os
 import sys
 
 from PyQt5.QtCore import Qt                # pylint: disable=no-name-in-module
@@ -285,6 +285,8 @@ class FormInstallBioinfoSoftware(QWidget):
         # confirm the process is executed
         if self.software_code == genlib.get_miniforge3_code():
             text = f'{self.software_name} (Conda infrastructure) is going to be installed. All bioinformatics software previously installed will be lost and they have to be reinstalled.\n\nAre you sure to continue?'
+        elif self.software_code == genlib.get_gymnotoa_env_code():
+            text = f'{self.software_name} is going to be installed. The previous version will be lost, if it exists.\n\nAre you sure to continue?'
         else:
             text = f'The {self.software_name} Conda package is going to be installed. The previous version will be lost, if it exists.\n\nAre you sure to continue?'
         botton = QMessageBox.question(self, self.title, text, buttons=QMessageBox.Yes|QMessageBox.No, defaultButton=QMessageBox.No)
@@ -304,6 +306,9 @@ class FormInstallBioinfoSoftware(QWidget):
             # create and execute "DialogProcess" depending on the software code
             if self.software_code == genlib.get_miniforge3_code():
                 process = dialogs.DialogProcess(self, self.head, self.install_miniforge3)
+                process.exec()
+            elif self.software_code == genlib.get_gymnotoa_env_code():
+                process = dialogs.DialogProcess(self, self.head, self.install_gymnotoa_env)
                 process.exec()
             elif self.software_code == genlib.get_blastplus_code():
                 package_list = [(genlib.get_blastplus_conda_code(), genlib.get_blastplus_environment(), version)]
@@ -337,7 +342,7 @@ class FormInstallBioinfoSoftware(QWidget):
 
     def install_miniforge3(self, process):
         '''
-        Install the Miniforge3 in WSL.
+        Install the Miniforge3 on WSL.
         '''
 
         # initialize the control variable
@@ -464,57 +469,21 @@ class FormInstallBioinfoSoftware(QWidget):
 
    #---------------
 
-    def is_installed_miniforge3(self):
-        '''
-        Check if Miniforge3 is installed in WSL.
-        '''
-
-        # initialize the control variable and error list
-        OK = True
-        error_list = []
-
-        # check if Miniforge3 is installed in WSL
-        if OK and sys.platform.startswith('win32'):
-
-            # get the Miniforge3 bin directory in WSL
-            user = genlib.get_wsl_envvar('USER')
-            wsl_distro_name = genlib.get_wsl_envvar('WSL_DISTRO_NAME')
-            miniforge3_bin_dir = ''
-            if user == genlib.get_na() or wsl_distro_name == genlib.get_na():
-                error_list.append('*** ERROR: Miniforge3 is not installed.\n')
-                OK = False
-            else:
-                miniforge3_bin_dir = f'\\\\wsl$\\{wsl_distro_name}\\home\\{user}\\{genlib.get_miniforge3_dir()}'
-
-            # check exists the Miniforge3 bin directory
-            if OK:
-                if not os.path.isdir(miniforge3_bin_dir):
-                    error_list.append('*** ERROR: Miniforge3 is not installed.\n')
-                    OK = False
-
-        # return the control variable and error list
-        return (OK, error_list)
-
-   #---------------
-
     def build_miniforge3_installation_script(self, directory, script_name, current_run_dir):
         '''
-        Build the Miniforge3 installation script in WSL.
+        Build the Miniforge3 installation script on WSL.
         '''
 
         # initialize the control variable and error list
         OK = True
         error_list = []
-
-        # get items from dictionary of application configuration
-        app_dir = self.app_config_dict['Environment parameters']['app_dir']
 
         # get the Miniforge3 directory and its bin and condabin subdirectories
         miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
         miniforge3_condabin_dir = f'{miniforge3_dir}/condabin'
 
-        # get the Miniforge3 directory and its bin and condabin subdirectories
-        gymnotoa_yml_file = f'{app_dir}/{genlib.get_yml_dir()}/{genlib.get_gymnotoa_yml_file()}'
+        # get the Conda environment data directory
+        conda_environment_dir = '$HOME/.conda'
 
         # set the script path
         script_path = f'{directory}/{script_name}'
@@ -542,12 +511,24 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function remove_miniforge3_directory\n')
+                file_id.write( 'function remove_miniforge3_dir\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write(f'    echo "Removing {genlib.get_miniforge3_name()} directory ..."\n')
                 file_id.write(f'    if [ -d {miniforge3_dir} ]; then\n')
                 file_id.write(f'        rm -rf {miniforge3_dir}\n')
+                file_id.write( '        echo "The directory is removed."\n')
+                file_id.write( '    else\n')
+                file_id.write( '        echo "The directory is not found."\n')
+                file_id.write( '    fi\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'function remove_conda_environment_dir\n')
+                file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write(f'    echo "Removing {conda_environment_dir} directory ..."\n')
+                file_id.write(f'    if [ -d {conda_environment_dir} ]; then\n')
+                file_id.write(f'        rm -rf {conda_environment_dir}\n')
                 file_id.write( '        echo "The directory is removed."\n')
                 file_id.write( '    else\n')
                 file_id.write( '        echo "The directory is not found."\n')
@@ -607,14 +588,253 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '    echo "The priority is set."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
-                file_id.write( 'function create_gymnotoa_environment\n')
+                file_id.write( 'function end\n')
+                file_id.write( '{\n')
+                file_id.write( '    END_DATETIME=`date +%s`\n')
+                file_id.write( '    FORMATTED_END_DATETIME=`date "+%Y-%m-%d %H:%M:%S"`\n')
+                file_id.write( '    calculate_duration\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Script ended OK at $FORMATTED_END_DATETIME with a run duration of $DURATION s ($FORMATTED_DURATION)."\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    touch $SCRIPT_STATUS_OK\n')
+                file_id.write( '    exit 0\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'function manage_error\n')
+                file_id.write( '{\n')
+                file_id.write( '    END_DATETIME=`date +%s`\n')
+                file_id.write( '    FORMATTED_END_DATETIME=`date "+%Y-%m-%d %H:%M:%S"`\n')
+                file_id.write( '    calculate_duration\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "ERROR: $1 returned error $2"\n')
+                file_id.write( '    echo "Script ended WRONG at $FORMATTED_END_DATETIME with a run duration of $DURATION s ($FORMATTED_DURATION)."\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    touch $SCRIPT_STATUS_WRONG\n')
+                file_id.write( '    exit 3\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'function calculate_duration\n')
+                file_id.write( '{\n')
+                file_id.write( '    DURATION=`expr $END_DATETIME - $INIT_DATETIME`\n')
+                file_id.write( '    HH=`expr $DURATION / 3600`\n')
+                file_id.write( '    MM=`expr $DURATION % 3600 / 60`\n')
+                file_id.write( '    SS=`expr $DURATION % 60`\n')
+                file_id.write( '    FORMATTED_DURATION=`printf "%03d:%02d:%02d\\n" $HH $MM $SS`\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'init\n')
+                file_id.write( 'remove_miniforge3_dir\n')
+                file_id.write( 'remove_conda_environment_dir\n')
+                file_id.write( 'download_miniforge3_installation_file\n')
+                file_id.write( 'install_miniforge3\n')
+                file_id.write( 'remove_miniforge3_installation_file\n')
+                file_id.write( 'add_channels\n')
+                file_id.write( 'end\n')
+        except Exception as e:
+            error_list.append(f'*** EXCEPTION: "{e}".')
+            error_list.append(f'*** ERROR: The file {script_path} can not be created.')
+            OK = False
+
+        # return the control variable and error list
+        return (OK, error_list)
+
+   #---------------
+
+    def install_gymnotoa_env(self, process):
+        '''
+        Install the gymnoTOA environment on WSL.
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # warn that the log window does not have to be closed
+        process.write('This process might take several minutes. Do not close this window, please wait!\n')
+
+        # get the result directory
+        result_dir = self.app_config_dict['Environment parameters']['result_dir']
+
+        # determine the temporal directory
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            process.write('Determining the temporal directory ...\n')
+            temp_dir = genlib.get_temp_dir()
+            command = f'mkdir -p {temp_dir}'
+            rc = genlib.run_command(command, process, is_script=False)
+            if rc == 0:
+                process.write(f'The directory path is {temp_dir}.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+                OK = False
+
+        # determine the run directory
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            process.write('Determining the run directory ...\n')
+            current_run_dir = genlib.get_current_run_dir(result_dir, genlib.get_result_installation_subdir(), genlib.get_gymnotoa_env_code())
+            command = f'mkdir -p {current_run_dir}'
+            rc = genlib.run_command(command, process, is_script=False)
+            if rc == 0:
+                process.write(f'The directory path is {current_run_dir}.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+                OK = False
+
+        # build the installation script in the temporal directory
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            script_name = f'{genlib.get_gymnotoa_env_code()}-installation.sh'
+            process.write(f'Building the installation script {script_name} ...\n')
+            (OK, _) = self.build_gymnotoa_env_installation_script(temp_dir, script_name, current_run_dir)
+            if OK:
+                process.write('The file is built.\n')
+            else:
+                process.write('*** ERROR: The file could not be built.\n')
+
+        # copy the installation script to the current run directory
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            process.write(f'Copying the script {script_name} to the directory {current_run_dir} ...\n')
+            command = f'cp {temp_dir}/{script_name} {current_run_dir}; [ $? -eq 0 ] &&  exit 0 || exit 1'
+            rc = genlib.run_command(command, process, is_script=False)
+            if rc == 0:
+                process.write('The file is copied.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+
+        # set run permision to the installation script
+        if OK and not sys.platform.startswith('win32'):
+            process.write(f'{genlib.get_separator()}\n')
+            process.write(f'Setting on the run permision of {script_name} ...\n')
+            command = f'chmod u+x {current_run_dir}/{script_name}'
+            rc = genlib.run_command(command, process, is_script=False)
+            if rc == 0:
+                process.write('The run permision is set.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+                OK = False
+
+        # build the starter script in the temporal directory
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            starter_name = f'{genlib.get_gymnotoa_env_code()}-installation-starter.sh'
+            process.write(f'Building the process starter {starter_name} ...\n')
+            (OK, _) = genlib.build_starter(temp_dir, starter_name, script_name, current_run_dir)
+            if OK:
+                process.write('The file is built.\n')
+            if not OK:
+                process.write('***ERROR: The file could not be built.\n')
+
+        # copy the starter script to the current run directory
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            process.write(f'Copying the starter {starter_name} to the directory {current_run_dir} ...\n')
+            command = f'cp {temp_dir}/{starter_name} {current_run_dir}; [ $? -eq 0 ] &&  exit 0 || exit 1'
+            rc = genlib.run_command(command, process, is_script=False)
+            if rc == 0:
+                process.write('The file is copied.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+
+        # set run permision to the starter script
+        if OK and not sys.platform.startswith('win32'):
+            process.write(f'{genlib.get_separator()}\n')
+            process.write(f'Setting on the run permision of {starter_name} ...\n')
+            command = f'chmod u+x {current_run_dir}/{starter_name}'
+            rc = genlib.run_command(command, process, is_script=False)
+            if rc == 0:
+                process.write('The run permision is set.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+                OK = False
+
+        # submit the starter
+        if OK:
+            process.write(f'{genlib.get_separator()}\n')
+            process.write(f'Submitting the process script {starter_name} ...\n')
+            command = f'{current_run_dir}/{starter_name} &'
+            rc = genlib.run_command(command, process, is_script=True)
+            if rc == 0:
+                process.write('The script is submitted.\n')
+            else:
+                process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
+                OK = False
+
+        # warn that the log window can be closed
+        process.write(f'{genlib.get_separator()}\n')
+        process.write('You can close this window now.\n')
+
+        # return the control variable
+        return OK
+
+   #---------------
+
+    def build_gymnotoa_env_installation_script(self, directory, script_name, current_run_dir):
+        '''
+        Build the gymnoTOA environment creation script on WSL.
+        '''
+
+        # initialize the control variable and error list
+        OK = True
+        error_list = []
+
+        # get items from dictionary of application configuration
+        app_dir = self.app_config_dict['Environment parameters']['app_dir']
+
+        # get the Miniforge3 directory and its bin and condabin subdirectories
+        miniforge3_dir = genlib.get_miniforge3_dir_in_wsl()
+        miniforge3_condabin_dir = f'{miniforge3_dir}/condabin'
+
+        # get the YML file to create the gymnoTOA environment
+        gymnotoa_yml_file = f'{app_dir}/{genlib.get_yml_dir()}/{genlib.get_gymnotoa_yml_file()}'
+
+        # set the script path
+        script_path = f'{directory}/{script_name}'
+
+        # write the script
+        try:
+            with open(script_path, mode='w', encoding='iso-8859-1', newline='\n') as file_id:
+                file_id.write( '#!/bin/bash\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin\n')
+                file_id.write( 'SEP="#########################################"\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write(f'STATUS_DIR={genlib.get_status_dir(current_run_dir)}\n')
+                file_id.write(f'SCRIPT_STATUS_OK={genlib.get_status_ok(current_run_dir)}\n')
+                file_id.write(f'SCRIPT_STATUS_WRONG={genlib.get_status_wrong(current_run_dir)}\n')
+                file_id.write( 'mkdir -p $STATUS_DIR\n')
+                file_id.write( 'if [ -f $SCRIPT_STATUS_OK ]; then rm $SCRIPT_STATUS_OK; fi\n')
+                file_id.write( 'if [ -f $SCRIPT_STATUS_WRONG ]; then rm $SCRIPT_STATUS_WRONG; fi\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'function init\n')
+                file_id.write( '{\n')
+                file_id.write( '    INIT_DATETIME=`date +%s`\n')
+                file_id.write( '    FORMATTED_INIT_DATETIME=`date "+%Y-%m-%d %H:%M:%S"`\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'function remove_gymnotoa_env\n')
+                file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write(f'    echo "Removing the {genlib.get_app_short_name()} environment ..."\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda env remove --yes --quiet --name {genlib.get_gymnotoa_env_code()}\n')
+                file_id.write( '    RC=$?\n')
+                file_id.write( '    if [ $RC -eq 0 ]; then\n')
+                file_id.write( '      echo "The old environment is removed."\n')
+                file_id.write( '    else\n')
+                file_id.write( '      echo "The old environment is not found."\n')
+                file_id.write( '    fi\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write( 'function create_gymnotoa_env\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write(f'    echo "Creating the {genlib.get_app_short_name()} environment ..."\n')
-                file_id.write(f'    {miniforge3_condabin_dir}/conda env create --yes --quiet --name {genlib.get_gymnotoa_environment()} --file {gymnotoa_yml_file}\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda env create --yes --quiet --name {genlib.get_gymnotoa_env_code()} --file {gymnotoa_yml_file}\n')
                 file_id.write( '    RC=$?\n')
                 file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                file_id.write( '    echo "The environment is installed."\n')
+                file_id.write( '    echo "The environment is created."\n')
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function end\n')
@@ -652,12 +872,8 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                file_id.write( 'remove_miniforge3_directory\n')
-                file_id.write( 'download_miniforge3_installation_file\n')
-                file_id.write( 'install_miniforge3\n')
-                file_id.write( 'remove_miniforge3_installation_file\n')
-                file_id.write( 'add_channels\n')
-                file_id.write( 'create_gymnotoa_environment\n')
+                file_id.write( 'remove_gymnotoa_env\n')
+                file_id.write( 'create_gymnotoa_env\n')
                 file_id.write( 'end\n')
         except Exception as e:
             error_list.append(f'*** EXCEPTION: "{e}".')
@@ -680,19 +896,6 @@ class FormInstallBioinfoSoftware(QWidget):
         result_dir = self.app_config_dict['Environment parameters']['result_dir']
 
         process.write('This process might take several minutes. Do not close this window, please wait!\n')
-
-        if OK:
-            process.write(f'{genlib.get_separator()}\n')
-            package_list_text = str(package_list).strip('[]').replace('\'', '')
-            process.write(f'Checking the Conda package list ({package_list_text}) installation requirements ...\n')
-
-        # check if Miniforge3 is installed in WSL
-        (OK, _) = self.is_installed_miniforge3()
-        if not OK:
-            process.write(f'*** ERROR: {genlib.get_miniforge3_name()} is not installed.\n')
-
-        if OK:
-            process.write('Installation requirements are OK.\n')
 
         # determine the temporal directory
         if OK:
@@ -923,7 +1126,7 @@ class FormInstallBioinfoSoftware(QWidget):
                         file_id.write( '    echo "File is downloaded."\n')
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write( '    echo "Decompressing the full plants model ..."\n')
-                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        unzip -o \\\n')
                         file_id.write( '              -d $MODELS_DIR \\\n')
@@ -944,7 +1147,7 @@ class FormInstallBioinfoSoftware(QWidget):
                         file_id.write( '    echo "File is downloaded."\n')
                         file_id.write( '    echo "$SEP"\n')
                         file_id.write( '    echo "Decompressing partial plants model ..."\n')
-                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                         file_id.write( '    /usr/bin/time \\\n')
                         file_id.write( '        unzip -o \\\n')
                         file_id.write( '              -d $MODELS_DIR \\\n')

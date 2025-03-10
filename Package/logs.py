@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -352,6 +353,7 @@ class FormBrowseSubmittingLogs(QWidget):
         log_dir = genlib.get_log_dir()
 
         # set the command to get the log files in log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process == 'all':
                 command = f'ls {log_dir}/*.txt'
@@ -794,6 +796,7 @@ class FormBrowseResultLogs(QWidget):
             log_dir = genlib.wsl_path_2_windows_path(log_dir)
 
         # set the command to get the result datasets of annotation pipeline in the log directory
+        command = ''
         if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
             if process_name == 'all':
                 command = f'ls -d {log_dir}/*  | xargs -n 1 basename'
@@ -835,6 +838,7 @@ class FormBrowseResultLogs(QWidget):
                 # determine the status
                 status_ok = os.path.isfile(genlib.get_status_ok(os.path.join(log_dir, result_dataset_id)))
                 status_wrong = os.path.isfile(genlib.get_status_wrong(os.path.join(log_dir, result_dataset_id)))
+                status = ''
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:

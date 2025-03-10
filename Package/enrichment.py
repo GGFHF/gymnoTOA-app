@@ -5,6 +5,7 @@
 # pylint: disable=line-too-long
 # pylint: disable=multiple-statements
 # pylint: disable=too-many-lines
+# pylint: disable=unnecessary-pass
 
 #-------------------------------------------------------------------------------
 
@@ -972,7 +973,7 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/calculate-enrichment-analysis.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
@@ -998,13 +999,13 @@ class FormRunEnrichmentAnalysis(QWidget):
                 file_id.write('function calculate_complete_enrichment_analysis\n')
                 file_id.write( '{\n')
                 file_id.write( '    echo "$SEP"\n')
-                file_id.write('     echo "Calculation the enrichment analysis (all hits per sequence) ..."\n')
+                file_id.write( '    echo "Calculation the enrichment analysis (all hits per sequence) ..."\n')
                 file_id.write(f'    cd {current_run_dir}\n')
                 file_id.write( '    STEP_STATUS=$STATUS_DIR/calculate_complete_enrichment_analysis.ok\n')
                 file_id.write( '    if [ -f $STEP_STATUS ]; then\n')
                 file_id.write( '        echo "This step was previously run."\n')
                 file_id.write( '    else\n')
-                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_environment()}\n')
+                file_id.write(f'        source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
                 file_id.write( '        /usr/bin/time \\\n')
                 file_id.write(f'            {app_dir}/calculate-enrichment-analysis.py \\\n')
                 file_id.write(f'                --db={app_db_path} \\\n')
