@@ -6,7 +6,7 @@ CURRENT VERSION: 0.22
 
 Changes in v0.22 (July 2025)
 
-* Rename table "mmseqs2_relationships" to ""mmseqs2_protein_clusters"
+* Rename table "mmseqs2_relationships" to ""mmseqs2_protein_clusters".
 
 ********************************************************************************
 
