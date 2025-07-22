@@ -100,7 +100,7 @@ def get_metacyc_pathways_per_cluster_dict(conn, species_name):
                     SELECT cluster_id, metacyc_pathways
                         FROM interproscan_annotations
                         WHERE cluster_id in (SELECT DISTINCT cluster_id
-                                                FROM mmseqs2_relationships
+                                                FROM mmseqs2_protein_clusters
                                                 where species like '%{species_name}%');
                     '''
     try:
@@ -168,7 +168,7 @@ def get_kegg_kos_per_cluster_dict(conn, species_name):
                     SELECT cluster_id, kegg_kos
                         FROM emapper_annotations
                         WHERE cluster_id in (SELECT DISTINCT cluster_id
-                                                FROM mmseqs2_relationships
+                                                FROM mmseqs2_protein_clusters
                                                 where species like '%{species_name}%');
                     '''
     try:
@@ -204,7 +204,7 @@ def get_kegg_pathways_per_cluster_dict(conn, species_name):
                     SELECT cluster_id, kegg_pathways
                         FROM emapper_annotations
                         WHERE cluster_id in (SELECT DISTINCT cluster_id
-                                                FROM mmseqs2_relationships
+                                                FROM mmseqs2_protein_clusters
                                                 where species like '%{species_name}%');
                     '''
     try:
@@ -220,22 +220,22 @@ def get_kegg_pathways_per_cluster_dict(conn, species_name):
     return pathways_per_cluster_dict
 
 #-------------------------------------------------------------------------------
-# table "mmseqs2_relationships"
+# table "mmseqs2_protein_clusters"
 #-------------------------------------------------------------------------------
 
 def get_mmseqs2_relationship_dict(conn, cluster_id):
     '''
-    Get rows data from the table "mmseqs2_relationships" corresponding to
+    Get rows data from the table "mmseqs2_protein_clusters" corresponding to
     a cluster identification.
     '''
 
     # initialize the dictionary
     relationships_dict = {}
 
-    # select rows from the table "mmseqs2_relationships"
+    # select rows from the table "mmseqs2_protein_clusters"
     sentence = f'''
                 SELECT cluster_id, seq_id, description, species
-                    FROM mmseqs2_relationships
+                    FROM mmseqs2_protein_clusters
                     WHERE cluster_id = '{cluster_id}';
                 '''
     try:
@@ -255,7 +255,7 @@ def get_mmseqs2_relationship_dict(conn, cluster_id):
 
 def get_mmseqs2_seq_mf_data(conn, cluster_id):
     '''
-    Get the most frequent description and species from the table "mmseqs2_relationships"
+    Get the most frequent description and species from the table "mmseqs2_protein_clusters"
     corresponding to a cluster identification.
     '''
 
@@ -265,10 +265,10 @@ def get_mmseqs2_seq_mf_data(conn, cluster_id):
     # initialize the dictionary
     species_dict = {}
 
-    # select rows from the table "mmseqs2_relationships"
+    # select rows from the table "mmseqs2_protein_clusters"
     sentence = f'''
                 SELECT description, species
-                    FROM mmseqs2_relationships
+                    FROM mmseqs2_protein_clusters
                     WHERE cluster_id = '{cluster_id}';
                 '''
     try:
@@ -308,16 +308,16 @@ def get_mmseqs2_seq_mf_data(conn, cluster_id):
 
 def get_mmseqs2_species_list(conn):
     '''
-    Get the distinct species names in the table "mmseqs2_relationships".
+    Get the distinct species names in the table "mmseqs2_protein_clusters".
     '''
 
     # initialize the species names list
     species_names_list = []
 
-    # select rows from the table "mmseqs2_relationships"
+    # select rows from the table "mmseqs2_protein_clusters"
     sentence = '''
                SELECT DISTINCT species
-                   FROM mmseqs2_relationships
+                   FROM mmseqs2_protein_clusters
                    ORDER by 1;
                '''
     try:
@@ -349,7 +349,7 @@ def get_goterms_per_cluster_dict(conn, species_name):
         sentence = '''
                    WITH cluster_identifications AS (
                        SELECT DISTINCT cluster_id
-                       FROM mmseqs2_relationships
+                       FROM mmseqs2_protein_clusters
                    )
                    SELECT a.cluster_id, COALESCE(b.interpro_goterms, '-'), COALESCE(b.panther_goterms, '-'), COALESCE(c.goterms, '-')
                    FROM cluster_identifications a
@@ -361,7 +361,7 @@ def get_goterms_per_cluster_dict(conn, species_name):
         sentence = f'''
                     WITH cluster_identifications AS (
                         SELECT DISTINCT cluster_id
-                        FROM mmseqs2_relationships
+                        FROM mmseqs2_protein_clusters
                         WHERE species LIKE '%{species_name}%'
                     )
                     SELECT a.cluster_id, COALESCE(b.interpro_goterms, '-'), COALESCE(b.panther_goterms, '-'), COALESCE(c.goterms, '-')

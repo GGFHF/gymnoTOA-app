@@ -520,7 +520,7 @@ class FormRunAnnotationPipeline(QWidget):
         '''
 
         # search the FASTA file
-        (fasta_file, _) = QFileDialog.getOpenFileName(self, f'{self.head} - Selection of FASTA file', os.path.expanduser('~'), "FASTA files (*.fasta *.FASTA *.fas *.FAS *.fa *.FA *.fsa *.FSA);;all (*.*)")
+        (fasta_file, _) = QFileDialog.getOpenFileName(self, f'{self.head} - Selection of FASTA file', os.path.expanduser('~'), "FASTA files (*.fasta *.FASTA *.fas *.FAS *.fa *.FA *.fsa *.FSA *.fna *.FNA *.faa *.FAA);;all (*.*)")
 
         # set "lineedit_fasta_file" with the FASTA file selected
         if fasta_file != '':

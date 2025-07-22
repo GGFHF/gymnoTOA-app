@@ -25,7 +25,7 @@ if [ -n "$*" ]; then echo 'This script does not have parameters'; exit 1; fi
 
 # Set run environment
 
-APP_DIR=$TRABAJO/ProyectosVScode/gymnoTOA
+APP_DIR=$GYMNOTOA
 DATA_DIR=$APP_DIR/data
 OUTPUT_DIR=$APP_DIR/output
 
