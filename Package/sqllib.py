@@ -223,7 +223,7 @@ def get_kegg_pathways_per_cluster_dict(conn, species_name):
 # table "mmseqs2_protein_clusters"
 #-------------------------------------------------------------------------------
 
-def get_mmseqs2_relationship_dict(conn, cluster_id):
+def get_mmseqs2_protein_clusters_dict(conn, cluster_id):
     '''
     Get rows data from the table "mmseqs2_protein_clusters" corresponding to
     a cluster identification.

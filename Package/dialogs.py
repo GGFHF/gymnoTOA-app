@@ -641,7 +641,7 @@ class DialogDataTable(QDialog):
                 cluster_id = self.tablewidget.item(row, col).text()
 
                 # get MMseqs2 relationships dictionary
-                relationships_dict = sqllib.get_mmseqs2_relationship_dict(self.conn, cluster_id)
+                relationships_dict = sqllib.get_mmseqs2_protein_clusters_dict(self.conn, cluster_id)
 
                 # initialize the NCBI sequence dictionary
                 ncbi_seq_dict = genlib.NestedDefaultDict()

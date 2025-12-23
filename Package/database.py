@@ -806,31 +806,28 @@ class FormViewGymnoTOAdbStats(QWidget):
 
         # get statistics data
         for record in open(busco_stats_path, mode='r', encoding='iso-8859-1', newline='\n'):
-            pos = record.find('Total BUSCO groups searched')
+            pos = record.find('Complete BUSCOs')
             if pos > -1:
-                total_buscos = int(record[:pos].strip('\t'))
+                num_complete_buscos = int(record[:pos].strip('\t'))
             else:
-                pos = record.find('Complete BUSCOs')
+                pos = record.find('Complete and single-copy BUSCOs')
                 if pos > -1:
-                    num_complete_buscos = int(record[:pos].strip('\t'))
+                    num_complete_single_buscos = int(record[:pos].strip('\t'))
                 else:
-                    pos = record.find('Complete and single-copy BUSCOs')
+                    pos = record.find('Complete and duplicated BUSCOs')
                     if pos > -1:
-                        num_complete_single_buscos = int(record[:pos].strip('\t'))
+                        num_complete_duplicate_buscos = int(record[:pos].strip('\t'))
                     else:
-                        pos = record.find('Complete and duplicated BUSCOs')
+                        pos = record.find('Fragmented BUSCOs')
                         if pos > -1:
-                            num_complete_duplicate_buscos = int(record[:pos].strip('\t'))
+                            num_fragmented_buscos = int(record[:pos].strip('\t'))
                         else:
-                            pos = record.find('Fragmented BUSCOs')
+                            pos = record.find('Missing BUSCOs')
                             if pos > -1:
-                                num_fragmented_buscos = int(record[:pos].strip('\t'))
-                            else:
-                                pos = record.find('Missing BUSCOs')
-                                if pos > -1:
-                                    num_mising_buscos = int(record[:pos].strip('\t'))
+                                num_mising_buscos = int(record[:pos].strip('\t'))
 
         # calculate percentages
+        total_buscos = num_complete_buscos + num_fragmented_buscos + num_mising_buscos
         perc_complete_buscos = num_complete_buscos / total_buscos * 100
         perc_complete_single_buscos = num_complete_single_buscos / total_buscos * 100
         perc_complete_duplicate_buscos = num_complete_duplicate_buscos / total_buscos * 100

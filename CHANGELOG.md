@@ -1,6 +1,14 @@
 # gymnoTOA-app changelog
 
-CURRENT VERSION: 0.22
+CURRENT VERSION: 0.23
+
+********************************************************************************
+
+Changes in v0.23 (December 2025)
+
+* Biosoftware installation improvement.
+* gymnoTOA.db.zip URL.
+* Count of total BUSCO groups.
 
 ********************************************************************************
 

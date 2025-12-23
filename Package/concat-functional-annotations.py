@@ -213,7 +213,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
     blastp_clade_alignment_record_counter = 0
 
     # read the first record of clade alignment file yielded by blastp
-    (blastp_clade_alignment_record, _, blastp_clade_alignment_data_dict) = genlib.read_alignment_record(blastp_clade_alignment_file, blastp_clade_alignment_file_id, blastp_clade_alignment_record_counter)
+    (blastp_clade_alignment_record, _, blastp_clade_alignment_data_dict) = genlib.read_alignment_outfmt6_record(blastp_clade_alignment_file, blastp_clade_alignment_file_id, blastp_clade_alignment_record_counter)
 
     # while there are records in the clade alignment file yielded by blastp
     while blastp_clade_alignment_record != '':
@@ -299,7 +299,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
             genlib.Message.print('verbose', f'\rblastp clade alignment file: {blastp_clade_alignment_record_counter} processed records')
 
             # read the next record of clade alignment file yielded by blastp
-            (blastp_clade_alignment_record, _, blastp_clade_alignment_data_dict) = genlib.read_alignment_record(blastp_clade_alignment_file, blastp_clade_alignment_file_id, blastp_clade_alignment_record_counter)
+            (blastp_clade_alignment_record, _, blastp_clade_alignment_data_dict) = genlib.read_alignment_outfmt6_record(blastp_clade_alignment_file, blastp_clade_alignment_file_id, blastp_clade_alignment_record_counter)
 
         # add the sequence identification to the set of sequence identifications aligned
         qseqid_set.add(old_qseqid)
@@ -331,7 +331,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
     blastx_clade_alignment_record_counter = 0
 
     # read the first record of clade alignment file yielded by blastx
-    (blastx_clade_alignment_record, _, blastx_clade_alignment_data_dict) = genlib.read_alignment_record(blastx_clade_alignment_file, blastx_clade_alignment_file_id, blastx_clade_alignment_record_counter)
+    (blastx_clade_alignment_record, _, blastx_clade_alignment_data_dict) = genlib.read_alignment_outfmt6_record(blastx_clade_alignment_file, blastx_clade_alignment_file_id, blastx_clade_alignment_record_counter)
 
     # while there are records in the clade alignment file yielded by blastx
     while blastx_clade_alignment_record != '':
@@ -420,7 +420,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
             genlib.Message.print('verbose', f'\rblastx clade alignment file: {blastx_clade_alignment_record_counter} processed records')
 
             # read the next record of clade alignment file yielded by blastx
-            (blastx_clade_alignment_record, _, blastx_clade_alignment_data_dict) = genlib.read_alignment_record(blastx_clade_alignment_file, blastx_clade_alignment_file_id, blastx_clade_alignment_record_counter)
+            (blastx_clade_alignment_record, _, blastx_clade_alignment_data_dict) = genlib.read_alignment_outfmt6_record(blastx_clade_alignment_file, blastx_clade_alignment_file_id, blastx_clade_alignment_record_counter)
 
         # when the "old" sequence identification is not in the sequence identification set
         if old_qseqid not in qseqid_set:
@@ -455,7 +455,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
     blastn_lncrna_alignment_record_counter = 0
 
     # read the first record of lncRNA alignment file yielded by blastn
-    (blastn_lncrna_alignment_record, _, blastn_lncrna_alignment_data_dict) = genlib.read_alignment_record(blastn_lncrna_alignment_file, blastn_lncrna_alignment_file_id, blastn_lncrna_alignment_record_counter)
+    (blastn_lncrna_alignment_record, _, blastn_lncrna_alignment_data_dict) = genlib.read_alignment_outfmt6_record(blastn_lncrna_alignment_file, blastn_lncrna_alignment_file_id, blastn_lncrna_alignment_record_counter)
 
     # while there are records in the lncRNA alignment file yielded by blastn
     while blastn_lncrna_alignment_record != '':
@@ -489,7 +489,7 @@ def concat_functional_annotations(conn, blastp_clade_alignment_file, blastx_clad
         genlib.Message.print('verbose', f'\rblastn lncRNA alignment file: {blastn_lncrna_alignment_record_counter} processed records')
 
         # read the next record of lncRNA alignment file yielded by blastn
-        (blastn_lncrna_alignment_record, _, blastn_lncrna_alignment_data_dict) = genlib.read_alignment_record(blastn_lncrna_alignment_file, blastn_lncrna_alignment_file_id, blastn_lncrna_alignment_record_counter)
+        (blastn_lncrna_alignment_record, _, blastn_lncrna_alignment_data_dict) = genlib.read_alignment_outfmt6_record(blastn_lncrna_alignment_file, blastn_lncrna_alignment_file_id, blastn_lncrna_alignment_record_counter)
 
     # close the lncRNA alignment file yielded by blastn
     blastn_lncrna_alignment_file_id.close()

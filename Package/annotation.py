@@ -2210,7 +2210,7 @@ class FormRestartAnnotationPipeline(QWidget):
             process.write(f'{genlib.get_separator()}\n')
             process.write('Determining the run directory ...\n')
             result_dir = self.app_config_dict['Environment parameters']['result_dir']
-            current_run_dir = f'{result_dir}{os.sep}{genlib.get_result_run_subdir()}{os.sep}{result_dataset}'
+            current_run_dir = f'{result_dir}/{genlib.get_result_run_subdir()}/{result_dataset}'
             process.write(f'The directory path is {current_run_dir}.\n')
 
         # set the starter script name

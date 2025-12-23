@@ -68,7 +68,7 @@ def get_app_version():
     Get the application version.
     '''
 
-    return '0.22'
+    return '0.23'
 
 #-------------------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ def get_compressed_db_url():
     Get the URL where the compressed gymnoTOA database is available to download.
     '''
 
-    return f'https://drive.upm.es/s/LTssGhCHe1Wh9Os/download?path=%%2F&files={get_compressed_db_name()}'
+    return f'https://drive.upm.es/public.php/dav/files/LTssGhCHe1Wh9Os/{get_compressed_db_name()}'
 
 #-------------------------------------------------------------------------------
 
@@ -1411,9 +1411,9 @@ def build_starter(directory, starter_name, script_name, current_run_dir):
 
 #-------------------------------------------------------------------------------
 
-def read_alignment_record(file_name, file_id, record_counter):
+def read_alignment_outfmt6_record(file_name, file_id, record_counter):
     '''
-    Read the next record of the alignment file.
+    Read the next record of the alignment file with output format 6.
     '''
 
     # initialize the data dictionary

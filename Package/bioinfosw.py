@@ -288,7 +288,7 @@ class FormInstallBioinfoSoftware(QWidget):
         elif self.software_code == genlib.get_gymnotoa_env_code():
             text = f'{self.software_name} is going to be installed. The previous version will be lost, if it exists.\n\nAre you sure to continue?'
         else:
-            text = f'The {self.software_name} Conda package is going to be installed. The previous version will be lost, if it exists.\n\nAre you sure to continue?'
+            text = f'The Bioconda environment "{self.software_name}" is going to be installed. The previous version will be lost, if it exists.\n\nAre you sure to continue?'
         botton = QMessageBox.question(self, self.title, text, buttons=QMessageBox.Yes|QMessageBox.No, defaultButton=QMessageBox.No)
         if botton == QMessageBox.No:
             OK = False
@@ -311,16 +311,19 @@ class FormInstallBioinfoSoftware(QWidget):
                 process = dialogs.DialogProcess(self, self.head, self.install_gymnotoa_env)
                 process.exec()
             elif self.software_code == genlib.get_blastplus_code():
-                package_list = [(genlib.get_blastplus_conda_code(), genlib.get_blastplus_environment(), version)]
-                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
+                software_dict = {'conda_code': genlib.get_blastplus_conda_code(), 'env_name': genlib.get_blastplus_environment(), 'version': version}
+                additional_library_list = []
+                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_env, self.software_code, software_dict, additional_library_list)
                 process.exec()
             elif self.software_code == genlib.get_codan_code():
-                package_list = [(genlib.get_codan_conda_code(), genlib.get_codan_environment(), version)]
-                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
+                software_dict = {'conda_code': genlib.get_codan_conda_code(), 'env_name': genlib.get_codan_environment(), 'version': version}
+                additional_library_list = []
+                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_env, self.software_code, software_dict, additional_library_list)
                 process.exec()
             elif self.software_code == genlib.get_diamond_code():
-                package_list = [(genlib.get_diamond_conda_code(), genlib.get_diamond_environment(), version)]
-                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_package_list, self.software_code, package_list)
+                software_dict = {'conda_code': genlib.get_diamond_conda_code(), 'env_name': genlib.get_diamond_environment(), 'version': version}
+                additional_library_list = []
+                process = dialogs.DialogProcess(self, self.head, self.install_bioconda_env, self.software_code, software_dict, additional_library_list)
                 process.exec()
 
         # close the windows
@@ -885,9 +888,9 @@ class FormInstallBioinfoSoftware(QWidget):
 
    #---------------
 
-    def install_bioconda_package_list(self, process, software_code, package_list):
+    def install_bioconda_env(self, process, software_code, software_dict, additional_library_list):
         '''
-        Install the Bioconda package list.
+        Install the Bioconda environment corresponding to a software.
         '''
 
         # initialize the control variable
@@ -923,18 +926,18 @@ class FormInstallBioinfoSoftware(QWidget):
                 process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
                 OK = False
 
-        # build the installation script of bioconda package
+        # build the installation script of Bioconda environment
         if OK:
             process.write(f'{genlib.get_separator()}\n')
             script_name = f'{genlib.get_bioconda_code()}-installation.sh'
             process.write(f'Building the installation script {script_name} ...\n')
-            (OK, _) = self.build_bioconda_package_installation_script(temp_dir, script_name, current_run_dir, package_list)
+            (OK, _) = self.build_bioconda_env_installation_script(temp_dir, script_name, current_run_dir, software_dict, additional_library_list)
             if OK:
                 process.write('The file is built.\n')
             if not OK:
                 process.write('*** ERROR: The file could not be built.\n')
 
-        # copy the installation script of bioconda package to the current run directory
+        # copy the installation script of Bioconda environment to the current run directory
         if OK:
             process.write(f'{genlib.get_separator()}\n')
             process.write(f'Copying the script {script_name} to the directory {current_run_dir} ...\n')
@@ -945,7 +948,7 @@ class FormInstallBioinfoSoftware(QWidget):
             else:
                 process.write(f'*** ERROR: RC {rc} in command -> {command}\n')
 
-        # set run permision to the installation script of bioconda package
+        # set run permision to the installation script of Bioconda environment
         if OK and not sys.platform.startswith('win32'):
             process.write(f'{genlib.get_separator()}\n')
             process.write(f'Setting on the run permision of {script_name} ...\n')
@@ -1011,9 +1014,9 @@ class FormInstallBioinfoSoftware(QWidget):
 
    #---------------
 
-    def build_bioconda_package_installation_script(self, directory, script_name, current_run_dir, package_list):
+    def build_bioconda_env_installation_script(self, directory, script_name, current_run_dir, software_dict, additional_library_list):
         '''
-        Build the Bioconda package installation script.
+        Build the Bioconda environment installation script.
         '''
 
         # initialize the control variable and error list
@@ -1064,141 +1067,150 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '    echo "$SEP"\n')
                 file_id.write( '    echo "Script started at $FORMATTED_INIT_DATETIME."\n')
                 file_id.write( '}\n')
-                for package in package_list:
-                    file_id.write( '#-------------------------------------------------------------------------------\n')
-                    file_id.write(f'function remove_bioconda_package_{package[0]}\n')
-                    file_id.write( '{\n')
-                    file_id.write( '    echo "$SEP"\n')
-                    file_id.write(f'    echo "Removing {genlib.get_bioconda_name()} package {package[0]} ..."\n')
-                    file_id.write(f'    {miniforge3_condabin_dir}/conda env remove --yes --quiet --name {package[1]}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write(f'function remove_bioconda_env_{software_dict['conda_code']}\n')
+                file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                file_id.write(f'    echo "Removing {genlib.get_bioconda_name()} environment \'{software_dict['env_name']}\' ..."\n')
+                file_id.write(f'    {miniforge3_condabin_dir}/conda env remove --yes --quiet --name {software_dict['env_name']}\n')
+                file_id.write( '    RC=$?\n')
+                file_id.write( '    if [ $RC -eq 0 ]; then\n')
+                file_id.write( '      echo "The old environment is removed."\n')
+                file_id.write( '    else\n')
+                file_id.write( '      echo "The old environment is not found."\n')
+                file_id.write( '    fi\n')
+                file_id.write( '}\n')
+                file_id.write( '#-------------------------------------------------------------------------------\n')
+                file_id.write(f'function install_bioconda_env_{software_dict['conda_code']}\n')
+                file_id.write( '{\n')
+                file_id.write( '    echo "$SEP"\n')
+                if software_dict['version'] == 'last':
+                    file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} environment \'{software_dict['env_name']}\' - last version ..."\n')
+                    file_id.write(f'    {miniforge3_condabin_dir}/conda create --yes --quiet --name {software_dict['env_name']} {software_dict['conda_code']}\n')
                     file_id.write( '    RC=$?\n')
-                    file_id.write( '    if [ $RC -eq 0 ]; then\n')
-                    file_id.write( '      echo "The old package is removed."\n')
-                    file_id.write( '    else\n')
-                    file_id.write( '      echo "The old package is not found."\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
+                    file_id.write( '    echo "The environment is installed."\n')
+                else:
+                    file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} environment \'{software_dict['env_name']}\' - version {software_dict['version']} ..."\n')
+                    file_id.write(f'    {miniforge3_condabin_dir}/conda create --yes --quiet --name {software_dict['env_name']} {software_dict['conda_code']}={software_dict['version']}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then\n')
+                    file_id.write(f'        echo "Installing {genlib.get_bioconda_name()} environment {software_dict['env_name']} - last version ..."\n')
+                    file_id.write(f'        {miniforge3_condabin_dir}/conda create --yes --quiet --name {software_dict['env_name']} {software_dict['conda_code']}\n')
+                    file_id.write( '        RC=$?\n')
+                    file_id.write( '        if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
                     file_id.write( '    fi\n')
-                    file_id.write( '}\n')
+                    file_id.write( '    echo "The environment is installed."\n')
+                    file_id.write( '    echo "$SEP"\n')
+                for additional_library in additional_library_list:
+                    file_id.write(f'    source {miniforge3_bin_dir}/activate {software_dict['env_name']}\n')
+                    file_id.write(f'    echo "Installing the library \'{additional_library}\' in the environment \'{software_dict['env_name']}\' ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write(f'        {miniforge3_condabin_dir}/conda install --yes --quiet {additional_library}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error mamba $RC; fi\n')
+                    file_id.write( '    conda deactivate\n')
+                    file_id.write( '    echo "The library is installed."\n')
+                file_id.write( '}\n')
+                if software_dict['conda_code'] == genlib.get_codan_code():
                     file_id.write( '#-------------------------------------------------------------------------------\n')
-                    file_id.write(f'function install_bioconda_package_{package[0]}\n')
+                    file_id.write(f'function download_{genlib.get_codan_code()}_models\n')
                     file_id.write( '{\n')
                     file_id.write( '    echo "$SEP"\n')
-                    if package[2] == 'last':
-                        file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} package {package[0]} - last version ..."\n')
-                        file_id.write(f'    {miniforge3_condabin_dir}/conda create --yes --quiet --name {package[1]} {package[0]}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                        file_id.write( '    echo "The package is installed."\n')
-                    else:
-                        file_id.write(f'    echo "Installing {genlib.get_bioconda_name()} package {package[0]} - version {package[2]} ..."\n')
-                        file_id.write(f'    {miniforge3_condabin_dir}/conda create --yes --quiet --name {package[1]} {package[0]}={package[2]}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then\n')
-                        file_id.write(f'        echo "Installing {genlib.get_bioconda_name()} package {package[0]} - last version ..."\n')
-                        file_id.write(f'        {miniforge3_condabin_dir}/conda create --yes --quiet --name {package[1]} {package[0]}\n')
-                        file_id.write( '        RC=$?\n')
-                        file_id.write( '        if [ $RC -ne 0 ]; then manage_error conda $RC; fi\n')
-                        file_id.write( '    fi\n')
-                        file_id.write( '    echo "The package is installed."\n')
+                    file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
+                    file_id.write( '    MODELS_DIR=`echo $CONDA_PREFIX`/models\n')
+                    file_id.write(f'    echo "Creating the model directory in environment \'{genlib.get_codan_environment()}\' ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        mkdir -p $MODELS_DIR\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error mkdir $RC; fi\n')
+                    file_id.write( '    conda deactivate\n')
+                    file_id.write( '    echo "Directory is created."\n')
+                    file_id.write( '    echo "$SEP"\n')
+                    file_id.write(f'    echo "Downloading the full plants model for {genlib.get_codan_name()} ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        wget \\\n')
+                    file_id.write( '            --quiet \\\n')
+                    file_id.write(f'            --output-document $MODELS_DIR/{codan_full_plants_model_file} \\\n')
+                    file_id.write(f'            {codan_full_plants_model_ftp}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
+                    file_id.write( '    echo "File is downloaded."\n')
+                    file_id.write( '    echo "$SEP"\n')
+                    file_id.write( '    echo "Decompressing the full plants model ..."\n')
+                    file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        unzip -o \\\n')
+                    file_id.write( '              -d $MODELS_DIR \\\n')
+                    file_id.write(f'              $MODELS_DIR/{codan_full_plants_model_file}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
+                    file_id.write( '    conda deactivate\n')
+                    file_id.write( '    echo "File is decompressed."\n')
+                    file_id.write( '    echo "$SEP"\n')
+                    file_id.write(f'    echo "Downloading the partial plants model for {genlib.get_codan_name()} ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        wget \\\n')
+                    file_id.write( '            --quiet \\\n')
+                    file_id.write(f'            --output-document $MODELS_DIR/{codan_partial_plants_model_file} \\\n')
+                    file_id.write(f'            {codan_partial_plants_model_ftp}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
+                    file_id.write( '    echo "File is downloaded."\n')
+                    file_id.write( '    echo "$SEP"\n')
+                    file_id.write( '    echo "Decompressing partial plants model ..."\n')
+                    file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        unzip -o \\\n')
+                    file_id.write( '              -d $MODELS_DIR \\\n')
+                    file_id.write(f'              $MODELS_DIR/{codan_partial_plants_model_file}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
+                    file_id.write( '    conda deactivate\n')
+                    file_id.write( '    echo "File is decompressed."\n')
                     file_id.write( '}\n')
-                    if package[0] == genlib.get_codan_code():
-                        file_id.write( '#-------------------------------------------------------------------------------\n')
-                        file_id.write(f'function download_{genlib.get_codan_code()}_models\n')
-                        file_id.write( '{\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
-                        file_id.write( '    MODELS_DIR=`echo $CONDA_PREFIX`/models\n')
-                        file_id.write(f'    echo "Creating the model directory in {genlib.get_codan_environment()} environment ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        mkdir --parents $MODELS_DIR\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error mkdir $RC; fi\n')
-                        file_id.write( '    conda deactivate\n')
-                        file_id.write( '    echo "Directory is created."\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write(f'    echo "Downloading the full plants model for {genlib.get_codan_name()} ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        wget \\\n')
-                        file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document $MODELS_DIR/{codan_full_plants_model_file} \\\n')
-                        file_id.write(f'            {codan_full_plants_model_ftp}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
-                        file_id.write( '    echo "File is downloaded."\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write( '    echo "Decompressing the full plants model ..."\n')
-                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        unzip -o \\\n')
-                        file_id.write( '              -d $MODELS_DIR \\\n')
-                        file_id.write(f'              $MODELS_DIR/{codan_full_plants_model_file}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
-                        file_id.write( '    conda deactivate\n')
-                        file_id.write( '    echo "File is decompressed."\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write(f'    echo "Downloading the partial plants model for {genlib.get_codan_name()} ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        wget \\\n')
-                        file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document $MODELS_DIR/{codan_partial_plants_model_file} \\\n')
-                        file_id.write(f'            {codan_partial_plants_model_ftp}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
-                        file_id.write( '    echo "File is downloaded."\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write( '    echo "Decompressing partial plants model ..."\n')
-                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_gymnotoa_env_code()}\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        unzip -o \\\n')
-                        file_id.write( '              -d $MODELS_DIR \\\n')
-                        file_id.write(f'              $MODELS_DIR/{codan_partial_plants_model_file}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error unzip $RC; fi\n')
-                        file_id.write( '    conda deactivate\n')
-                        file_id.write( '    echo "File is decompressed."\n')
-                        file_id.write( '}\n')
-                        file_id.write( '#-------------------------------------------------------------------------------\n')
-                        file_id.write(f'function download_{genlib.get_codan_code()}_additional_scripts\n')
-                        file_id.write( '{\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
-                        file_id.write( '    BIN_DIR=`echo $CONDA_PREFIX`/bin\n')
-                        file_id.write(f'    echo "Downloading additional script {codan_script_1} ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        wget \\\n')
-                        file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document $BIN_DIR/{codan_script_1} \\\n')
-                        file_id.write(f'            {codan_script_ftp}/{codan_script_1}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
-                        file_id.write( '    echo "Script id downloaded."\n')
-                        file_id.write(f'    echo "Downloading additional script {codan_script_2} ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        wget \\\n')
-                        file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document $BIN_DIR/{codan_script_2} \\\n')
-                        file_id.write(f'            {codan_script_ftp}/{codan_script_2}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
-                        file_id.write( '    echo "Script id downloaded."\n')
-                        file_id.write(f'    echo "Downloading additional script {codan_script_3} ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        wget \\\n')
-                        file_id.write( '            --quiet \\\n')
-                        file_id.write(f'            --output-document $BIN_DIR/{codan_script_3} \\\n')
-                        file_id.write(f'            {codan_script_ftp}/{codan_script_3}\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
-                        file_id.write( '    echo "Script id downloaded."\n')
-                        file_id.write( '    echo "$SEP"\n')
-                        file_id.write(f'    echo "Setting additional script permissions of {genlib.get_codan_name()} ..."\n')
-                        file_id.write( '    /usr/bin/time \\\n')
-                        file_id.write( '        chmod 775 $BIN_DIR/*.py\n')
-                        file_id.write( '    RC=$?\n')
-                        file_id.write( '    if [ $RC -ne 0 ]; then manage_error chmod $RC; fi\n')
-                        file_id.write( '    echo "Permissions are set."\n')
-                        file_id.write( '    conda deactivate\n')
-                        file_id.write( '}\n')
+                    file_id.write( '#-------------------------------------------------------------------------------\n')
+                    file_id.write(f'function download_{genlib.get_codan_code()}_additional_scripts\n')
+                    file_id.write( '{\n')
+                    file_id.write( '    echo "$SEP"\n')
+                    file_id.write(f'    source {miniforge3_bin_dir}/activate {genlib.get_codan_environment()}\n')
+                    file_id.write( '    BIN_DIR=`echo $CONDA_PREFIX`/bin\n')
+                    file_id.write(f'    echo "Downloading additional script \'{codan_script_1}\' ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        wget \\\n')
+                    file_id.write( '            --quiet \\\n')
+                    file_id.write(f'            --output-document $BIN_DIR/{codan_script_1} \\\n')
+                    file_id.write(f'            {codan_script_ftp}/{codan_script_1}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
+                    file_id.write( '    echo "Script id downloaded."\n')
+                    file_id.write(f'    echo "Downloading additional script \'{codan_script_2}\' ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        wget \\\n')
+                    file_id.write( '            --quiet \\\n')
+                    file_id.write(f'            --output-document $BIN_DIR/{codan_script_2} \\\n')
+                    file_id.write(f'            {codan_script_ftp}/{codan_script_2}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
+                    file_id.write( '    echo "Script id downloaded."\n')
+                    file_id.write(f'    echo "Downloading additional script \'{codan_script_3}\' ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        wget \\\n')
+                    file_id.write( '            --quiet \\\n')
+                    file_id.write(f'            --output-document $BIN_DIR/{codan_script_3} \\\n')
+                    file_id.write(f'            {codan_script_ftp}/{codan_script_3}\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error wget $RC; fi\n')
+                    file_id.write( '    echo "Script id downloaded."\n')
+                    file_id.write( '    echo "$SEP"\n')
+                    file_id.write(f'    echo "Setting additional script permissions of {genlib.get_codan_name()} ..."\n')
+                    file_id.write( '    /usr/bin/time \\\n')
+                    file_id.write( '        chmod 775 $BIN_DIR/*.py\n')
+                    file_id.write( '    RC=$?\n')
+                    file_id.write( '    if [ $RC -ne 0 ]; then manage_error chmod $RC; fi\n')
+                    file_id.write( '    echo "Permissions are set."\n')
+                    file_id.write( '    conda deactivate\n')
+                    file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'function end\n')
                 file_id.write( '{\n')
@@ -1235,12 +1247,11 @@ class FormInstallBioinfoSoftware(QWidget):
                 file_id.write( '}\n')
                 file_id.write( '#-------------------------------------------------------------------------------\n')
                 file_id.write( 'init\n')
-                for package in package_list:
-                    file_id.write(f'remove_bioconda_package_{package[0]}\n')
-                    file_id.write(f'install_bioconda_package_{package[0]}\n')
-                    if package[0] == genlib.get_codan_code():
-                        file_id.write(f'download_{genlib.get_codan_code()}_models\n')
-                        file_id.write(f'download_{genlib.get_codan_code()}_additional_scripts\n')
+                file_id.write(f'remove_bioconda_env_{software_dict['conda_code']}\n')
+                file_id.write(f'install_bioconda_env_{software_dict['conda_code']}\n')
+                if software_dict['conda_code'] == genlib.get_codan_code():
+                    file_id.write(f'download_{genlib.get_codan_code()}_models\n')
+                    file_id.write(f'download_{genlib.get_codan_code()}_additional_scripts\n')
                 file_id.write( 'end\n')
         except Exception as e:
             error_list.append(f'*** EXCEPTION: "{e}".')
@@ -1249,6 +1260,8 @@ class FormInstallBioinfoSoftware(QWidget):
 
         # return the control variable and error list
         return (OK, error_list)
+
+   #---------------
 
 #-------------------------------------------------------------------------------
 
